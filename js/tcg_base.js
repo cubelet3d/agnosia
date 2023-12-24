@@ -238,7 +238,7 @@ function tcg_base_stopPlaylist() {
 }
 
 $(window).on('load', function() {
-	$('#tcg_base_button_wrapper').fadeIn(1000); 
+	
 });
 
 $(document).ready(function() {
@@ -288,6 +288,7 @@ $(document).ready(function() {
 	});
 	
 	// Click handler for the Agnosia.exe on Desktop 
+	/*
 	$(document).on("click", "#tcg_base_button", async function() {
 		$("#tcg_base_button_wrapper").addClass('disabled'); 
 		await tcg_base_init();
@@ -298,6 +299,7 @@ $(document).ready(function() {
 		$('.tcg_base_menu_profile_link').text(formatAddress(accounts[0]));
 		$('.tcg_base_menu_profile_link').attr('data-address', accounts[0]);
 	});
+	*/
 	
 	// Hover handler for it  
 	$(document).on('mouseover', '#tcg_base_button', function() {

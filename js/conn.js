@@ -59,6 +59,16 @@ async function setup() {
 		
 		Inventory = new web3.eth.Contract(inventoryABI, inventoryContract); 
 		VIDYA = new web3.eth.Contract(VIDYA_ABI, VidyaAddress); 
+		
+		$("#tcg_base_button_wrapper").addClass('disabled'); 
+		await tcg_base_init();
+		await tcg_base_startPlaylist(); 
+		$("#tcg_base_button_wrapper").hide();
+		$("#tcg_base").removeClass("hidden"); 
+		
+		// Load user address into profile link 
+		$('.tcg_base_menu_profile_link').text(formatAddress(accounts[0]));
+		$('.tcg_base_menu_profile_link').attr('data-address', accounts[0]);
 
 		connected = true
     }
