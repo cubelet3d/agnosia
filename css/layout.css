@@ -31,11 +31,11 @@ html {
 }
 
 /* Scale some elements */
-.tcg_base_menu,
-.tcg_base_main,
-.tcg_base_gameplay_wrapper,
-.tcg_base_modal {
-	transform: scale(1.2);
+.not-mobile .tcg_base_menu,
+.not-mobile .tcg_base_main,
+.not-mobile .tcg_base_gameplay_wrapper,
+.not-mobile .tcg_base_modal {
+    transform: scale(1.2);
 }
 
 .tcg_base_menu {
