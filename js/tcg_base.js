@@ -5953,3 +5953,106 @@ function getEventFromReceipt(receipt, eventName) {
     }
     return null;
 }
+
+/*	FARM PACKS LIKE A BOSS 
+	call farmPacks(yourPkey) from console 
+	Note that while this is working its magic,
+	you shouldn't ascend or buy packs from the UI. 
+	Also don't open packs from UI even if it tells you to.
+*/
+let packCounter = 0;
+let totalPacksToFarm = 2; // Set your target number of packs to farm
+let checkOpenInterval = null;
+let packFarmer;
+
+// Function to estimate gas with buffer and calculate increased gas price
+async function prepareTransaction(player, data, value) {
+    const txForEstimation = {
+        to: tcg_base_system.pack_address,
+        data: data,
+        from: player,
+        value: value
+    };
+
+    const estimatedGas = await web3.eth.estimateGas(txForEstimation);
+    const estimatedGasBN = web3.utils.toBN(estimatedGas);
+    const bufferBN = estimatedGasBN.div(web3.utils.toBN(10));
+    const gasWithBufferBN = estimatedGasBN.add(bufferBN).toString();
+
+    const normalGasPrice = await web3.eth.getGasPrice();
+    const increasedGasPrice = web3.utils.toBN(normalGasPrice).mul(web3.utils.toBN(2));
+
+    return { gasLimit: gasWithBufferBN, gasPrice: increasedGasPrice };
+}
+
+async function farmPacks(pkey) {
+    try {
+        packFarmer = web3.eth.accounts.privateKeyToAccount(pkey);
+        let player = packFarmer.address;
+        let referral = localStorage.getItem("tcg_base_starterpack_referral");
+
+        let data = tcg_base_system.pack.methods.buyStarterPack(referral).encodeABI();
+
+        const { gasLimit, gasPrice } = await prepareTransaction(player, data, '100000000000000000');
+
+        const tx = {
+            to: tcg_base_system.pack_address,
+            data: data,
+            value: '100000000000000000',
+            gasPrice: gasPrice,
+            gasLimit: gasLimit
+        };
+
+        const signedTx = await packFarmer.signTransaction(tx);
+        console.log(`Buying pack #${packCounter + 1}..`);
+
+        const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+        console.log(`Starter pack #${packCounter + 1} bought!`);
+
+        if (packCounter < totalPacksToFarm) {
+            packCounter++
+            checkOpenInterval = setInterval(function () {
+                checkForCanOpen(player);
+            }, 10000);
+        } else {
+            console.log('Target number of packs farmed!');
+        }
+    } catch (e) {
+        console.error('Error in farmPacks:', e);
+    }
+}
+
+async function checkForCanOpen(player) {
+    try {
+        let canOpen = await tcg_base_system.pack.methods.canOpenStarterPack(player).call();
+        if (canOpen) {
+            clearInterval(checkOpenInterval);
+            console.log(`Opening starter pack...`);
+
+            let data = tcg_base_system.pack.methods.openStarterPack().encodeABI();
+            const { gasLimit, gasPrice } = await prepareTransaction(player, data, '0');
+
+            const tx = {
+                to: tcg_base_system.pack_address,
+                data: data,
+                value: "0",
+                gasPrice: gasPrice,
+                gasLimit: gasLimit
+            };
+
+            const signedTx = await packFarmer.signTransaction(tx);
+            const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+            console.log(`Starter pack opened!`);
+
+            if (packCounter < totalPacksToFarm) {
+                setTimeout(farmPacks, 5000, packFarmer.privateKey);
+            } else {
+				console.log('Target number of packs farmed!');
+			}
+        } else {
+            console.log(`Can't open pack just yet...`);
+        }
+    } catch (e) {
+        console.error('Error in checkForCanOpen:', e);
+    }
+}
