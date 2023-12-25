@@ -1475,10 +1475,9 @@
 		-1px 1px 0 rgba(0,0,0,0.5),
 		1px 1px 0 rgba(0,0,0,0.5);
   text-decoration: none; 
+  cursor: url('../img/hand2.png'), auto;
 }
 
-.tcg_base_link:hover,
-.tcg_base_link:active,
 .tcg_base_menu_profile_link:hover,
 .tcg_base_menu_profile_link:active {
   color: rgb(255,215,0); 
@@ -1488,6 +1487,11 @@
 		-1px 1px 0 rgba(0,0,0,0.5),
 		1px 1px 0 rgba(0,0,0,0.5);
   text-decoration: none; 
+}
+
+.tcg_base_link:hover,
+.tcg_base_link:active {
+	color: white; 
 }
 
 .tcg_base_start_game_wager_input::selection,

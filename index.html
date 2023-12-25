@@ -18,9 +18,16 @@
 	<meta name="msapplication-config" content="https://team3d.io/agnosia/img/browserconfig.xml">
 	<meta name="theme-color" content="#041a27">
 </head>
+<div class="agnosia-loading">
+	<div class="agnosia-loading-icon"></div>
+</div>
 <body id="desk" class="full-width full-height no-overflow">
-<div style="position: fixed; top: 0; left: 0; z-index: 99999; width: 100%; text-align: center; font-size: 24px;">
-	<a class="tcg_base_link" href="https://docs.agnosia.gg/" target="_blank">Guide</a>
+<div class="agnosia-header-info">
+	<span>Connect wallet to Goerli network</span>
+</div>
+<div class="agnosia-header-menu">
+	<span>[<a class="" href="https://docs.agnosia.gg/" target="_blank">Help</a>]</span>
+	<span>[<a class="" href="https://discord.gg/team3d" target="_blank">Discord</a>]</span>
 </div>
 <div id="tcg_base_game_window" class="tcg_base_gameplay_wrapper console absolute draggable hidden" data="tcg_base_gameplay">
 	<div class="consoleHeader flex-box space-between center-vertical">
@@ -177,7 +184,7 @@
 		</div>
 	</div>	
 </div>
-<div id="tcg_base" class="console absolute hidden no-overflow" data="tcg_base">
+<div id="tcg_base" class="console absolute no-overflow" data="tcg_base">
 	<div class="tcg_base_content">
 		<!-- Modal -->
 		<div class="tcg_base_modal hidden">
@@ -189,7 +196,7 @@
 				<!-- Modal content here --->
 			</div>
 		</div>
-		<div class="tcg_base_content_inner flex-box full-width full-height flex-center">
+		<div class="tcg_base_content_inner flex-box full-width full-height">
 			<!-- Sidebar / Main menu --> 
 			<div class="tcg_base_menu flex-box col relative">
 				<div class="tcg_base_menu_wrapper">
@@ -548,12 +555,6 @@
 		</div>
 	</div>
 </div>
-<!--<div id="tcg_base_button_wrapper" class="tcg_base_button_wrapper hidden">
-	<div id="tcg_base_button" class="desktop-icon-container flex-box col center-vertical" data="tcg_base">
-		<div class="icon desktop-icon agnosia-exe no-pointer-events"></div>
-		<span class="text-align-center no-pointer-events">Agnosia.exe</span>
-	</div>
-</div>-->
 <script src="js/web3.min.js"></script>
 <script src="js/conn.js"></script>
 <script src="js/blockies.js"></script>

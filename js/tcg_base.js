@@ -287,20 +287,6 @@ $(document).ready(function() {
 	  $(this).css('transform', 'translateX(0)');
 	});
 	
-	// Click handler for the Agnosia.exe on Desktop 
-	/*
-	$(document).on("click", "#tcg_base_button", async function() {
-		$("#tcg_base_button_wrapper").addClass('disabled'); 
-		await tcg_base_init();
-		await tcg_base_startPlaylist(); 
-		$("#tcg_base_button_wrapper").hide();
-		$("#tcg_base").removeClass("hidden"); 
-		// Load user address into profile link 
-		$('.tcg_base_menu_profile_link').text(formatAddress(accounts[0]));
-		$('.tcg_base_menu_profile_link').attr('data-address', accounts[0]);
-	});
-	*/
-	
 	// Hover handler for it  
 	$(document).on('mouseover', '#tcg_base_button', function() {
 		$('#tcg_base_button .agnosia-exe').addClass('agnosia-exe-hover').removeClass('agnosia-exe'); 
@@ -313,7 +299,6 @@ $(document).ready(function() {
 	$(document).on("click", "#tcg_base .close_button", function() {
 		tcg_base_resetAllContainers();
 		tcg_base_resetAllInstances();
-		$("#tcg_base_button_wrapper").removeClass('disabled'); 
 	});
 	
 	// Try and get the referral address from URL 

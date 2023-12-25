@@ -40,22 +40,22 @@
 	cursor: url('../img/hand2.png'), auto;
 	position: absolute;
 	top: 0; left: 0; right: 0; bottom: 0; 
-	
-	padding-right: 100px; /* looks like it centers the content idk */
 }
 .tcg_base_cursor {
 	cursor: url('../img/hand2.png'), auto;
 }
 
-#tcg_base_loading_screen {
-	/*background: var(--black); z-index: 2; */
-	/*background: radial-gradient(circle at center, transparent, black 80%) no-repeat, 
-                url(../img/agnosia.png) no-repeat center center/cover;*/
-}
 .tcg_base_content {height: 100%;}
-.tcg_base_content_inner {
 
+.tcg_base_content_inner {
+	display: grid;
+    grid-template-columns: 330px 816px;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
+
+
 
 
 
@@ -185,42 +185,6 @@
 	transform: scale(1.2);
 }
 
-
-
-
-
-/* Sidebar styles 
-.tcg_base_menu_header {
-	width: 200px; height: 200px; 
-	background: url(../img/logo.png) no-repeat center center/cover;
-}
-.tcg_base_menu_option {
-	font-family: 'C64', monospace;
-    font-size: 250%;
-    padding: 1rem;
-	position: relative; 
-	cursor: url('../img/hand2.png'), auto;
-}
-.tcg_base_menu_option::after {
-  content: '>';
-  position: absolute;
-  right: 10px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.tcg_base_menu_option:hover::after,
-.tcg_base_menu_option.tcg_base_menu_option_active::after {
-  opacity: 1;
-}
-.tcg_base_menu_option:hover,
-.tcg_base_menu_option.tcg_base_menu_option_active {
-  background: var(--bg-glass);
-}
-*/
-
-
-
-
 /* button styles */
 .tcg_base_card_list_nav,
 .tcg_base_trackNav {
@@ -323,6 +287,7 @@
 	width: 680px; 
 	height: 546px; 
 	margin-top: 20px; /* Flush with menu's bottom edge */
+	flex-shrink: 0; 
 }
 .tcg_base_main_wrapper,
 .tcg_base_help,
