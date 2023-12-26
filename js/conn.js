@@ -97,49 +97,48 @@ async function setup() {
 
 
 
-function goFullScreen() {
+function toggleFullScreen() {
     var elem = document.documentElement;
 
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-    }
-}
-
-function exitFullScreen() {
-    if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-        // Only exit if currently in fullscreen mode
+    if (!document.fullscreenElement && !document.mozFullScreenElement &&
+        !document.webkitFullscreenElement && !document.msFullscreenElement) {
+        // Currently not in full-screen, go full-screen
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
+    } else {
+        // Currently in full-screen, exit full-screen
         if (document.exitFullscreen) {
             document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) { /* Firefox */
+        } else if (document.mozCancelFullScreen) {
             document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+        } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) { /* IE/Edge */
+        } else if (document.msExitFullscreen) {
             document.msExitFullscreen();
         }
     }
 }
 
-document.getElementById("fullscreenButton").addEventListener("click", function() {
-    goFullScreen();
+$(document).on('click', '#fullscreenButton', function() {
+    toggleFullScreen();
 });
 
 function handleOrientationChange() {
-    if (window.innerHeight < window.innerWidth && mobileUI) {
-        // Display the fullscreen button in landscape
-        document.getElementById("fullscreenButton").style.display = 'flex';
+    var landscapePrompt = document.getElementById("landscapePrompt");
+    
+    if (window.innerWidth < window.innerHeight) {
+        landscapePrompt.style.display = 'flex';
     } else {
-        // Hide the fullscreen button in portrait and exit fullscreen
-        document.getElementById("fullscreenButton").style.display = 'none';
-        exitFullScreen();
+        landscapePrompt.style.display = 'none';
     }
 }
 
 window.addEventListener("resize", handleOrientationChange);
-handleOrientationChange();
+document.addEventListener("DOMContentLoaded", handleOrientationChange);
