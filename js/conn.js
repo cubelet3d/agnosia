@@ -1,3 +1,5 @@
+let mobileUI = false; 
+
 $(window).on('load', function() {
     $('.agnosia-loading').remove(); 
 });
@@ -11,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
 		document.body.classList.add('is-mobile');
 		console.log("is mobile"); 
+		mobileUI = true; 
 	}
 });
 
@@ -72,6 +75,11 @@ async function setup() {
 		
 		$('.agnosia-header-info').remove(); 
 		$('#tcg_base, .agnosia-header-menu').css('opacity', '1');
+		
+		if(mobileUI) {
+			$('.agnosia-mobile-menu').css('display', 'flex'); 
+			$(`.tcg_base_mobile_menu_option[data="profile"]`).attr('data-address', accounts[0]); 
+		}
 		
 		// Load user address into profile link 
 		$('.tcg_base_menu_profile_link').text(formatAddress(accounts[0]));

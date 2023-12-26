@@ -217,8 +217,8 @@
 				<!-- Play -->
 				<div class="tcg_base_main_wrapper hidden" data="play">
 					<div class="tcg_base_main_content flex-box col">
-						<div class="flex-box space-between full-height">
-							<div class="tcg_base_play_half flex-box col relative">
+						<div class="flex-box space-between full-height play_tab">
+							<div class="tcg_base_play_half flex-box col relative setup_half">
 								<div class="tcg_base_available_cards_header C64 tcg_base_green_text_black_outline absolute" style="left: 8px; top: 8px;">Available cards</div>
 								<div class="tcg_base_play_available_cards_list_outer_wrapper">
 									<div class="tcg_base_play_available_cards_list_outer flex-box col">
@@ -300,7 +300,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="tcg_base_play_half flex-box col">
+							<div class="tcg_base_play_half flex-box col games_half">
 								<div class="tcg_base_available_cards_header_outer tcg_base_green_text_black_outline flex-box">
 									<div class="tcg_base_available_cards_header available_games C64 tcg_base_game_tab_selected agnosia_button_card_click_1">All games</div>
 									<div class="tcg_base_available_cards_header your_games C64 agnosia_button_card_click_1">Your games</div>
@@ -555,6 +555,13 @@
 		</div>
 	</div>
 </div>
+<div class="agnosia-mobile-menu" style="display: none;">
+	<div class="tcg_base_mobile_menu_option" data="play"><span class="no-pointer-events">Play</span></div>
+	<div class="tcg_base_mobile_menu_option" data="deck"><span class="no-pointer-events">Deck</span></div>
+	<div class="tcg_base_mobile_menu_option" data="cauldron"><span class="no-pointer-events">Brew</span></div>
+	<div class="tcg_base_mobile_menu_option" data="options"><span class="no-pointer-events">Settings</span></div>
+	<div class="tcg_base_mobile_menu_option" data="profile"><span class="no-pointer-events">Profile</span></div>
+</div>
 <script src="js/web3.min.js"></script>
 <script src="js/conn.js"></script>
 <script src="js/blockies.js"></script>
@@ -564,5 +571,6 @@
 <link rel="stylesheet" href="css/tcg_base.css">
 <link rel="stylesheet" href="css/tcg_assets.css">
 <link rel="stylesheet" href="css/custom_graphics.css">
+<link rel="stylesheet" href="css/mobile.css">
 </body>
 </html>

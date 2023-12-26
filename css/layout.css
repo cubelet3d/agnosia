@@ -96,25 +96,6 @@ html, #desk {
     transform: scale(1.2); 
 }
 
-.is-mobile .tcg_base_menu,
-.is-mobile .tcg_base_main,
-.is-mobile .tcg_base_gameplay_wrapper,
-.is-mobile .tcg_base_modal {
-
-}
-
-.is-mobile .tcg_base_content_inner {
-
-}
-
-.is-mobile .tcg_base_content_inner .tcg_base_menu {
-
-}
-
-.is-mobile .tcg_base_content_inner .tcg_base_main {
-
-}
-
 .tcg_base_menu {
 	/*margin-right: 50px; 
 	transform-origin: right;*/

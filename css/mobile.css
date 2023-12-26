@@ -1,0 +1,86 @@
+.agnosia-mobile-menu {
+	position: fixed; 
+	top: 0; left: 0;
+	width: 50px;
+	height: 100%; 
+	display: flex;
+	flex-direction: column; 
+	align-items: center;
+	justify-content: center;
+	z-index: 100000; 
+}
+
+.agnosia-mobile-menu .tcg_base_mobile_menu_option {
+	width: 50px; 
+	height: 50px; 
+	font-size: 12px; 
+	border: 2px solid rgb(30, 50, 62);
+	margin: 5px 0 5px 0;  
+	padding: 5px; 
+	background: rgb(11, 44, 46); 
+	display: flex; 
+	align-items: center;
+	justify-content: center; 
+}
+
+.agnosia-mobile-menu .tcg_base_mobile_menu_option_active {
+	background: var(--bg-glass);
+	transform: translateX(5px); 
+}
+
+.is-mobile .tcg_base_menu,
+.is-mobile .agnosia-header-menu {
+	display: none; 
+}
+
+.is-mobile .tcg_base_main_wrapper[data="play"] .tcg_base_main_content {
+	background-image: none; 
+	background-color: transparent; 
+	padding: 0; 
+}
+
+.is-mobile .tcg_base_main {
+	width: 100%; height: 100%; 
+	margin: 0 auto; 
+	transform: scale(0.65); 
+}
+
+.is-mobile .tcg_base_gameplay_wrapper,
+.is-mobile .tcg_base_modal {
+	transform: scale(0.65); 
+}
+
+.is-mobile .play_tab {
+
+}
+
+.is-mobile .setup_half {
+	
+}
+
+.is-mobile .games_half {
+	/*display: none;*/
+}
+
+.is-mobile .tcg_base_menu,
+.is-mobile .tcg_base_main,
+.is-mobile .tcg_base_gameplay_wrapper,
+.is-mobile .tcg_base_modal {
+
+}
+
+.is-mobile .tcg_base_content_inner {
+
+}
+
+.is-mobile .tcg_base_gameplay_wrapper {
+
+}
+
+.is-mobile .tcg_base_content_inner .tcg_base_menu {
+
+}
+
+.is-mobile .tcg_base_content_inner .tcg_base_main {
+
+}

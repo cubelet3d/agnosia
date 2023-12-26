@@ -329,6 +329,15 @@ $(document).ready(function() {
 		tcg_base_open_tab(option); 
 	});
 	
+	// Mobile menu 
+	$(".tcg_base_mobile_menu_option").on("click", function(e) {
+		$(".tcg_base_mobile_menu_option").removeClass("tcg_base_mobile_menu_option_active");
+		$(this).addClass("tcg_base_mobile_menu_option_active");
+		let option = $(e.target).attr("data"); 
+		tcg_base_open_tab(option); 
+		console.log(option); 
+	});
+	
 	
 	
 	
@@ -1221,7 +1230,7 @@ $(document).ready(function() {
 		$("#replayTitle").text('Replay');
 	}); 
 	
-	$(document).on('click', '.tcg_base_gameCreator, .tcg_base_player_profile, .tcg_base_opponent_profile, .tcg_base_menu_profile_link', async function() {
+	$(document).on('click', '.tcg_base_gameCreator, .tcg_base_player_profile, .tcg_base_opponent_profile, .tcg_base_menu_profile_link, .tcg_base_mobile_menu_option[data="profile"]', async function() {
 		let $element = $(this); 
 		let originalText = $(this).text(); 
 		
@@ -1743,7 +1752,7 @@ async function tcg_base_open_tab(option, forceEmptyGamesListContainer = false) {
 
         // Keep button bg and arrow icon 
         $(".tcg_base_menu_option[data=" + option + "]").addClass("tcg_base_menu_option_active"); 
-        $(".tcg_base_menu_option[data=" + option + "]").find(".tcg_base_menu_arrow").removeClass("hidden"); 
+        // $(".tcg_base_menu_option[data=" + option + "]").find(".tcg_base_menu_arrow").removeClass("hidden"); 
 
         await tcg_base_load_content(option, forceEmptyGamesListContainer); 
 
