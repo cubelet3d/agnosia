@@ -100,21 +100,19 @@ html, #desk {
 .is-mobile .tcg_base_main,
 .is-mobile .tcg_base_gameplay_wrapper,
 .is-mobile .tcg_base_modal {
-    transform: scale(0.6); 
+
 }
 
 .is-mobile .tcg_base_content_inner {
-	display: flex; 
-	justify-content: start; 
+
 }
 
 .is-mobile .tcg_base_content_inner .tcg_base_menu {
-	transform-origin: right; 
-	margin-right: 25px; 
+
 }
 
 .is-mobile .tcg_base_content_inner .tcg_base_main {
-	transform-origin: left; 
+
 }
 
 .tcg_base_menu {

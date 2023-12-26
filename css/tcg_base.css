@@ -47,7 +47,7 @@
 
 .tcg_base_content {height: 100%;}
 
-.tcg_base_content_inner {
+.not-mobile .tcg_base_content_inner {
 	display: grid;
     grid-template-columns: 330px 816px;
     justify-content: center;
