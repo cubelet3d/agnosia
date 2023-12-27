@@ -3354,7 +3354,11 @@ function tcg_base_closeGame(gameId) {
 	unsubscribeFromCardPlacedOnBoard(gameId); // Unsub from cardPlacedOnBoard event 
 	unsubscribeFromCollectWinnings(gameId); // Unsub from end game events too 
 	let $gameWindow = $(`#tcg_base_game_window_${gameId}`);
-	$gameWindow.find('.samePlusNotif').remove();   
+	$gameWindow.find('.samePlusNotif').remove();  
+
+	// NANSLAPPER88 sir 
+	tcg_base_games.contentAppended[gameId] = false; 
+	finalizeNotified.delete(gameId); 
 }
 
 /*	This function updates the UI for a specific game 
@@ -3551,9 +3555,9 @@ async function tcg_base_finishGame(gameId) {
         $gameWindow.find('.current_turn').removeClass('current_turn'); // It's no one's turn now.. 
 		$gameWindow.find('.samePlusNotif').remove(); // Just in case any remain
 		
-		console.log(`Card placed listeners before: ${cardPlacedListeners}`);
+		// console.log(`Card placed listeners before: ${cardPlacedListeners}`);
         unsubscribeFromCardPlacedOnBoard(gameId); // Stop listening for these events
-		console.log(`Card placed listeners after: ${cardPlacedListeners}`);
+		// console.log(`Card placed listeners after: ${cardPlacedListeners}`);
 
         let isFinalized = await tcg_base_system.game.methods.finalized(gameId).call();
 
