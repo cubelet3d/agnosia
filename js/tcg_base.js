@@ -775,6 +775,10 @@ $(document).ready(function() {
 		}
 		let handLimit = $('#tcg_base_handLimiter').val(); // Hand limiter value is 45 by default 
 		if(selectedTradeRule < 4 && !isNaN(wagerInputAmount) && typeof wagerInputAmount === "string" && tcg_base_player.selectedAvailableCards.length === 5) {
+			if(wagerInputAmount === '') {
+				wagerInputAmount = '0'; 
+				$("#gameStartWager").text(wagerInputAmount);
+			}
 			initializeGame(tcg_base_player.selectedAvailableCards, web3.utils.toWei(wagerInputAmount), selectedTradeRule, friend, handLimit); 
 		} else {
 			error("Please check trade rule, wager input amount, and ensure exactly five cards are selected."); 
