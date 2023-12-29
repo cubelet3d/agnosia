@@ -297,3 +297,7 @@ html, #desk {
     height: calc(16px + .5em);
     width: calc(16px + .5em);
 }
+
+.padding-1rem {
+	padding: 1rem; 
+}

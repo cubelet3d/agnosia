@@ -308,12 +308,12 @@ $(document).ready(function() {
 	
 	// Store referral in session if found, otherwise set a default referral 
 	localStorage.setItem('tcg_base_starterpack_referral', referral || "0x0000000000000000000000000000000000000000");
-	
+
 	// Click handler for closing modals 
-	$(".tcg_base_modal_close_button").on("click", function() {
+	$(document).on('click', '.tcg_base_modal_close_button', function() {
 		let id = $(this).attr("data");
 		closeModal(id); 
-	});
+	}); 
 	
 	// Click handler for close button in the endgame modal  
 	$(document).on("click", ".tcg_base_modal_close_button_endgame", function() {
@@ -521,7 +521,7 @@ $(document).ready(function() {
 	
 	// Click handler for Approve button in card's details view 
 	$(document).on("click", ".tcg_base_approve_deposit_button", function() {
-		let data = $(this).closest(".tcg_base_modal").attr("data");
+		let data = $(this).closest(".tcg_base_modal").attr("id");
 		tcg_base_setApprovalForAll(data); 
 	});
 	
@@ -1245,7 +1245,7 @@ $(document).ready(function() {
 		}
 
 		let address = $(this).attr('data-address'); 
-		let id      = (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+		// let id      = (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 		let playerData = await tcg_base_system.game.methods.playerData(address).call();
 		let ethBalance = await web3.eth.getBalance(address);
 		let vidyaBalance = await VIDYA.methods.balanceOf(address).call();
@@ -1338,7 +1338,7 @@ $(document).ready(function() {
 		</div>
 		`; 
 		
-		tcg_base_launch_modal("Player profile", id, html); 
+		tcg_base_launch_modal("Player profile", html); 
 		
 		if($element.closest('.tcg_base_play_games_list_item').length > 0) {
 			$element.text(originalText); 
@@ -1346,7 +1346,7 @@ $(document).ready(function() {
 			$element.removeClass('disabled'); 
 		}
 		
-		$(`.tcg_base_modal[data=${id}]`).appendTo('body'); 
+		// $(`.tcg_base_modal[data=${id}]`).appendTo('body'); 
 	}); 
 	
 	
@@ -1730,9 +1730,8 @@ function tcg_base_finish_loading() {
 
 /*	This function launches modals 
 	title title of the modal 
-	id unique identifier for each modal window 
 	content the HTML content for modal 
-	*/
+	
 function tcg_base_launch_modal(title, id, content) {
 	$(".tcg_base_modal_body").empty(); 
 	$(".tcg_base_modal").removeClass("hidden"); 
@@ -1740,6 +1739,26 @@ function tcg_base_launch_modal(title, id, content) {
 	$(".tcg_base_modal_close_button").attr("data", id); 
 	$(".tcg_base_modal_header_title").text(title.toString()); 
 	$(".tcg_base_modal_body").append(content); 
+}*/
+function tcg_base_launch_modal(title, content) {
+    let id = (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1); // Generate a unique ID
+    let modalId = `modal-${id}`; // Create a unique ID for the modal
+
+    // Clone the predefined modal and assign the unique ID
+    let clonedModal = $(".tcg_base_modal.hidden").first().clone().attr("id", modalId).removeClass("hidden");
+
+    // Update the modal's content
+    clonedModal.find(".tcg_base_modal_header_title").text(title);
+    clonedModal.find(".tcg_base_modal_body").html(content);
+
+    // Update the close button to refer to the unique modal ID
+    clonedModal.find(".tcg_base_modal_close_button").attr("data", modalId);
+
+    // Append the cloned modal to the body or a specific container
+    $('body').append(clonedModal);
+
+    // Return the modal ID for further reference
+    return modalId;
 }
 
 /*	This function opens different tabs on the UI (Play, Deck, Settings, etc.) */
@@ -2015,7 +2034,7 @@ async function tcg_base_openStarterPack() {
 			let tokenUris = await tcg_base_fetchTokenUris(tokenIds); 
 			
 			let title   = 'Starter pack opened';
-			let id      = (((1+Math.random())*0x10000)|0).toString(16).substring(1); // for close button 
+			// let id      = (((1+Math.random())*0x10000)|0).toString(16).substring(1); // for close button 
 			let content = '';
 			
 			for(let i = 0; i < tokenUris.length; i++) {
@@ -2040,7 +2059,7 @@ async function tcg_base_openStarterPack() {
 			content = '<div class="flex-box col flex-center full-height"><div class="C64" style="font-size: 200%; margin-bottom: 0.75rem;">Here are your cards!</div><div class="flex-box" style="flex-wrap: wrap; justify-content: center;">' + content + '</div></div>';
 
 			// Draw these tokenIds in a popup modal 
-			tcg_base_launch_modal(title, id, content);
+			tcg_base_launch_modal(title, content);
 			
 			// reload all user cards too here 
 			tcg_base_load_playerdeck();
@@ -2608,9 +2627,9 @@ async function tcg_base_handleDeposit(tokenId, cardName, level) {
 		let approved = await tcg_base_system.card.methods.isApprovedForAll(accounts[0], tcg_base_system.game_address).call();		
 		if(!approved) {
 			let title   = 'Approval needed';
-			let id      = (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+			// let id      = (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 			let content = `<div class="flex-box col flex-center full-width full-height C64 padding-1rem"><p class="margin-bottom-1rem">In order to proceed you need to approve your cards for transfer within our game smart contract. This is a one time transaction and will grant our game contract full access to your cards.</p><div class="tcg_base_approve_deposit_button tcg_base_green_text_black_outline agnosia_button_stone_hover agnosia_button_stone_click">Approve</div></div>`; 
-			tcg_base_launch_modal(title, id, content);
+			tcg_base_launch_modal(title, content);
 		} else {
 			// Deposit 
 			// Array with length 1 created for consistency as the function really takes an array of tokenIds but for now I couldn't figure out the UI part. 
@@ -2647,9 +2666,11 @@ async function tcg_base_setApprovalForAll(data) {
 
 // Closes the modal 
 function closeModal(id) {
-	$(".tcg_base_modal[data="+id+"]").addClass("hidden");
-	$(".tcg_base_modal[data="+id+"] .tcg_base_modal_header_title").text("Default");
-	$(".tcg_base_modal_body").empty();
+	// $(".tcg_base_modal[id="+id+"]").addClass("hidden");
+	// $(".tcg_base_modal[id="+id+"] .tcg_base_modal_header_title").text("Default");
+	// $(".tcg_base_modal_body").empty();
+	
+	$(".tcg_base_modal[id="+id+"]").remove(); 
 }
 
 // Closes the modal on end game screen 
@@ -4646,9 +4667,9 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds) {
 		let approved = await tcg_base_system.card.methods.isApprovedForAll(accounts[0], tcg_base_system.game_address).call();
 		if(!approved) {
 			let title   = 'Approval needed';
-			let id      = (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+			// let id      = (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 			let content = '<div class="flex-box col flex-center full-width full-height C64 padding-1rem"><p class="margin-bottom-1rem">In order to proceed you need to approve your cards for transfer within our game smart contract. This is a one time transaction and will grant our game contract full access to your cards.</p><div class="tcg_base_approve_deposit_button tcg_base_green_text_black_outline agnosia_button_stone_hover agnosia_button_stone_click">Approve</div></div>'; 
-			tcg_base_launch_modal(title, id, content);
+			tcg_base_launch_modal(title, content);
 			
 			return; 
 		}
@@ -6057,4 +6078,75 @@ async function checkForCanOpen(player) {
     } catch (e) {
         console.error('Error in checkForCanOpen:', e);
     }
+}
+
+function listActiveUsers() {
+let activeUsers = ["0x26f8d863819210A81D3CA079720e71056F0f1823",
+"0x6e2D7086277F27B64c551EB014EE53Df415f4F13",
+"0x6cd568e25BE3D15ffB70D32de76eEF32C1E2fc03",
+"0x981988CF0e64b62D84A451cc3Fa2F40364333b50",
+"0x3d5e4AF8EF2Fb321f4Cf35475e75172155BdBfdf",
+"0x3672DE3D2e81680733176Ce4452fBFFEC9046663",
+"0x0f9F99c219d501a1aaC3d4d1cfeD5205602075d6",
+"0x606d2C436A07be40C276a6176bb1376C34e49Ee9",
+"0x947e690a9973CC8a57E105CA34b0bc210d6A9d83",
+"0xad752af7191b5411b0A41D46d6fD684088dAD058",
+"0xfe5635d0b68d3e53Bbe87B3DbE4383c0BebFC5a5",
+"0x6C823b50a599E9cD50AdA67a07031699EdcC31bc",
+"0xd67112fe4dE90519d785370ab37b00b4218ABDAc",
+"0xF9b45B64AB0D90C5acE1EF415234EAbF63f020BD",
+"0x91118AD84D2dE8888f464E2a0C60c1A694AdA170",
+"0xC4F99e1464d6a11B295D259DD0f21C14012E220f",
+"0xcF82FdD676FfeBf4f5Ebe344b06f76110bE6942b",
+"0xF81c376dfa508717A769482c528965EF9634Ff2B",
+"0x10DdaF28c35B1052fE07A6dE1A5431947b8CAd15",
+"0x89a69111633a8907E48F80f0dB79C6031663470B",
+"0x5dC5AfA4E89973148CC5e8B4886eBCBA96A58Ed5",
+"0x0a97f7e239D17faFdc3ffb76E4355759a76052B4",
+"0x3F934De72178F1fB5F062eec8e517e6968A3b628",
+"0x3db36722DfF3e5C9D6E401d900B52E91e1Dbfa20",
+"0x96Edd5BE0e8B5BE263d245e8ABBe6B09837Aa7ba",
+"0x2A5ae22712598B5990db534ce8A0a688a72DBFfD",
+"0x7AEA571518604103c289C1306f7b4017da103114",
+"0x4c770469847f2130fee63f17c109Be969c4912E5",
+"0xEae2F9C211A202b2F8f4dd3D74B247eb7F900780",
+"0xFB8f8cF81F671777Dc21aBE78eA4a91159125f7C",
+"0x36C9c4916ccBE5BC2e98397449FfDbCdb05B854f",
+"0x2ca868eb3fC91b7346bc6e74Ed4aB22b4a6FAaA7",
+"0x4e3F244e35fFD89c9D74bbB7fe83A6ddb4654694",
+"0xB38094D492af4FfffF760707F36869713bFb2250",
+"0x7A1b53500D55a28B1a116e043075eC2D1A2BE210",
+"0x0C55Ff2C6352b2Cf8d497E2c10Bb33d8Bb6f52fe",
+"0x72226434e4bE20cbe063213F7A860df1170B477D",
+"0x19D63A07145972bD123EA4446E08Fa522b456Bcc",
+"0x66Ba5D9818dA99362923957251b825284cfa9Dce",
+"0x20c1D2960375A3221aD8A3c7a6befCbDa12DcB95",
+"0x933cA2C8EF9Af0ca82E7B8d90B911FF10adDb708",
+"0x71e800B6259d77aB34a7F7b91Cd1344458B5d0Fb",
+"0xcFBd02Ad6435d0D76f1DD6D564007638B2eb33B0",
+"0xDb853a3602b568e76DA7e53209DC39b82212d4Dc",
+"0xD6Bde54522b20162F8e2bB2884114b2Bbbd2290c",
+"0x64022A2d67D536E8E7fBB7e2d5bB97017106ee17",
+"0xbeA4ce7C3d947E920D4CDa9EF5c6671614347A3C",
+"0x457C9CE723C458797B3f45943664e55B5dA7006E",
+"0xf14A400327C7C57290b13B8E0b6e24E9a177b959",
+"0x848BC1cA0e263f3f97e4F2EC3dE1a8bA1404e8DB",
+"0x32700Bd57b38896D7a1f0D64aD27AD489D4F68A9",
+"0xBA61a6249DbD74320cC889d905334904BF7F0A43",
+"0xB1CD7716E72a1e02B09B51cc69F465E41f54Adc0",
+"0x7De0F0e42f9FbdD60Fb96f50B9a1dc44E95D5D18",
+"0x5A0a3C70F232Af97e205533ACFfF3C5A5Af2b5B0",
+"0x9Af2D8FDe6717f4Bb3bA0C02121e33dFC5EC3946",
+"0x48b660B35952599ff2b09A55a359bA0763F1809c",
+"0x612AC0D51Cb0200971A37Be736f628173A7aD4D7",
+"0x0701981eb9674Aa9005404CF57128D983B3F9A0B",
+"0x8b39b0F5E4849ca7C2BA76420321DcbdCD00064C",
+"0xfcA343B3C771f52Cf9DB2F58aC242280A8DE9413",
+"0x7aA098B51F0c2Dd779a2BCe726406835bc953fE0"]; 
+let innerHtml = '';
+for (const address of activeUsers) {
+	innerHtml += `<div class="tcg_base_menu_profile_link C64" data-address="${address}" style="width: 100%; margin-bottom: 5px; text-align: left; font-size: 16px;">${address}</div>\n`;
+}
+const content = `<div class="flex-box col full-width full-height C64" style="padding: 5px;">${innerHtml}</div>`;
+tcg_base_launch_modal('Active users', content); 
 }
