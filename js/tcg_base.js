@@ -2100,7 +2100,7 @@ async function tcg_base_fetchUserCards(player) {
 }
 
 // Returns tokenUris based on array of tokenIds 
-async function tcg_base_fetchTokenUris(tokenIds) {
+/*async function tcg_base_fetchTokenUris(tokenIds) {
 	try {
 		let tokenUris = []
 		for(let i = 0; i < tokenIds.length; i++) { 
@@ -2115,7 +2115,25 @@ async function tcg_base_fetchTokenUris(tokenIds) {
 	catch(e) {
 		console.error(e)
 	}
+}*/
+async function tcg_base_fetchTokenUris(tokenIds) {
+    try {
+        // Create an array of promises for each token URI fetch
+        const uriPromises = tokenIds.map(tokenId => 
+            tcg_base_system.card.methods.tokenURI(tokenId).call().then(uri => {
+                let json = JSON.parse(atob(uri.slice(29)));
+                json.tokenId = tokenId;
+                return json;
+            })
+        );
+
+        // Wait for all promises to resolve
+        return await Promise.all(uriPromises);
+    } catch (e) {
+        console.error(e);
+    }
 }
+
 
 /*	This function is responsible for loading card data into the tokenIds list (on the right side)
 	Triggered when player clicks on a card in Deck section */
