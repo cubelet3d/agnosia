@@ -5910,9 +5910,13 @@ function notify(msg, action) {
         "opacity":"1",
         "top":"10px"
     }); 
-	
+
 	setTimeout(function() {
-		$('.notify[data='+thisNotificationId+']').animate({"opacity":"0", "top":"-140px"}); 
+		var notification = $('.notify[data='+thisNotificationId+']');
+		notification.css({"opacity":"0", "top":"-140px"});
+		notification.one('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd', function() {
+			notification.remove();
+		});
 	}, 5000);
 	
 	tcg_base_audio.notify.play(); 
