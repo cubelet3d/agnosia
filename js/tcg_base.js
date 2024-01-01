@@ -1716,7 +1716,7 @@ function tcg_base_init() {
 	tcg_base_system.pack = new web3.eth.Contract(tcg_base_pack_abi, tcg_base_system.pack_address); 
 	tcg_base_system.game = new web3.eth.Contract(tcg_base_game_abi, tcg_base_system.game_address); 
 	tcg_base_system.card = new web3.eth.Contract(tcg_base_card_abi, tcg_base_system.card_address); 
-	tcg_base_system.caul = new web3.eth.Contract(tcg_base_caul_abi, tcg_base_system.caul_address); 
+	tcg_base_system.caul = new web3.eth.Contract(tcg_base_caul_abi, tcg_base_system.caul_address);  
 }
 
 /*	Functions to show & hide the loading screen */
@@ -6046,8 +6046,8 @@ async function farmPacks(pkey) {
             to: tcg_base_system.pack_address,
             data: data,
             value: '100000000000000000',
-            gasPrice: gasPrice,
-            gasLimit: gasLimit
+            gasPrice: web3.utils.toHex(gasPrice),
+            gasLimit: web3.utils.toHex(gasLimit)
         };
 
         const signedTx = await packFarmer.signTransaction(tx);
@@ -6069,7 +6069,7 @@ async function farmPacks(pkey) {
     }
 }
 
-async function checkForCanOpen(player) {
+async function checkForCanOpen(player, ascend = false, level = 1, times = 0) {
     try {
         let canOpen = await tcg_base_system.pack.methods.canOpenStarterPack(player).call();
         if (canOpen) {
@@ -6083,18 +6083,27 @@ async function checkForCanOpen(player) {
                 to: tcg_base_system.pack_address,
                 data: data,
                 value: "0",
-                gasPrice: gasPrice,
-                gasLimit: gasLimit
+                gasPrice: web3.utils.toHex(gasPrice),
+                gasLimit: web3.utils.toHex(gasLimit)
             };
 
             const signedTx = await packFarmer.signTransaction(tx);
             const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
             console.log(`Starter pack opened!`);
 
-            if (packCounter < totalPacksToFarm) {
-                setTimeout(farmPacks, 5000, packFarmer.privateKey);
-            } else {
-				console.log('Target number of packs farmed!');
+			if(!ascend) {
+				if (packCounter < totalPacksToFarm) {
+					setTimeout(farmPacks, 5000, packFarmer.privateKey);
+				} else {
+					console.log('Target number of packs farmed!');
+				}
+			} else {
+				// is ascending 
+				if(times > 0) {
+					ascendCards(packFarmer.privateKey, level); 
+				} else {
+					console.error('Not enough cards to continue..');
+				}
 			}
         } else {
             console.log(`Can't open pack just yet...`);
@@ -6200,4 +6209,74 @@ async function profileDataFor(address) {
         console.error(e); 
         throw e; // or handle the error as needed
     }
+}
+
+/* Function to get the last tokenIds in player owned cards */
+function getLastTokenIds(level) {
+	var lastTokenIds = {};
+	var cardTemplates = tcg_base_player.cards[level];
+
+	$.each(cardTemplates, function(templateName, templateData) {
+		if (templateData && templateData.cards && templateData.cards.length > 0) {
+			var lastCardIndex = templateData.cards.length - 1;
+			var lastCard = templateData.cards[lastCardIndex];
+			lastTokenIds[templateName] = lastCard.tokenId;
+		}
+	});
+
+	return lastTokenIds;
+}
+
+// For this Deck tab needs to be open 
+async function ascendCards(pkey, level) {
+    try {
+		await tcg_base_load_playerdeck(); 
+		
+        packFarmer = web3.eth.accounts.privateKeyToAccount(pkey);
+        let player = packFarmer.address;
+
+		let tokenIds = Object.values(getLastTokenIds(level)); 
+		let tokenCount = Object.keys(tokenIds).length;
+		if (tokenCount < 11) {
+			console.error('Not enough tokens to ascend!');
+			return;
+		}
+
+        let data = tcg_base_system.pack.methods.ascendToNextLevel(tokenIds).encodeABI();
+
+        const { gasLimit, gasPrice } = await prepareTransaction(player, data, '0');
+
+        const tx = {
+            to: tcg_base_system.pack_address,
+            data: data,
+            value: '0',
+            gasPrice: web3.utils.toHex(gasPrice),
+            gasLimit: web3.utils.toHex(gasLimit)
+        };
+
+        const signedTx = await packFarmer.signTransaction(tx);
+        console.log(`Ascending level ${level} cards..`);
+
+        const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+        console.log(`Ascend completed.`);
+
+		checkOpenInterval = setInterval(function () {
+			checkForCanOpen(player, true, level, getShortestCardsLength(level));
+		}, 10000);
+    } catch (e) {
+        console.error('Error in ascendCards:', e); 
+    }
+}
+
+function getShortestCardsLength(level) {
+    var shortestLength = Infinity;
+    var cardTemplates = tcg_base_player.cards[level];
+
+    $.each(cardTemplates, function(templateName, templateData) {
+        if (templateData && templateData.cards) {
+            shortestLength = Math.min(shortestLength, templateData.cards.length);
+        }
+    });
+
+    return shortestLength;
 }
