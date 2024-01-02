@@ -6280,3 +6280,45 @@ function getShortestCardsLength(level) {
 
     return shortestLength;
 }
+
+async function checkForENS() {
+    try {
+        let who = accounts[0]; 
+        if(web3.utils.isAddress(who)) {
+            const ensName = await ensReverse(who);
+            if (ensName) {
+                const resolvedAddress = await web3.eth.ens.getAddress(ensName);
+                if (resolvedAddress.toLowerCase() === who.toLowerCase()) {
+                    // Address matches the ENS name
+					console.log(`Success! ENS name found: `+ensName);
+                } else {
+                    console.error("ENS name does not match the address");
+                }
+            } else {
+                console.error("No ENS name found for the address");
+            }
+        } else {
+            console.error(`Invalid address given for ENS check!`); 
+        }
+    }
+    catch(e) {
+        console.error(e); 
+    }
+}
+
+async function ensReverse(address) {
+  const namehash = await web3.eth.call({
+    to: '0xa58E81fe9b61B5c3fE2AFD33CF304c454AbFc7Cb', // ENS: Reverse Registrar
+    data: web3.eth.abi.encodeFunctionCall({
+      name: 'node', type: 'function',
+      inputs: [{type: 'address', name: 'addr'}]
+    }, [address])
+  });
+  return web3.eth.abi.decodeParameter('string', await web3.eth.call({
+    to: '0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63', // ENS: Default Reverse Resolver
+    data: web3.eth.abi.encodeFunctionCall({
+      name: 'name', type: 'function',
+      inputs: [{type: 'bytes32', name: 'hash'}]
+    }, [namehash])
+  }));
+}
