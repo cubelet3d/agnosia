@@ -36,7 +36,17 @@ const notificationsMap = {
 	openStarterPack: {
 		transactionHash: (hash) => `<div>Opening starter pack</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
 		receipt: `<div style="text-align: center">Starter pack opened!</div>`
-	}
+	},
+	approveCauldron: {
+		transactionHash: (hash) => `<div class="flex-box flex-center">Approving Cauldron...</div>`,
+		receipt: `<div class="flex-box flex-center">Cauldron approved!</div>`
+	},
+    brewCards: {
+        transactionHash: (hash) => `<div>Brewing cards...</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+        receipt: (reward) => reward ? 
+            `<div style="text-align: center;">Cards brewed successfully. You withdrew your outstanding balance of <span class="tcg_base_golden_text">${reward} VIDYA</span></div>` :
+            `<div style="text-align: center;">Cards brewed successfully.</div>`
+    }	
 }
 
 let player1Color = 'linear-gradient(315deg, rgba(193, 233, 114, 0.2) 0%, rgba(45, 89, 85, 0.2) 100%)'; // "linear-gradient(315deg, #91b2d3 0%, #527fa4 100%)"; 
@@ -595,51 +605,50 @@ $(document).ready(function() {
 	
 	// Handles brewing of cards 
 	$(document).on('click', '.tcg_base_tokenId_brew', async function() {
-		
 		// Check if approved first 
 		let allowed = await tcg_base_system.card.methods.isApprovedForAll(accounts[0], tcg_base_system.caul_address).call();
-		if(!allowed) {
-			await tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.caul_address, true).send({from: accounts[0]})
-			.on('transactionHash', function(hash) {
-				notify(`<div class="flex-box flex-center">Approving Cauldron...</div>`); 
-			})
-			.on('receipt', async function(receipt) {
-				notify(`<div class="flex-box flex-center">Cauldron approved!</div>`); 
-			})
-			.on('error', function(error) {
-				error('Something went wrong, check console.'); 
-				console.log(error); 
-			})
-		}		
-		
-		// Reuse multi-upload stuff 
-		let selectedTokenIds = tcg_base_player.selectedForMultiUpload;
-		let tokenIdsToPass = selectedTokenIds.length ? selectedTokenIds : [$(this).attr('data-tokenid')]; 
+		if (!allowed) {
+			const approvalTxData = tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.caul_address, true);
+			await sendTransaction(approvalTxData, '0', 
+				(hash) => notify(notificationsMap.approveCauldron.transactionHash(hash)),
+				(receipt) => notify(notificationsMap.approveCauldron.receipt)
+			);
+		}
 
-		// let tokenId = $(this).attr('data-tokenid'); 
-		await tcg_base_system.caul.methods.increaseCauldronPortion(tokenIdsToPass).send({from: accounts[0]})
-		.on('transactionHash', function(hash) {
-			$('.tcg_base_tokenId_deposit').addClass('disabled'); 
-			notify(`<div class="flex-box flex-center">Brewing some cards...</div>`); 
-		})
-		.on('receipt', async function(receipt) {
-			resetMultiUpload(); 
-			await tcg_base_open_tab("deck"); 
-			
-			// Check if vidya was claimed or not 
-			if (receipt.events.Claimed && receipt.events.Claimed.returnValues) {
-				let reward = Number(web3.utils.fromWei(receipt.events.Claimed.returnValues.amount)).toFixed(2); 
-				notify(`<div style="text-align: center;">Cards brewed successfully. You withdrew your outstanding balance of <span class="tcg_base_golden_text">${reward} VIDYA</span></div>`); 
-			} else {
-				notify(`<div style="text-align: center;">Cards brewed successfully.</div>`); 
+		let selectedTokenIds = tcg_base_player.selectedForMultiUpload;
+		let tokenIdsToPass = selectedTokenIds.length ? selectedTokenIds : [$(this).attr('data-tokenid')];
+
+		const brewTxData = tcg_base_system.caul.methods.increaseCauldronPortion(tokenIdsToPass);
+		await sendTransaction(brewTxData, '0', 
+			(hash) => {
+				$('.tcg_base_tokenId_deposit').addClass('disabled');
+				notify(`<div class="flex-box flex-center">Brewing cards...</div>`);
+			},
+			async (receipt) => {
+				resetMultiUpload();
+				
+				// If in Deck tab, reload it 
+				if($('.tcg_base_menu_option_active').attr('data') === 'deck') {
+					await tcg_base_open_tab("deck");
+				}
+				
+				let reward = null; 
+				
+				if (receipt.events) {
+					if (receipt.events.Claimed && receipt.events.Claimed.returnValues) {
+						reward = Number(web3.utils.fromWei(receipt.events.Claimed.returnValues.amount)).toFixed(2);
+					}
+				} else if (receipt.logs) {
+					let rewardAmountHex = receipt.logs[3].data.substring(66, 130); 
+					reward = web3.utils.isHexStrict('0x'+rewardAmountHex) ? Number(web3.utils.fromWei(rewardAmountHex)).toFixed(2) : null;
+				} else {
+					console.error("No logs or events found in the receipt");
+				}
+				
+				notify(notificationsMap.brewCards.receipt(reward));
 			}
-			
-		})
-		.on('error', function(error) {
-			error('Something went wrong, check console.'); 
-			console.log(error); 
-		})
-	}); 
+		);
+	});
 	
 	
 	
