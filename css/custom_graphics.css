@@ -956,6 +956,7 @@ html:after {
 
 .tcg_base_starterpack_button.tcg_base_buypack_button {
 	font-size: 90%; /* Fixes the weird error of some browsers */
+	line-height: 0.6; 
 }
 
 .tcg_base_starterpack_button.tcg_base_buypack_button:hover,

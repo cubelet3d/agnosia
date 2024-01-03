@@ -28,6 +28,17 @@ AAAAAAA                   AAAAAAA gggggggg::::::g   nnnnnn    nnnnnn   ooooooooo
 
 ***/
 
+const notificationsMap = {
+    buyStarterPack: {
+        transactionHash: (hash) => `<div>Buying starter pack</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+        receipt: `<div>Starter pack bought!</div><div class="margin-top-05rem">It will take a few minutes to print all the cards. Please wait...</div>`
+    },
+	openStarterPack: {
+		transactionHash: (hash) => `<div>Opening starter pack</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div style="text-align: center">Starter pack opened!</div>`
+	}
+}
+
 let player1Color = 'linear-gradient(315deg, rgba(193, 233, 114, 0.2) 0%, rgba(45, 89, 85, 0.2) 100%)'; // "linear-gradient(315deg, #91b2d3 0%, #527fa4 100%)"; 
 let player2Color = 'linear-gradient(315deg, rgba(125, 78, 239, 0.2) 0%, rgba(32, 30, 79, 0.2) 100%)'; // "linear-gradient(315deg, #e68888 0%, #c53f3f 100%)"; 
 
@@ -1986,7 +1997,7 @@ function tcg_base_mergeAndSortCards(tokenUris) {
 }
 
 /*	Transaction to buy a starter pack 
-	referral the referral address if given */
+	referral the referral address if given 
 async function tcg_base_buyStarterPack(referral) {
 	try {
 		await tcg_base_system.pack.methods.buyStarterPack(referral).send({
@@ -2007,9 +2018,33 @@ async function tcg_base_buyStarterPack(referral) {
 	catch(e) {
 		console.error(e)
 	}
+}*/
+
+async function tcg_base_buyStarterPack(referral) {
+    try {
+        const txData = tcg_base_system.pack.methods.buyStarterPack(referral);
+        const value = tcg_base_pack.price;
+
+        const onTransactionHash = (hash) => {
+            tcg_base_pack.pendingBuy = true;
+            tcg_base_load_starterpack(accounts[0]); // This figures out the right button to show 
+            notify(notificationsMap.buyStarterPack.transactionHash(hash));
+        };
+
+        const onReceipt = (receipt) => {
+            tcg_base_pack.pendingBuy = false;
+            tcg_base_load_starterpack(accounts[0]); // This figures out the right button to show 
+            notify(notificationsMap.buyStarterPack.receipt);
+        };
+
+        await sendTransaction(txData, value, onTransactionHash, onReceipt);
+    }
+    catch(e) {
+        console.error(e);
+    }
 }
 
-/*	Transaction to open a starter pack */
+/*	Transaction to open a starter pack 
 async function tcg_base_openStarterPack() {
 	try {
 		await tcg_base_system.pack.methods.openStarterPack().send({from: accounts[0]})
@@ -2071,6 +2106,81 @@ async function tcg_base_openStarterPack() {
 	catch(e) {
 		console.error(e)
 	}
+} 
+*/
+
+async function tcg_base_openStarterPack() {
+    try {
+        const txData = tcg_base_system.pack.methods.openStarterPack();
+        
+        const onTransactionHash = (hash) => {
+            tcg_base_pack.pendingOpen = true; 
+            tcg_base_load_starterpack(accounts[0]); 
+            notify(notificationsMap.openStarterPack.transactionHash(hash));
+        };
+
+		const onReceipt = async (receipt) => {
+			console.log(receipt); 
+			tcg_base_pack.pendingOpen = false; 
+			tcg_base_load_starterpack(accounts[0]); 
+			notify(notificationsMap.openStarterPack.receipt);
+
+			let tokenIds = [];
+			if (receipt.logs) {
+				// Handle pkey tx's 
+				tokenIds = receipt.logs.map(log => web3.utils.hexToNumberString(log.topics[3]));
+			} else if (receipt.events) {
+				// Handle wallet tx's 
+				Object.values(receipt.events).forEach(event => {
+					if (event.raw && event.raw.topics[3]) {
+						tokenIds.push(web3.utils.hexToNumberString(event.raw.topics[3]));
+					}
+				});
+			} else {
+				console.error("No logs or events found in the receipt");
+			}
+
+			// Get the tokenUris for those tokenIds 
+			let tokenUris = await tcg_base_fetchTokenUris(tokenIds); 
+
+			// Construct content for modal
+			let content = '';
+			for (let i = 0; i < tokenUris.length; i++) {
+				// Extract card attributes
+				let top = parseInt(tokenUris[i].attributes.find(attr => attr.trait_type === 'Top').value);
+				let left = parseInt(tokenUris[i].attributes.find(attr => attr.trait_type === 'Left').value);
+				let right = parseInt(tokenUris[i].attributes.find(attr => attr.trait_type === 'Right').value);
+				let bottom = parseInt(tokenUris[i].attributes.find(attr => attr.trait_type === 'Bottom').value);
+
+				// Construct HTML for each card
+				let div = `<div style="background-image: url(${tokenUris[i].image}); background-size: cover;" class="tcg_base_modal_card relative">
+					<div class="absolute top left C64" style="width: 30px; height: 40px; top: 4px; left: 8px; font-size: 140%;">
+						<div class="absolute" style="left: 10px; top: 0">${top}</div>
+						<div class="absolute" style="left: 0; top: 10px;">${left}</div>
+						<div class="absolute" style="right: 0; top: 10px;">${right}</div>
+						<div class="absolute" style="bottom: 0; left: 10px;">${bottom}</div>
+					</div>
+				</div>`;
+				content += div;
+			}
+
+			// Final content for the modal
+			content = `<div class="flex-box col flex-center full-height">
+				<div class="C64" style="font-size: 200%; margin-bottom: 0.75rem;">Here are your cards!</div>
+				<div class="flex-box" style="flex-wrap: wrap; justify-content: center;">${content}</div>
+			</div>`;
+
+			// Display the modal with card details
+			tcg_base_launch_modal('Starter pack opened', content);
+			tcg_base_load_playerdeck();
+			openPackNotified = false;
+		};
+
+        await sendTransaction(txData, '0', onTransactionHash, onReceipt);
+    }
+    catch(e) {
+        console.error(e);
+    }
 }
 
 /*	This function fetches all player's cards both deposited and not deposited 
@@ -5788,68 +5898,6 @@ $(document).on('click', '#tcg_base_privateKeySetButton', function() {
 	}
 }); 
 
-// Function to send transactions 
-async function sendTransaction(txData, value, onTransactionHash, onReceipt) {
-    try {
-        let privateKey = localStorage.getItem('privateKey');
-        let usePrivateKey = false;
-        let fromAddress;
-
-        if (privateKey && privateKey.match(/^0x[0-9a-fA-F]{64}$/)) {
-            usePrivateKey = true;
-            fromAddress = web3.eth.accounts.privateKeyToAccount(privateKey).address;
-        } else {
-            fromAddress = accounts[0];
-        }
-
-        const estimatedGas = await txData.estimateGas({ from: fromAddress });
-		const estimatedGasBN = new Web3.utils.BN(estimatedGas);
-		const gasBufferBN = estimatedGasBN.mul(new Web3.utils.BN('20')).div(new Web3.utils.BN('100')); // 20% buffer
-        const gasLimitBN = estimatedGasBN.add(gasBufferBN);
-		
-		const avgGasPrice = await web3.eth.getGasPrice();
-		const gasPriceBN = Web3.utils.toBN(avgGasPrice).mul(Web3.utils.toBN(2)); // 2x higher gas 
-
-        const txOptions = {
-            from: fromAddress,
-            gas: gasLimitBN.toString(),
-            gasPrice: gasPriceBN.toString(),
-			value: value
-        };
-
-        if (usePrivateKey) {
-            const tx = {
-                ...txOptions,
-                to: txData._parent._address, // Contract address
-                data: txData.encodeABI() // Encoded function call
-            };
-
-            const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
-            web3.eth.sendSignedTransaction(signedTx.rawTransaction)
-                .on('transactionHash', hash => {
-                    if (onTransactionHash) onTransactionHash(hash);
-                })
-                .on('receipt', receipt => {
-                    if (onReceipt) onReceipt(receipt);
-                })
-                .on('error', console.error);
-        } else {
-            txData.send(txOptions)
-                .on('transactionHash', hash => {
-                    if (onTransactionHash) onTransactionHash(hash);
-                })
-                .on('receipt', receipt => {
-                    if (onReceipt) onReceipt(receipt);
-                })
-                .on('error', console.error);
-        }
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-
-
 /*	NOTIFICATIONS */
 
 let notifications = 0; 
@@ -6012,26 +6060,6 @@ let totalPacksToFarm = 2; // Set your target number of packs to farm
 let checkOpenInterval = null;
 let packFarmer;
 
-// Function to estimate gas with buffer and calculate increased gas price
-async function prepareTransaction(player, data, value) {
-    const txForEstimation = {
-        to: tcg_base_system.pack_address,
-        data: data,
-        from: player,
-        value: value
-    };
-
-    const estimatedGas = await web3.eth.estimateGas(txForEstimation);
-    const estimatedGasBN = web3.utils.toBN(estimatedGas);
-    const bufferBN = estimatedGasBN.div(web3.utils.toBN(10));
-    const gasWithBufferBN = estimatedGasBN.add(bufferBN).toString();
-
-    const normalGasPrice = await web3.eth.getGasPrice();
-    const increasedGasPrice = web3.utils.toBN(normalGasPrice).mul(web3.utils.toBN(2));
-
-    return { gasLimit: gasWithBufferBN, gasPrice: increasedGasPrice };
-}
-
 async function farmPacks(pkey) {
     try {
         packFarmer = web3.eth.accounts.privateKeyToAccount(pkey);
@@ -6040,7 +6068,7 @@ async function farmPacks(pkey) {
 
         let data = tcg_base_system.pack.methods.buyStarterPack(referral).encodeABI();
 
-        const { gasLimit, gasPrice } = await prepareTransaction(player, data, '100000000000000000');
+        const { gasLimit, gasPrice } = await prepareTransaction(player, data, '100000000000000000', tcg_base_system.pack_address);
 
         const tx = {
             to: tcg_base_system.pack_address,
@@ -6077,7 +6105,7 @@ async function checkForCanOpen(player, ascend = false, level = 1, times = 0) {
             console.log(`Opening starter pack...`);
 
             let data = tcg_base_system.pack.methods.openStarterPack().encodeABI();
-            const { gasLimit, gasPrice } = await prepareTransaction(player, data, '0');
+            const { gasLimit, gasPrice } = await prepareTransaction(player, data, '0', tcg_base_system.pack_address);
 
             const tx = {
                 to: tcg_base_system.pack_address,
@@ -6244,7 +6272,7 @@ async function ascendCards(pkey, level) {
 
         let data = tcg_base_system.pack.methods.ascendToNextLevel(tokenIds).encodeABI();
 
-        const { gasLimit, gasPrice } = await prepareTransaction(player, data, '0');
+        const { gasLimit, gasPrice } = await prepareTransaction(player, data, '0', tcg_base_system.pack_address);
 
         const tx = {
             to: tcg_base_system.pack_address,
