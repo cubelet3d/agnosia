@@ -12,7 +12,6 @@ async function sendTransaction(txData, value, onTransactionHash, onReceipt) {
     try {
         // Fetch private key from local storage and determine the sender's address.
         const privateKey = localStorage.getItem('privateKey');
-        const usePrivateKey = privateKey && privateKey.match(/^0x[0-9a-fA-F]{64}$/);
         const fromAddress = usePrivateKey ? web3.eth.accounts.privateKeyToAccount(privateKey).address : accounts[0];
 
         // Prepare transaction with estimated gas and price.
@@ -23,7 +22,9 @@ async function sendTransaction(txData, value, onTransactionHash, onReceipt) {
             from: fromAddress,
             gasPrice: web3.utils.toHex(gasPrice),
             gasLimit: web3.utils.toHex(gasLimit),
-            value: value
+            value: value,
+			// Include nonce only if using private key
+			...(usePrivateKey && { nonce: web3.utils.toHex(currentNonce) }) // This is fetched in conn.js 
         };
 
         if (usePrivateKey) {
@@ -31,7 +32,10 @@ async function sendTransaction(txData, value, onTransactionHash, onReceipt) {
             const tx = { ...txOptions, to: txData._parent._address, data: txData.encodeABI() };
             const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
             web3.eth.sendSignedTransaction(signedTx.rawTransaction)
-                .on('transactionHash', onTransactionHash)
+                .on('transactionHash', hash => {
+                    onTransactionHash(hash);
+                    currentNonce++; // Increment nonce after transaction is sent
+                })
                 .on('receipt', onReceipt)
                 .on('error', console.error);
         } else {

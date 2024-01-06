@@ -42,11 +42,83 @@ const notificationsMap = {
 		receipt: `<div class="flex-box flex-center">Cauldron approved!</div>`
 	},
     brewCards: {
-        transactionHash: (hash) => `<div>Brewing cards...</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+        transactionHash: (hash) => `<div>Brewing cards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
         receipt: (reward) => reward ? 
             `<div style="text-align: center;">Cards brewed successfully. You withdrew your outstanding balance of <span class="tcg_base_golden_text">${reward} VIDYA</span></div>` :
             `<div style="text-align: center;">Cards brewed successfully.</div>`
-    }	
+    },
+	forfeitGame: {
+		transactionHash: (hash) => `<div>Executing forfeit</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div>Forfeit successful!</div><div>Enjoy your new cards ;)</div>`
+	},
+	vidyaApproval: {
+		transactionHash: (hash) => `<div>Approving VIDYA</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div>VIDYA approved successfully for use in Agnosia's game contract.</div>`
+	},
+	registerDiscordId: {
+		transactionHash: (hash) => `<div class="text-align-center">Registering Discord ID...</div>`,
+		receipt: `<div class="text-align-center">Discord ID registered!</div>`
+	},
+	setPfp: {
+		transactionHash: (hash) => `<div class="text-align-center">Setting new profile picture...</div>`,
+		receipt: `<div class="text-align-center">Profile picture is set!</div>` 
+	},
+	claimFromCauldron: {
+		transactionHash: (hash) => `<div class="flex-box flex-center">Sipping from Cauldron...</div>`,
+		receipt: ``
+	},
+	approveAscension: {
+		transactionHash: (hash) => `<div>Approving cards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div class="flex-box flex-center">Cards approved for Ascension!</div>`
+	},
+	ascendToNextLevel: {
+		transactionHash: (hash) => `<div>Ascending to next level</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div class="flex-box flex-center">Ascension complete! It will take a few minutes to print your new card...</div>`
+	},
+	claimRewards: {
+		transactionHash: (hash) => `<div>Claiming referral rewards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: (reward) => `Referral rewards claimed! You received <span class="tcg_base_golden_text">${reward} VIDYA</span>.`
+	},
+	setApprovalForAll: {
+		transactionHash: (hash) => `<div>Approving cards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div class="flex-box flex-center">Cards approved for transfer!</div>`
+	},
+	transferToDeck: {
+		transactionHash: (hash) => `<div>Uploading cards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div class="text-align-center">Cards uploaded successfully!</div>`
+	},
+	transferFromDeck: {
+		transactionHash: (hash) => `<div>Downloading cards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div class="text-align-center">Cards downloaded successfully!</div>`
+	},
+	initializeGame: {
+		transactionHash: (hash) => `<div>Creating new game</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: ``
+	},
+	cancelGameId: {
+		transactionHash: (hash) => `<div>Canceling game</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: (gameId) => `<div class="text-align-center">Game #${gameId} has been canceled.</div>`
+	},
+	joinGame: {
+		transactionHash: (hash, gameId) => `<div class="text-align-center">Joining game #${gameId}...</div>`,
+		receipt: (gameId) => `<div class="text-align-center">Joined game #${gameId}!</div>`
+	},
+	placeCardOnBoard: {
+		transactionHash: (hash) => `<div class="text-align-center">Placing card on board...</div>`,
+		receipt: `<div class="text-align-center">Card placed on board!</div>` 
+	},
+	collectWinnings: {
+		transactionHash: (hash, gameId) => `<div class="text-align-center">Finalizing game #${gameId}...</div>`,
+		receipt: (gameId) => `<div class="text-align-center">Game #${gameId} has been finalized successfully!</div>`
+	},
+	transferToDeck2: {
+		transactionHash: (hash) => `<div>Uploading multiple cards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div class="text-align-center">Cards uploaded successfully!</div>` 
+	},
+	transferFromDeck2: {
+		transactionHash: (hash) => `<div>Downloading multiple cards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+		receipt: `<div class="text-align-center">Cards downloaded successfully!</div>` 
+	}	
 }
 
 let player1Color = 'linear-gradient(315deg, rgba(193, 233, 114, 0.2) 0%, rgba(45, 89, 85, 0.2) 100%)'; // "linear-gradient(315deg, #91b2d3 0%, #527fa4 100%)"; 
@@ -1171,7 +1243,7 @@ $(document).ready(function() {
 	});
 	
 	// Forfeit button in games 
-	$(document).on('click', '.tcg_base_forfeit_button', async function() {
+	/*$(document).on('click', '.tcg_base_forfeit_button', async function() {
 		let gameId = $(this).attr('data-gameid'); 
 		let otherPlayer = (accounts[0].toLowerCase() === tcg_base_games.gameDetails[gameId][1].toLowerCase()) ? tcg_base_games.gameDetails[gameId][2] : tcg_base_games.gameDetails[gameId][1];
 		let cards = await tcg_base_system.game.methods.getStartingHand(otherPlayer, gameId).call(); 
@@ -1190,9 +1262,34 @@ $(document).ready(function() {
 		.on('error', function(error) {
 			console.error(error); 
 		})
-	}); 
+	}); */
 	
-	/*	Transaction that approves game contract to use player's VIDYA */
+	$(document).on('click', '.tcg_base_forfeit_button', async function() {
+		let gameId = $(this).attr('data-gameid');
+		let otherPlayer = (accounts[0].toLowerCase() === tcg_base_games.gameDetails[gameId][1].toLowerCase()) ? tcg_base_games.gameDetails[gameId][2] : tcg_base_games.gameDetails[gameId][1];
+		let cards = await tcg_base_system.game.methods.getStartingHand(otherPlayer, gameId).call();
+
+		const forfeitTxData = tcg_base_system.game.methods.collectWinnings(gameId, cards);
+		await sendTransaction(forfeitTxData, '0', 
+			(hash) => notify(notificationsMap.forfeitGame.transactionHash(hash)),
+			async (receipt) => {
+				
+				// If in Play tab, reload it & force empty the games list 
+				if($('.tcg_base_menu_option_active').attr('data') === 'play') {
+					await tcg_base_open_tab('play', true);
+				}
+				
+				// Remove game window & task icon 
+				let gameWindow = $(`#tcg_base_game_window_${gameId}`);
+				gameWindow.remove();
+				let taskIcon = $(`.task[data=tcg_base_game_window_${gameId}]`);
+				taskIcon.remove();
+
+				notify(notificationsMap.forfeitGame.receipt);
+			});
+	});
+	
+	/*	Transaction that approves game contract to use player's VIDYA 
 	$('#tcg_base_approveVidya').on('click', async function() {
 		await VIDYA.methods.approve(tcg_base_system.game_address, '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF').send({from: accounts[0]})
 		.on('transactionHash', function(hash) {
@@ -1204,7 +1301,15 @@ $(document).ready(function() {
 		.on('error', function(error) {
 			console.error(error); 
 		})
-	}); 
+	}); */
+	
+	$(document).on('click', '#tcg_base_approveVidya', async function() {
+		const approvalTxData = VIDYA.methods.approve(tcg_base_system.game_address, '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
+		
+		await sendTransaction(approvalTxData, '0', 
+			(hash) => notify(notificationsMap.vidyaApproval.transactionHash(hash)),
+			(receipt) => notify(notificationsMap.vidyaApproval.receipt));
+	});	
 	
 	// Available games tab 
 	$(".available_games").on("click", function() {
@@ -1219,7 +1324,7 @@ $(document).ready(function() {
 	});
 	
 	// Input handler for #playbackInputId in Replay area 
-	$(document).on('focus', '#playbackInputId, #tcg_base_inventory_tokenId', function() {
+	$(document).on('focus', '#playbackInputId, #tcg_base_inventory_tokenId, #tcg_base_privateKey', function() {
 		$(this).text('');
 	}); 
 	
@@ -1535,8 +1640,7 @@ $(document).ready(function() {
 	/* SETTINGS TAB */
 	
 	// Claim referral rewards 
-	$(document).on("click", ".tcg_base_claimrewards_button", function() {
-		console.log("claim rewards"); 
+	$(document).on("click", ".tcg_base_claimrewards_button", function() { 
 		tcg_base_claimReferralRewards();
 	});
 	
@@ -1580,7 +1684,7 @@ $(document).ready(function() {
 	});
 	
 	// Click handler for set discordId button 
-	$(document).on('click', '#tcg_base_discordIdSetButton', async function() {
+	/*$(document).on('click', '#tcg_base_discordIdSetButton', async function() {
 		let discordId = $('#tcg_base_discordId').text();
 
 		// Check if the ID is numerical and exactly 18 digits long
@@ -1597,12 +1701,29 @@ $(document).ready(function() {
 		  })
 		  
 		} else {
-			error(`Your input ${discordId} doesn't look like a valid Discord ID.`);
+			error(`Your input ${discordId} doesn't look like a valid Discord ID. Note that the ID we are looking for is the 18 digit number, not your username.`);
 		}
-	}); 
+	}); */
+	
+	$(document).on('click', '#tcg_base_discordIdSetButton', async function() {
+		let discordId = $('#tcg_base_discordId').text();
+
+		if (/^\d{18}$/.test(discordId)) {
+			const registerTxData = tcg_base_system.game.methods.registerId(discordId);
+
+			await sendTransaction(registerTxData, '0',
+				(hash) => notify(notificationsMap.registerDiscordId.transactionHash(hash)),
+				(receipt) => {
+					notify(notificationsMap.registerDiscordId.receipt);
+					$('#tcg_base_discordId, #tcg_base_discordIdSetButton').addClass('disabled');
+				});
+		} else {
+			error(`Your input ${discordId} doesn't look like a valid Discord ID. Note that the ID we are looking for is the 18 digit number, not your username.`);
+		}
+	});
 	
 	// Click handler for setting tokenId as inventory pfp 
-	$(document).on('click', '#tcg_base_inventory_tokenIdSetButton', async function() {
+	/*$(document).on('click', '#tcg_base_inventory_tokenIdSetButton', async function() {
 		let tokenIdInput = $('#tcg_base_inventory_tokenId').text();
 		let tokenId = parseInt(tokenIdInput);
 
@@ -1630,9 +1751,29 @@ $(document).ready(function() {
 		} else {
 			error("This item does not belong to you!");
 		}
-	});
+	});*/
 	
-	
+	$(document).on('click', '#tcg_base_inventory_tokenIdSetButton', async function() {
+		let tokenIdInput = $('#tcg_base_inventory_tokenId').text();
+		let tokenId = parseInt(tokenIdInput);
+
+		if (isNaN(tokenId) || tokenId <= 0 || tokenIdInput.includes('.')) {
+			error("Invalid Token ID. Please enter a valid, whole number.");
+			return;
+		}
+
+		let owner = await Inventory.methods.ownerOf(tokenId).call();
+
+		if (owner.toLowerCase() === accounts[0].toLowerCase()) {
+			const updatePfpTxData = tcg_base_system.game.methods.updatePfp(tokenId);
+
+			await sendTransaction(updatePfpTxData, '0',
+				(hash) => notify(notificationsMap.setPfp.transactionHash(hash)),
+				(receipt) => notify(notificationsMap.setPfp.receipt));
+		} else {
+			error("This item does not belong to you!");
+		}
+	});	
 	
 	/* CAULDRON TAB */
 	$(document).on('mouseenter', '.tcg_base_cauldron_claim', function() {
@@ -1650,7 +1791,7 @@ $(document).ready(function() {
         tcg_base_audio['cauldron_slow'].play();		
 	}); 
 	
-	$(document).on('click', '.tcg_base_cauldron_claim', async function() {
+	/*$(document).on('click', '.tcg_base_cauldron_claim', async function() {
 		if (tcg_base_player.cauldron.tokensClaimable > 0) {
 			await tcg_base_system.caul.methods.claim().send({from: accounts[0]})
 			.on('transactionHash', function(hash) {
@@ -1660,8 +1801,6 @@ $(document).ready(function() {
 				await tcg_base_loadCauldron(); 
 				let amt = Number(web3.utils.fromWei(receipt.events.Claimed.returnValues.amount)).toFixed(2); 
 				cauldronSip(amt); 
-				// notify(`<div class="flex-box flex-center">You received ${} VIDYA!</div>`);
-				// console.log(receipt); 
 			})
 			.on('error', function(error) {
 				error(`Something went wrong.. check the console.`); 
@@ -1670,7 +1809,40 @@ $(document).ready(function() {
 		} else {
 			error(`You are not worthy.`); 
 		}
-	}); 
+	});*/
+	
+	$(document).on('click', '.tcg_base_cauldron_claim', async function() {
+		if (tcg_base_player.cauldron.tokensClaimable > 0) {
+			const claimTxData = tcg_base_system.caul.methods.claim();
+
+			await sendTransaction(claimTxData, '0',
+				(hash) => notify(notificationsMap.claimFromCauldron.transactionHash(hash)),
+				async (receipt) => {
+					
+					// If in Brew tab, reload it
+					if($('.tcg_base_menu_option_active').attr('data') === 'cauldron') {
+						await tcg_base_loadCauldron();
+					}
+					
+					let reward = null; 
+					
+					if (receipt.events) {
+						if (receipt.events.Claimed && receipt.events.Claimed.returnValues) {
+							reward = Number(web3.utils.fromWei(receipt.events.Claimed.returnValues.amount)).toFixed(2);
+						}
+					} else if (receipt.logs) {
+						let rewardAmountHex = receipt.logs[0].data; 
+						reward = web3.utils.isHexStrict(rewardAmountHex) ? Number(web3.utils.fromWei(rewardAmountHex)).toFixed(2) : null;
+					} else {
+						console.error("No logs or events found in the receipt");
+					}					
+					
+					cauldronSip(reward);
+				});
+		} else {
+			error(`You are not worthy.`);
+		}
+	});
 
 	// Initial states 
 	$('.tcg_base_cauldron_stats').addClass('tcg_base_cauldron_stats_closed');
@@ -1736,7 +1908,7 @@ function tcg_base_init() {
 	tcg_base_system.pack = new web3.eth.Contract(tcg_base_pack_abi, tcg_base_system.pack_address); 
 	tcg_base_system.game = new web3.eth.Contract(tcg_base_game_abi, tcg_base_system.game_address); 
 	tcg_base_system.card = new web3.eth.Contract(tcg_base_card_abi, tcg_base_system.card_address); 
-	tcg_base_system.caul = new web3.eth.Contract(tcg_base_caul_abi, tcg_base_system.caul_address);  
+	tcg_base_system.caul = new web3.eth.Contract(tcg_base_caul_abi, tcg_base_system.caul_address); 
 }
 
 /*	Functions to show & hide the loading screen */
@@ -2343,7 +2515,7 @@ async function tcg_base_deckview_loadTokenIdsList(cardName) {
 	}
 }
 
-/*	Transaction to set approval for player's cards within the ascend contract (starterpack seller) */
+/*	Transaction to set approval for player's cards within the ascend contract (starterpack seller) 
 async function tcg_base_approveAscension() {
 	try {
 		await tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.pack_address, true).send({from: accounts[0]})
@@ -2367,10 +2539,31 @@ async function tcg_base_approveAscension() {
 	catch(e) {
 		console.error(e);
 	} 
+}*/
+
+async function tcg_base_approveAscension() {
+    try {
+        const approveTxData = tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.pack_address, true);
+        
+        await sendTransaction(approveTxData, '0', 
+            (hash) => {
+                $(".tcg_base_approve_button").addClass("disabled");
+                $(".tcg_base_ascend_card").addClass("disabled");
+                notify(notificationsMap.approveAscension.transactionHash(hash));
+            },
+            (receipt) => {
+                $(".tcg_base_approve_button").addClass("hidden");
+                $(".tcg_base_ascend_button").removeClass("hidden");
+                $(".tcg_base_ascend_card").removeClass("disabled");
+                notify(notificationsMap.approveAscension.receipt);
+            });
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 /*	Transaction to ascend cards to next level 
-	tokenIds array of tokenIds to burn in order to get 1 higher level card */
+	tokenIds array of tokenIds to burn in order to get 1 higher level card 
 async function tcg_base_ascendToNextLevel(tokenIds) {
 	try {
 		await tcg_base_system.pack.methods.ascendToNextLevel(tokenIds).send({from: accounts[0]})
@@ -2393,6 +2586,31 @@ async function tcg_base_ascendToNextLevel(tokenIds) {
 	catch(e) {
 		console.error(e);
 	}
+}*/
+
+async function tcg_base_ascendToNextLevel(tokenIds) {
+    try {
+        const ascendTxData = tcg_base_system.pack.methods.ascendToNextLevel(tokenIds);
+
+        await sendTransaction(ascendTxData, '0', 
+            (hash) => {
+                $(".tcg_base_ascend_button, .tcg_base_buypack_button").addClass("disabled");
+                $(".tcg_base_ascend_card").css("background-image", "").removeAttr("data-tokenid");
+                notify(notificationsMap.ascendToNextLevel.transactionHash(hash));
+            },
+            async (receipt) => {
+				// If in Deck tab, reload it 
+				if($('.tcg_base_menu_option_active').attr('data') === 'deck') {
+					await tcg_base_open_tab("deck");
+				}
+				
+				$(".tcg_base_buypack_button").removeClass("disabled");
+				
+				notify(notificationsMap.ascendToNextLevel.receipt);
+            });
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 // Returns property count in a given object 
@@ -2728,7 +2946,7 @@ async function tcg_base_hasPendingRequest() {
 	}
 }
 
-/*	Transaction that claims referral rewards */
+/*	Transaction that claims referral rewards 
 async function tcg_base_claimReferralRewards() {
 	try {
 		await tcg_base_system.pack.methods.claimRewards().send({from: accounts[0]})
@@ -2750,6 +2968,37 @@ async function tcg_base_claimReferralRewards() {
 	catch(e) {
 		console.error(e);
 	}
+}*/
+
+async function tcg_base_claimReferralRewards() {
+    try {
+        const claimRewardsTxData = tcg_base_system.pack.methods.claimRewards();
+
+        await sendTransaction(claimRewardsTxData, '0',
+            (hash) => {
+                $(".tcg_base_claimrewards_button").addClass("disabled");
+                notify(notificationsMap.claimRewards.transactionHash(hash));
+            },
+            (receipt) => {
+				let reward = null; 
+				
+				if (receipt.events) {
+					reward = decimal(web3.utils.fromWei(web3.utils.hexToNumberString(receipt.events[0].raw.data)));
+				} else if (receipt.logs) {
+					let rewardAmountHex = receipt.logs[0].data; 
+					reward = web3.utils.isHexStrict(rewardAmountHex) ? Number(web3.utils.fromWei(rewardAmountHex)).toFixed(2) : null;
+				} else {
+					console.error("No logs or events found in the receipt");
+				}
+				
+                $(".tcg_base_claimrewards_button").removeClass("disabled").addClass('disabled');
+                $('#outstandingReferralRewards').html(``);
+				
+				notify(notificationsMap.claimRewards.receipt(reward));
+            });
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 /*	Function that handles card deposits 
@@ -2780,8 +3029,8 @@ async function tcg_base_handleDeposit(tokenId, cardName, level) {
 	}
 }
 
-/*	Transaction to set approval for game contract to use player's cards */
-async function tcg_base_setApprovalForAll(data) { 
+/*	Transaction to set approval for game contract to use player's cards 
+async function tcg_base_setApprovalForAll(data) {
 	try {
 		await tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.game_address, true).send({from: accounts[0]})
 		.on("transactionHash", function(hash) {
@@ -2792,13 +3041,30 @@ async function tcg_base_setApprovalForAll(data) {
 			notify('<div class="flex-box flex-center">Approved cards successfully!</div>');
 			$(".tcg_base_approve_deposit_button").removeClass("disabled");
 			closeModal(data);
-			
-			// Trigger the upload here.. 
 		})
 	}
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+
+async function tcg_base_setApprovalForAll(data) {
+    try {
+        const approvalTxData = tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.game_address, true);
+
+        await sendTransaction(approvalTxData, '0',
+            (hash) => {
+                $(".tcg_base_approve_deposit_button").addClass("disabled");
+                notify(notificationsMap.setApprovalForAll.transactionHash(hash));
+            },
+            (receipt) => {
+                $(".tcg_base_approve_deposit_button").removeClass("disabled");
+				notify(notificationsMap.setApprovalForAll.receipt);
+                closeModal(data);
+            });
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 // Closes the modal 
@@ -2818,7 +3084,7 @@ function closeModalEndgame(id) {
 /*	Transaction to deposit cards to Deck (the game contract) 
 	tokensToDeposit the tokenIds to deposit 
 	cardName the card name 
-	level the card level */
+	level the card level 
 async function tcg_base_transferToDeck(tokensToDeposit, cardName, level) {
 	try {
 		await tcg_base_system.game.methods.transferToDeck(tokensToDeposit).send({from: accounts[0]})
@@ -2843,6 +3109,34 @@ async function tcg_base_transferToDeck(tokensToDeposit, cardName, level) {
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+
+async function tcg_base_transferToDeck(tokensToDeposit, cardName, level) {
+    try {
+        const transferTxData = tcg_base_system.game.methods.transferToDeck(tokensToDeposit);
+
+        await sendTransaction(transferTxData, '0',
+            (hash) => {
+                $('.tcg_base_tokenId_brew').addClass('disabled');
+                notify(notificationsMap.transferToDeck.transactionHash(hash));
+            },
+            async (receipt) => {
+				// Hmm... disabling these.
+                // let currentPage = tcg_base_player.currentPage;
+                // await tcg_base_load_playerdeck(currentPage);
+                // await tcg_base_deckview_loadTokenIdsList(cardName);
+                // updateCardDetails(tokensToDeposit[0]);
+				
+				// If in Deck tab, reload it 
+				if($('.tcg_base_menu_option_active').attr('data') === 'deck') {
+					await tcg_base_open_tab("deck");
+				}		
+				
+                notify(notificationsMap.transferToDeck.receipt);
+            });
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 /*	Returns a boolean that answers 'is this card locked in any game?' */
@@ -2871,7 +3165,7 @@ async function tcg_base_handleWithdraw(tokenId, cardName, level) {
 /*	Transaction to transfer cards from Deck (the game contract) 
 	tokensToWithdraw array of tokenIds to withdraw 
 	cardName the name of the card 
-	level the level of the card */
+	level the level of the card 
 async function tcg_base_transferFromDeck(tokensToWithdraw, cardName, level) {
 	try {
 		await tcg_base_system.game.methods.transferFromDeck(tokensToWithdraw).send({from: accounts[0]})
@@ -2896,6 +3190,30 @@ async function tcg_base_transferFromDeck(tokensToWithdraw, cardName, level) {
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+
+async function tcg_base_transferFromDeck(tokensToWithdraw, cardName, level) {
+    try {
+        const transferFromDeckTxData = tcg_base_system.game.methods.transferFromDeck(tokensToWithdraw);
+
+        await sendTransaction(transferFromDeckTxData, '0',
+            (hash) => notify(notificationsMap.transferFromDeck.transactionHash(hash)),
+            async (receipt) => {
+                // let currentPage = tcg_base_player.currentPage;
+                // await tcg_base_load_playerdeck(currentPage);
+                // await tcg_base_deckview_loadTokenIdsList(cardName);
+                // updateCardDetails(tokensToWithdraw[0]);
+				
+				// If in Deck tab, reload it 
+				if($('.tcg_base_menu_option_active').attr('data') === 'deck') {
+					await tcg_base_open_tab("deck");
+				}
+				
+                notify(notificationsMap.transferFromDeck.receipt);
+            });
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 /*	This function updates the card details in the detailed view 
@@ -3138,7 +3456,7 @@ function tcg_base_drawAvailableCards(cards) {
 /*	Transaction to create a new game 
 	selectedAvailableCards array of tokenIds used in the new game 
 	wagerInputAmount amount of VIDYA being wagered 
-	selectedTradeRule the trade rule for this game */
+	selectedTradeRule the trade rule for this game 
 async function initializeGame(selectedAvailableCards, wagerInputAmount, selectedTradeRule, friend, handLimit) {
 	try {
 		handLimit < 45 ? limitHands = true : limitHands = false; // Check if handLimit was modified by user (default is 45)
@@ -3159,6 +3477,41 @@ async function initializeGame(selectedAvailableCards, wagerInputAmount, selected
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+
+async function initializeGame(selectedAvailableCards, wagerInputAmount, selectedTradeRule, friend, handLimit) {
+    try {
+        let limitHands = handLimit < 45;
+        let cards = selectedAvailableCards;
+        let wager = wagerInputAmount;
+        let rule = selectedTradeRule;
+        let timer = $('#tcg_base_timeLimiter').val();
+
+        const gameInitTxData = tcg_base_system.game.methods.initializeGame(cards, wager, rule, friend, limitHands, handLimit, timer);
+
+        await sendTransaction(gameInitTxData, '0',
+            (hash) => notify(notificationsMap.initializeGame.transactionHash(hash)),
+            async (receipt) => {
+				
+				// If in Play tab, reload it
+				if($('.tcg_base_menu_option_active').attr('data') === 'play') {
+					await tcg_base_open_tab('play', true);
+				}
+				
+				let gameId; 
+				if(receipt.events) {
+					gameId = receipt.events.GameInitialized.returnValues._gameId;
+				} else if (receipt.logs) {
+					gameId = Number(receipt.logs[0].topics[1]); 
+				} else {
+					console.error("No logs or events found in the receipt");
+				}
+				
+                await tcg_base_openGame(gameId);
+            });
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 /*	Function to load games list into .tcg_base_play_games_list_inner 
@@ -3410,7 +3763,7 @@ async function tcg_base_revealPlayer1Hand(tokenIds, gameId) {
 
 /*	Transaction to cancel a game that is waiting for 2nd player 
 	gameIndex the gameIndex player wants to cancel 
-	gameId the gameId player wants to cancel */
+	gameId the gameId player wants to cancel 
 async function tcg_base_cancelGameId(gameIndex, gameId) {
 	try {
 		await tcg_base_system.game.methods.cancelGameWaiting(gameIndex).send({from: accounts[0]})
@@ -3426,13 +3779,34 @@ async function tcg_base_cancelGameId(gameIndex, gameId) {
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+
+async function tcg_base_cancelGameId(gameIndex, gameId) {
+    try {
+        const cancelGameTxData = tcg_base_system.game.methods.cancelGameWaiting(gameIndex);
+
+        await sendTransaction(cancelGameTxData, '0',
+            (hash) => notify(notificationsMap.cancelGameId.transactionHash(hash)),
+            async (receipt) => {
+                tcg_base_games.playerGames = tcg_base_games.playerGames.filter(id => id !== gameId);
+				
+				// If in Play tab, reload it
+				if($('.tcg_base_menu_option_active').attr('data') === 'play') {
+					await tcg_base_open_tab('play', true);
+				}
+				
+                notify(notificationsMap.cancelGameId.receipt(gameId));
+            });
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 /*	Transaction to join a game 
 	cards the array of cards player chose to join with 
 	gameId the game player is joining 
 	creator the creator of this game 
-	gameIndex the gameId */
+	gameIndex the gameId 
 async function tcg_base_joinGameId(cards, gameId, creator, gameIndex) {
 	try {
 		await tcg_base_system.game.methods.joinGame(cards, gameIndex, creator).send({from: accounts[0]})
@@ -3450,6 +3824,28 @@ async function tcg_base_joinGameId(cards, gameId, creator, gameIndex) {
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+
+async function tcg_base_joinGameId(cards, gameId, creator, gameIndex) {
+    try {
+        const joinGameTxData = tcg_base_system.game.methods.joinGame(cards, gameIndex, creator);
+
+        await sendTransaction(joinGameTxData, '0',
+            (hash) => notify(notificationsMap.joinGame.transactionHash(hash, gameId)),
+            async (receipt) => {
+                tcg_base_games.playerGames = tcg_base_games.playerGames.filter(id => id !== gameId);
+                notify(notificationsMap.joinGame.receipt(gameId));
+
+				// If in Play tab, reload it
+				if($('.tcg_base_menu_option_active').attr('data') === 'play') {
+					await tcg_base_open_tab('play', true);
+				}
+
+                await tcg_base_openGame(gameId);
+            });
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 /*	Function to open a new game window 
@@ -4067,7 +4463,7 @@ function generateInformationString(gameDetails, result, accounts) {
 	gameIndex the gameId 
 	boardPosition the position on the board 
 	cardElement the actual card element being placed 
-	currentPlayer who is placing the card */
+	currentPlayer who is placing the card 
 async function placeCardOnBoard(indexInHand, gameIndex, boardPosition, cardElement, currentPlayer) {
 	try {
 		let $gameWindow = $(`#tcg_base_game_window_${gameIndex}`);
@@ -4117,6 +4513,37 @@ async function placeCardOnBoard(indexInHand, gameIndex, boardPosition, cardEleme
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+
+async function placeCardOnBoard(indexInHand, gameIndex, boardPosition, cardElement, currentPlayer) {
+    try {
+        let $gameWindow = $(`#tcg_base_game_window_${gameIndex}`);
+        addPointerEventsClass($gameWindow, currentPlayer, true);
+
+        const placeCardTxData = tcg_base_system.game.methods.placeCardOnBoard(indexInHand, gameIndex, boardPosition);
+
+        await sendTransaction(placeCardTxData, '0',
+            (hash) => notify(notificationsMap.placeCardOnBoard.transactionHash(hash)),
+            async (receipt) => {
+                notify(notificationsMap.placeCardOnBoard.receipt);
+                addPointerEventsClass($gameWindow, currentPlayer, false);
+                delete tcg_base_games.gameSelectedCards[gameIndex];
+                await tcg_base_gamesLoop();
+            });
+    } catch(e) {
+        console.error(e);
+        addPointerEventsClass($gameWindow, currentPlayer, false);
+    }
+}
+
+function addPointerEventsClass($gameWindow, currentPlayer, addClass) {
+    const selector = currentPlayer === 'player1' ? '.tcg_base_player_cards_list .tcg_base_player_card, .tcg_base_card_on_board_inner' 
+                                                 : '.tcg_base_opponent_cards_list .tcg_base_player_card, .tcg_base_card_on_board_inner';
+    if (addClass) {
+        $gameWindow.find(selector).addClass('no-pointer-events');
+    } else {
+        $gameWindow.find(selector).removeClass('no-pointer-events');
+    }
 }
 
 // Updates Player1 and Player2 hands during a gameplay 
@@ -4250,7 +4677,7 @@ function tcg_base_openGameUpdateTurn(gameWindow, gameDetails) {
 }
 
 /*	Transaction to collect winnings from gameId 
-	tokenIds array of tokenIds to claim */
+	tokenIds array of tokenIds to claim 
 async function tcg_base_collectWinnings(gameId, tokenIds) { 
 	try {
 		await tcg_base_system.game.methods.collectWinnings(gameId, tokenIds).send({from: accounts[0]})
@@ -4268,6 +4695,21 @@ async function tcg_base_collectWinnings(gameId, tokenIds) {
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+
+async function tcg_base_collectWinnings(gameId, tokenIds) { 
+    try {
+        const collectWinningsTxData = tcg_base_system.game.methods.collectWinnings(gameId, tokenIds);
+
+        await sendTransaction(collectWinningsTxData, '0',
+            (hash) => notify(notificationsMap.collectWinnings.transactionHash(hash, gameId)),
+            async (receipt) => {
+				if ($('.tcg_base_menu_option_active').attr('data') === 'play') await tcg_base_open_tab('play', true);
+                notify(notificationsMap.collectWinnings.receipt(gameId));
+            });
+    } catch(e) {
+        console.error(e); 
+    }
 }
 
 
@@ -4811,7 +5253,7 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds) {
 			return; 
 		}
 		
-		await tcg_base_system.game.methods.transferToDeck(selectedTokenIds).send({from: accounts[0]})
+		/*await tcg_base_system.game.methods.transferToDeck(selectedTokenIds).send({from: accounts[0]})
 		.on('transactionHash', function(hash) {
 			$('.tcg_base_tokenId_brew').addClass('disabled');
 			notify(`<div class="flex-box flex-center">Uploading multiple cards..</div>`);
@@ -4823,14 +5265,27 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds) {
 		})
 		.on('error', function(error) {
 			console.error(error); 
-		})
+		})*/
+		
+        const transferToDeckTxData = tcg_base_system.game.methods.transferToDeck(selectedTokenIds);
+
+        await sendTransaction(transferToDeckTxData, '0',
+            (hash) => {
+                $('.tcg_base_tokenId_brew').addClass('disabled');
+                notify(notificationsMap.transferToDeck2.transactionHash(hash));
+            },
+            async (receipt) => {
+                notify(`<div class="flex-box flex-center">Multiple cards upload was successful!</div>`);
+                resetMultiUpload(); 
+				if($('.tcg_base_menu_option_active').attr('data') === 'deck') await tcg_base_open_tab("deck");
+            });
 	}
 	catch(e) {
 		console.error(e); 
 	}
 }
 
-async function tcg_base_handleWithdrawForMultiDownload(selectedTokenIds) {
+/*async function tcg_base_handleWithdrawForMultiDownload(selectedTokenIds) {
 	try {
 		await tcg_base_system.game.methods.transferFromDeck(selectedTokenIds).send({from: accounts[0]})
 		.on('transactionHash', function(hash) {
@@ -4848,6 +5303,22 @@ async function tcg_base_handleWithdrawForMultiDownload(selectedTokenIds) {
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+
+async function tcg_base_handleWithdrawForMultiDownload(selectedTokenIds) {
+    try {
+        const transferFromDeckTxData = tcg_base_system.game.methods.transferFromDeck(selectedTokenIds);
+
+        await sendTransaction(transferFromDeckTxData, '0',
+            (hash) => notify(notificationsMap.transferFromDeck2.transactionHash(hash)),
+            async (receipt) => {
+                notify(notificationsMap.transferFromDeck2.receipt);
+                resetMultiDownload(); 
+                if($('.tcg_base_menu_option_active').attr('data') === 'deck') await tcg_base_open_tab("deck");
+            });
+    } catch(e) {
+        console.error(e); 
+    }
 }
 
 // Resets the Upload button and multi upload tokenIds array 
@@ -5898,14 +6369,21 @@ if(savedPkey && savedPkey.match(/^0x[0-9a-fA-F]{64}$/)) {
 }
 
 $(document).on('click', '#tcg_base_privateKeySetButton', function() {
-	let privateKeyInput = document.getElementById('tcg_base_privateKey').textContent;
-	if (privateKeyInput && privateKeyInput.match(/^0x[0-9a-fA-F]{64}$/)) {
-		localStorage.setItem('privateKey', privateKeyInput); 
-		console.log('Private key saved to localStorage!'); 
-	} else {
-		console.error(`Invalid private key!`); 
-	}
-}); 
+    let privateKeyInput = document.getElementById('tcg_base_privateKey').textContent.trim();
+
+    if (privateKeyInput === '') {
+        // Clear privateKey from localStorage if input is empty
+        localStorage.removeItem('privateKey');
+        notify('Private key cleared from localStorage!');
+    } else if (privateKeyInput.match(/^0x[0-9a-fA-F]{64}$/)) {
+        // Save privateKey to localStorage if input is valid
+        localStorage.setItem('privateKey', privateKeyInput);
+        notify('Private key saved to localStorage!');
+    } else {
+        console.error('Invalid private key!');
+    }
+});
+
 
 /*	NOTIFICATIONS */
 

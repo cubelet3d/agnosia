@@ -1,4 +1,6 @@
 let mobileUI = false; 
+let currentNonce;
+let usePrivateKey = false;
 
 $(window).on('load', function() {
     $('.agnosia-loading').remove(); 
@@ -84,6 +86,15 @@ async function setup() {
 		// Load user address into profile link 
 		$('.tcg_base_menu_profile_link').text(formatAddress(accounts[0]));
 		$('.tcg_base_menu_profile_link').attr('data-address', accounts[0]);
+
+		// Get the nonce for private key users 
+		const privateKey = localStorage.getItem('privateKey');
+		usePrivateKey = privateKey && privateKey.match(/^0x[0-9a-fA-F]{64}$/);
+
+		if (usePrivateKey) {
+			const fromAddress = web3.eth.accounts.privateKeyToAccount(privateKey).address;
+			currentNonce = await web3.eth.getTransactionCount(fromAddress, 'pending');
+		}
 
 		connected = true
     }
