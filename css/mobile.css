@@ -7,7 +7,7 @@
 	flex-direction: column; 
 	align-items: center;
 	justify-content: center;
-	z-index: 100000; 
+	z-index: 999; 
 }
 
 .agnosia-mobile-menu .tcg_base_mobile_menu_option {
