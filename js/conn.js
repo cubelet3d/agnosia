@@ -187,6 +187,9 @@ function assetLoaded() {
         document.documentElement.classList.remove('loading-active');
 		document.getElementById('agnosia-loading-label').style.display = 'none'; 
         document.getElementById('progress-bar-container').style.display = 'none';
+        if (connected || usePrivateKey) {
+            document.getElementById("playButton").style.display = "flex";
+        }
     }
 }
 
@@ -223,6 +226,20 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.classList.add('is-mobile');
         console.log("is mobile");
         mobileUI = true;
+    }
+});
+
+// Listener for the 'connected' variable
+Object.defineProperty(window, 'connected', {
+    set(value) {
+        connected = value;
+        // Show play button if all assets are loaded and wallet is connected
+        if (connected && assetsLoaded === assetsToLoad) {
+            document.getElementById("playButton").style.display = "flex";
+        }
+    },
+    get() {
+        return connected;
     }
 });
 
@@ -283,9 +300,7 @@ async function setup() {
 		await tcg_base_init();
 
 		$('#tcg_base, .agnosia-header-menu').css('opacity', '1');
-		
-		document.getElementById("playButton").style.display = "flex"; // Show play button 
-		
+
 		if(mobileUI) {
 			$('.agnosia-mobile-menu, .fullscreenButton').css('display', 'flex'); 
 			$(`.tcg_base_mobile_menu_option[data="profile"]`).attr('data-address', accounts[0]); 
@@ -304,7 +319,7 @@ async function setup() {
 			currentNonce = await web3.eth.getTransactionCount(fromAddress, 'pending');
 		}
 
-		connected = true
+		window.connected = true; 
     }
     
     catch(e) {
