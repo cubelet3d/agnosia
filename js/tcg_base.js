@@ -3127,10 +3127,8 @@ async function tcg_base_transferToDeck(tokensToDeposit, cardName, level) {
                 // await tcg_base_deckview_loadTokenIdsList(cardName);
                 // updateCardDetails(tokensToDeposit[0]);
 				
-				// If in Deck tab, reload it 
-				if($('.tcg_base_menu_option_active').attr('data') === 'deck') {
-					await tcg_base_open_tab("deck");
-				}		
+				if($('.tcg_base_menu_option_active').attr('data') === 'deck') await tcg_base_open_tab("deck");
+				if($('.tcg_base_menu_option_active').attr('data') === 'play') await tcg_base_open_tab("play");
 				
                 notify(notificationsMap.transferToDeck.receipt);
             });
@@ -3852,7 +3850,17 @@ async function tcg_base_joinGameId(cards, gameId, creator, gameIndex) {
 	gameId the game id we want to open */
 async function tcg_base_openGame(gameId, isPlayback = false) { 
 	try {
-		let gameDetails = tcg_base_games.gameDetails[gameId];
+        let gameDetails = tcg_base_games.gameDetails[gameId];
+
+        if (!gameDetails) {
+            await tcg_base_gamesLoop(); // Run the loop to fetch gameDetails if not present
+            gameDetails = tcg_base_games.gameDetails[gameId]; // Re-fetch after the loop
+        }
+
+        if (!gameDetails) {
+            throw new Error(`Game details for game ID ${gameId} could not be found.`);
+        }
+		
 		let wager = gameDetails[9] > 0 ? `${Number(web3.utils.fromWei(gameDetails[9]))} VIDYA` : 'N/A'; 
 		let tradeRuleMap = ['One', 'Diff', 'Direct', 'All'];
 		let tradeRule = tradeRuleMap[gameDetails[10]];
@@ -5278,6 +5286,7 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds) {
                 notify(`<div class="flex-box flex-center">Multiple cards upload was successful!</div>`);
                 resetMultiUpload(); 
 				if($('.tcg_base_menu_option_active').attr('data') === 'deck') await tcg_base_open_tab("deck");
+				if($('.tcg_base_menu_option_active').attr('data') === 'play') await tcg_base_open_tab("play");
             });
 	}
 	catch(e) {
@@ -6371,13 +6380,20 @@ if(savedPkey && savedPkey.match(/^0x[0-9a-fA-F]{64}$/)) {
 $(document).on('click', '#tcg_base_privateKeySetButton', function() {
     let privateKeyInput = document.getElementById('tcg_base_privateKey').textContent.trim();
 
+    // Check if privateKeyInput is valid and prepend 0x if necessary
+    if (privateKeyInput.match(/^[0-9a-fA-F]{64}$/)) {
+        privateKeyInput = '0x' + privateKeyInput; // Prepend 0x
+    }
+
     if (privateKeyInput === '') {
         // Clear privateKey from localStorage if input is empty
         localStorage.removeItem('privateKey');
+        usePrivateKey = false;
         notify('Private key cleared from localStorage!');
     } else if (privateKeyInput.match(/^0x[0-9a-fA-F]{64}$/)) {
         // Save privateKey to localStorage if input is valid
         localStorage.setItem('privateKey', privateKeyInput);
+        usePrivateKey = true;
         notify('Private key saved to localStorage!');
     } else {
         console.error('Invalid private key!');

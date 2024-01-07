@@ -312,7 +312,7 @@ async function setup() {
 
 		// Get the nonce for private key users 
 		const privateKey = localStorage.getItem('privateKey');
-		usePrivateKey = privateKey && privateKey.match(/^0x[0-9a-fA-F]{64}$/);
+		usePrivateKey = !!privateKey && /^0x[0-9a-fA-F]{64}$/.test(privateKey);
 
 		if (usePrivateKey) {
 			const fromAddress = web3.eth.accounts.privateKeyToAccount(privateKey).address;
