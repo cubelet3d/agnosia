@@ -5,159 +5,159 @@ let usePrivateKey = false;
 // Stuff to preload 
 const assets = {
     background: {
-        src: '../img/agnosia.gif',
+        src: 'img/agnosia.gif',
         img: new Image()
     },
     logo: {
-        src: '../img/logo.png',
+        src: 'img/logo.png',
         img: new Image()
     },
     icon1: {
-        src: '../img/android-chrome-192x192.png',
+        src: 'img/android-chrome-192x192.png',
         img: new Image()
     },
     icon2: {
-        src: '../img/android-chrome-256x256.png',
+        src: 'img/android-chrome-256x256.png',
         img: new Image()
     },
     icon3: {
-        src: '../img/apple-touch-icon.png',
+        src: 'img/apple-touch-icon.png',
         img: new Image()
     },
     icon4: {
-        src: '../img/card-back.png',
+        src: 'img/card-back.png',
         img: new Image()
     },
     icon5: {
-        src: '../img/favicon.ico',
+        src: 'img/favicon.ico',
         img: new Image()
     },
     icon6: {
-        src: '../img/favicon-16x16.png',
+        src: 'img/favicon-16x16.png',
         img: new Image()
     },
     icon7: {
-        src: '../img/favicon-32x32.png',
+        src: 'img/favicon-32x32.png',
         img: new Image()
     },
     icon8: {
-        src: '../img/hand2.png',
+        src: 'img/hand2.png',
         img: new Image()
     },
     icon9: {
-        src: '../img/ladle.png',
+        src: 'img/ladle.png',
         img: new Image()
     },
     icon10: {
-        src: '../img/loading.gif',
+        src: 'img/loading.gif',
         img: new Image()
     },
     icon11: {
-        src: '../img/mstile-150x150.png',
+        src: 'img/mstile-150x150.png',
         img: new Image()
     },
     icon12: {
-        src: '../img/skull.png',
+        src: 'img/skull.png',
         img: new Image()
     },
     audio1: {
-        src: '../sounds/sfx/button_hover.wav',
+        src: 'sounds/sfx/button_hover.wav',
         obj: new Audio()
     },
     audio2: {
-        src: '../sounds/sfx/button_press.wav',
+        src: 'sounds/sfx/button_press.wav',
         obj: new Audio()
     },
     audio3: {
-        src: '../sounds/sfx/card_flip_01.wav',
+        src: 'sounds/sfx/card_flip_01.wav',
         obj: new Audio()
     },
     audio4: {
-        src: '../sounds/sfx/card_flip_02.wav',
+        src: 'sounds/sfx/card_flip_02.wav',
         obj: new Audio()
     },
     audio5: {
-        src: '../sounds/sfx/card_flip_03.wav',
+        src: 'sounds/sfx/card_flip_03.wav',
         obj: new Audio()
     },
     audio6: {
-        src: '../sounds/sfx/card_flip_03_rev.wav',
+        src: 'sounds/sfx/card_flip_03_rev.wav',
         obj: new Audio()
     },
     audio7: {
-        src: '../sounds/sfx/card_place_01.wav',
+        src: 'sounds/sfx/card_place_01.wav',
         obj: new Audio()
     },
     audio8: {
-        src: '../sounds/sfx/card_place_02.wav',
+        src: 'sounds/sfx/card_place_02.wav',
         obj: new Audio()
     },
     audio9: {
-        src: '../sounds/sfx/card_place_03.wav',
+        src: 'sounds/sfx/card_place_03.wav',
         obj: new Audio()
     },
     audio10: {
-        src: '../sounds/sfx/card_place_04.wav',
+        src: 'sounds/sfx/card_place_04.wav',
         obj: new Audio()
     },
     audio11: {
-        src: '../sounds/sfx/cauldron_fast.wav',
+        src: 'sounds/sfx/cauldron_fast.wav',
         obj: new Audio()
     },
     audio12: {
-        src: '../sounds/sfx/cauldron_slow.wav',
+        src: 'sounds/sfx/cauldron_slow.wav',
         obj: new Audio()
     },
     audio13: {
-        src: '../sounds/sfx/draw.wav',
+        src: 'sounds/sfx/draw.wav',
         obj: new Audio()
     },
     audio14: {
-        src: '../sounds/sfx/error.wav',
+        src: 'sounds/sfx/error.wav',
         obj: new Audio()
     },
     audio15: {
-        src: '../sounds/sfx/ladle_dunk.wav',
+        src: 'sounds/sfx/ladle_dunk.wav',
         obj: new Audio()
     },
     audio16: {
-        src: '../sounds/sfx/ladle_sip.wav',
+        src: 'sounds/sfx/ladle_sip.wav',
         obj: new Audio()
     },
     audio17: {
-        src: '../sounds/sfx/NewMessage.wav',
+        src: 'sounds/sfx/NewMessage.wav',
         obj: new Audio()
     },
     audio18: {
-        src: '../sounds/sfx/new_match_found.wav',
+        src: 'sounds/sfx/new_match_found.wav',
         obj: new Audio()
     },
     audio19: {
-        src: '../sounds/sfx/plus.wav',
+        src: 'sounds/sfx/plus.wav',
         obj: new Audio()
     },
     audio20: {
-        src: '../sounds/sfx/same.wav',
+        src: 'sounds/sfx/same.wav',
         obj: new Audio()
     },
     audio21: {
-        src: '../sounds/sfx/stone_button_hover.wav',
+        src: 'sounds/sfx/stone_button_hover.wav',
         obj: new Audio()
     },
     audio22: {
-        src: '../sounds/sfx/stone_button_press.wav',
+        src: 'sounds/sfx/stone_button_press.wav',
         obj: new Audio()
     },
     audio23: {
-        src: '../sounds/sfx/your_turn.wav',
+        src: 'sounds/sfx/your_turn.wav',
         obj: new Audio()
     },
     audio24: {
-        src: '../sounds/sfx/you_lose.wav',
+        src: 'sounds/sfx/you_lose.wav',
         obj: new Audio()
     },
     audio25: {
-        src: '../sounds/sfx/you_win.wav',
+        src: 'sounds/sfx/you_win.wav',
         obj: new Audio()
     }
 }
