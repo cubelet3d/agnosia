@@ -177,7 +177,11 @@ html, #desk {
 .not-mobile .tcg_base_main,
 .not-mobile .tcg_base_gameplay_wrapper,
 .not-mobile .tcg_base_modal {
-    transform: scale(1.2); 
+    /*transform: scale(1.2);*/ 
+}
+
+.not-mobile .tcg_base_menu {
+	margin-right: 10px; 
 }
 
 .tcg_base_menu {

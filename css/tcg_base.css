@@ -48,11 +48,21 @@
 .tcg_base_content {height: 100%;}
 
 .not-mobile .tcg_base_content_inner {
-	display: grid;
+	/*display: grid;
     grid-template-columns: 330px 816px;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: hidden;*/
+	
+	justify-content: center;
+	align-items: flex-end; 
+	top: calc(50% - 565px/2);
+    left: calc(50% - 900px/2);
+	position: fixed; 
+	border: 3px solid rgb(4, 26, 39);
+	padding: 10px; 
+	background: rgba(11, 44, 46, 0.5);
+	transform: scale(1.2); 
 }
 
 
