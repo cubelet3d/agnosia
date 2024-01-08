@@ -14,12 +14,26 @@ a, a:hover, a:active {
 }
 
 /* Loading screen & loading bar */
+.agnosia-icon {
+	width: 256px; height: 256px; 
+	background: url(../img/logo.png) center/cover, no-repeat;
+	z-index: 1; 
+}
+@media all and (max-height: 500px) {
+	.agnosia-icon {
+		width: 125px; height: 125px; 
+	}
+}
 html.loading-active {
 	position: fixed;
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
 	pointer-events: none;
+}
+.progress-bar-container-outer,
+#playButton {
+	position: absolute; bottom: 10px; text-align: center; z-index: 1; 
 }
 .progress-bar-container {
 	width: 256px;
@@ -41,6 +55,7 @@ html.loading-active {
 	display: flex; flex-direction: column; justify-content: center; align-items: center; 
 	z-index: 1000; 
 	cursor: url('../img/hand2.png'), auto;
+	/*background: radial-gradient(circle at center, transparent, black 80%) no-repeat, #111;*/
 }
 
 #agnosia-loading-label {
@@ -51,7 +66,10 @@ html.loading-active {
     position: fixed;
     width: 50%;
     height: 100%;
-    background-color: #111;
+	background-color: #111; 
+    /*background-image: url('../img/portal.png');*/
+    background-size: cover; 
+    background-repeat: no-repeat;
     top: 0;
     transition: transform 1s ease;
 }
@@ -59,16 +77,18 @@ html.loading-active {
 .left-curtain {
     left: 0;
     transform: translateX(0%);
+    /*background-position: left center;*/
 }
 
 .right-curtain {
     right: 0;
     transform: translateX(0%);
+    /*background-position: right center;*/
 }
 
 #playButton {
     position: absolute;
-    top: 50%;
+    /*top: 50%;*/
     left: 50%;
     transform: translate(-50%, -50%);
 	border: 3px solid rgb(4, 26, 39); 

@@ -200,6 +200,7 @@ function handleError(e) {
 // Loading screen logic 
 document.getElementById("playButton").addEventListener("click", function() {
     this.style.display = "none";
+	document.getElementById('agnosia-icon').style.display = 'none'; 
 
     const leftCurtain = document.querySelector('.left-curtain');
     const rightCurtain = document.querySelector('.right-curtain');
