@@ -15,7 +15,7 @@ a, a:hover, a:active {
 
 /* Loading screen & loading bar */
 .agnosia-icon {
-	width: 256px; height: 256px; 
+	width: 500px; height: 100px; 
 	background: url(../img/logo.png) center/cover, no-repeat;
 	z-index: 1; 
 }
