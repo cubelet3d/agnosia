@@ -1955,6 +1955,8 @@ function tcg_base_launch_modal(title, content) {
 
 /*	This function opens different tabs on the UI (Play, Deck, Settings, etc.) */
 async function tcg_base_open_tab(option, forceEmptyGamesListContainer = false) {
+	// hide the intro, always 
+	$('.tcg_base_main_intro').hide();
     try {
         // Track open tab in a variable 
         for (let key in tcg_base_pack.openTab) {
@@ -6853,3 +6855,18 @@ async function ensReverse(address) {
     }, [namehash])
   }));
 }
+
+// Mouse effects for the intro 
+document.addEventListener('DOMContentLoaded', function() {
+  var introText = document.querySelector('.tcg_base_main_intro_inner');
+
+  // Pause the animation on hover
+  introText.addEventListener('mouseenter', function() {
+    introText.style.animationPlayState = 'paused';
+  });
+
+  // Resume the animation when the mouse leaves
+  introText.addEventListener('mouseleave', function() {
+    introText.style.animationPlayState = 'running';
+  });
+});

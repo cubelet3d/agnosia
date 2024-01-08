@@ -212,6 +212,10 @@ document.getElementById("playButton").addEventListener("click", function() {
         const loadingDiv = document.querySelector('.agnosia-loading');
         loadingDiv.parentNode.removeChild(loadingDiv);
     });
+	
+	// Start intro animation 
+	var element = document.querySelector('.tcg_base_main_intro_inner');
+	element.style.animationPlayState = 'running';	
 
     tcg_base_startPlaylist(); // Start the playlist 
 });

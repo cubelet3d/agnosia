@@ -107,3 +107,15 @@
 .is-mobile .tcg_base_content_inner .tcg_base_main {
 
 }
+
+.is-mobile .tcg_base_main_intro {
+	width: 100%; 
+	font-size: 32px; 
+	overflow: auto; 
+}
+
+.is-mobile .tcg_base_main_intro_inner {
+	animation: none; 
+	overflow: auto; 
+	bottom: auto; 
+}
