@@ -290,13 +290,13 @@ async function setup() {
 		
         let chainID = await web3.eth.getChainId(); 
 		
-		if(chainID == 5) {
+		if(chainID == 11155111) {
 			$('.network-message').text('');  
-			VidyaAddress = "0xFFE93E63E94da7A44739b6aBFA25B81CEd979a6b"; 
-			inventoryContract = "0xfbCc08d711664Fe9514404e4d9597774Ae3A0a63"; 
+			VidyaAddress = "0xf51986be66acec5bb671fec00503e877f66006b6"; 
+			inventoryContract = "0xb4aF2A2F18AC71879eE5391a33f71De5840BCA77"; 
 		} else {
-			$('.network-message').text('Connect wallet to Goerli network!'); 
-			return; // Stops immediately if not Goerli 
+			$('.network-message').text('Connect wallet to Sepolia network!'); 
+			return; // Stops immediately if not Sepolia 
 		}
 		
 		Inventory = new web3.eth.Contract(inventoryABI, inventoryContract); 
