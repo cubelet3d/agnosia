@@ -1864,6 +1864,10 @@ $(document).ready(function() {
 	
 	
 	
+	/* CONJURE TAB */
+	
+	
+	
 	/* SFX */
 	
 	// Main menu button 
