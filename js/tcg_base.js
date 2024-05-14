@@ -1865,6 +1865,34 @@ $(document).ready(function() {
 	
 	
 	/* CONJURE TAB */
+	$(document).on('mouseenter', '.conjure_bowl_normal', function() {
+		$('.conjure_bowl_normal').removeClass('conjure_bowl_normal').addClass('conjure_bowl_hover');
+	});
+	$(document).on('mouseleave', '.conjure_bowl_hover', function() {
+		$('.conjure_bowl_hover').removeClass('conjure_bowl_hover').addClass('conjure_bowl_normal');
+	});
+	
+	$(document).on('mouseenter', '.conjure_snake_left', function() {
+		$('.conjure_snake_left').removeClass('conjure_snake_left').addClass('conjure_snake_left_hover');
+	});
+	$(document).on('mouseleave', '.conjure_snake_left_hover', function() {
+		$('.conjure_snake_left_hover').removeClass('conjure_snake_left_hover').addClass('conjure_snake_left');
+	});	
+	
+	$(document).on('mouseenter', '.conjure_snake_right', function() {
+		$('.conjure_snake_right').removeClass('conjure_snake_right').addClass('conjure_snake_right_hover');
+	});
+	$(document).on('mouseleave', '.conjure_snake_right_hover', function() {
+		$('.conjure_snake_right_hover').removeClass('conjure_snake_right_hover').addClass('conjure_snake_right');
+	});	
+	
+	$(document).on('mouseenter', '.conjure_button_claim_normal', function() {
+		$('.conjure_button_claim_normal').removeClass('conjure_button_claim_normal').addClass('conjure_button_claim_hover');
+	});
+	$(document).on('mouseleave', '.conjure_button_claim_hover', function() {
+		$('.conjure_button_claim_hover').removeClass('conjure_button_claim_hover').addClass('conjure_button_claim_normal');
+	});		
+
 	
 	
 	
@@ -5289,7 +5317,7 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds) {
                 notify(notificationsMap.transferToDeck2.transactionHash(hash));
             },
             async (receipt) => {
-                notify(`<div class="flex-box flex-center">Multiple cards upload was successful!</div>`);
+                notify(`<div class="flex-box flex-center">Multiple card upload was successful.</div>`);
                 resetMultiUpload(); 
 				if($('.tcg_base_menu_option_active').attr('data') === 'deck') await tcg_base_open_tab("deck");
 				if($('.tcg_base_menu_option_active').attr('data') === 'play') await tcg_base_open_tab("play");
