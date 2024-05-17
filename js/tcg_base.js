@@ -1891,7 +1891,9 @@ $(document).ready(function() {
 	});
 	$(document).on('mouseleave', '.conjure_button_claim_hover', function() {
 		$('.conjure_button_claim_hover').removeClass('conjure_button_claim_hover').addClass('conjure_button_claim_normal');
-	});		
+	});	
+
+
 
 	
 	
@@ -6901,4 +6903,42 @@ document.addEventListener('DOMContentLoaded', function() {
   introText.addEventListener('mouseleave', function() {
     introText.style.animationPlayState = 'running';
   });
+});
+
+
+/* Conjure stuff */
+document.addEventListener("DOMContentLoaded", function() {
+    const text = "Hello fren! Here I will tell you how to play the game like a pro and be a winner: 1) buy a fuckton of starter packs. 2) burn everything you get. 3) ??? 4) profit.";
+    const typewriterElement = document.getElementById("conjure_chat_bubble_inner");
+    const chatBubble = document.getElementById("conjure_chat_bubble");
+    let index = 0;
+    let typing;
+
+    function type() {
+        if (index < text.length) {
+            typewriterElement.innerHTML += text.charAt(index);
+            index++;
+            typing = setTimeout(type, 50); 
+        }
+    }
+
+    function startTyping() {
+        typewriterElement.innerHTML = ""; // Clear previous text
+        index = 0;
+        type();
+    }
+
+    function stopTyping() {
+        clearTimeout(typing);
+    }
+
+    document.querySelector(".conjure_snake_left").addEventListener("mouseover", function() {
+        chatBubble.style.display = "block";
+        startTyping();
+    });
+
+    document.querySelector(".conjure_snake_left").addEventListener("mouseout", function() {
+        chatBubble.style.display = "none";
+        stopTyping();
+    });
 });
