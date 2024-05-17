@@ -1681,6 +1681,20 @@ html:after {
 	width: 27px; 
 	height: 17px; 
 	margin: 0 2px; 
+	transition: filter 0.3s ease; 
+}
+
+.conjure_numbers_one:hover,
+.conjure_numbers_two:hover,
+.conjure_numbers_three:hover,
+.conjure_numbers_four:hover,
+.conjure_numbers_five:hover,
+.conjure_numbers_six:hover,
+.conjure_numbers_seven:hover,
+.conjure_numbers_eight:hover,
+.conjure_numbers_nine:hover,
+.conjure_numbers_ten:hover {
+    filter: brightness(0.7) contrast(1.2);
 }
 
 .conjure_left_table {
@@ -1762,4 +1776,69 @@ html:after {
 .conjure_button_claim_normal,
 .conjure_button_claim_hover {
 	z-index: 4; /* above table */
+}
+
+.conjure_cards_upper {
+	display: flex;
+	position: absolute; 
+	top: 210px; 
+	left: 183px; 
+	z-index: 4;
+}
+
+.conjure_cards_lower {
+	display: flex; 
+	position: absolute; 
+	top: 271px; 
+	left: 152px; 
+	z-index: 4; 
+}
+
+.conjure_cards_card {
+	width: 60px; 
+	height: 60px; 
+	margin: 1px; 
+	background: rgba(255,255,255,0.01);
+}
+
+.conjure_cards_card:hover {
+	background: rgba(255,255,255,0.03);
+}
+
+.conjure_chat_bubble {
+    position: relative;
+    background-color: #ffffff;
+    border: 3px solid #000000;
+    padding: 10px 20px;
+    max-width: 300px;
+    text-align: left;
+    font-size: 12px;
+    line-height: 1.5;
+    box-shadow: 0 0 0 3px #000000;
+}
+
+.conjure_chat_bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 10px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 20px solid #ffffff;
+    border-top-color: inherit;
+    filter: drop-shadow(0 0 0 #000000);
+}
+
+.conjure_chat_bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -23px;
+    left: 7px;
+    width: 0;
+    height: 0;
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-top: 23px solid #000000;
 }
