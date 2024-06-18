@@ -447,6 +447,10 @@ $(document).ready(function() {
 
 		tcg_base_deckview_loadTokenIdsList(cardName);
 		
+		// Sacrifice button 
+		$(".tcg_base_tokenId_sacrifice").removeAttr("data-tokenid"); 
+		$(".tcg_base_tokenId_sacrifice").addClass("disabled");
+		
 		// Mark button 
 		$(".tcg_base_tokenId_mark").removeAttr("data-tokenid");
 		$(".tcg_base_tokenId_mark").removeAttr("data-slotid");
@@ -722,6 +726,12 @@ $(document).ready(function() {
 			}
 		);
 	});
+	
+	// Handles clicks on sacrifice button 
+	$(document).on('click', '.tcg_base_tokenId_sacrifice', function() {
+		let tokenId = $(this).attr('data-tokenid'); 
+		console.log(tokenId); 
+	}); 
 	
 	
 	
@@ -2852,6 +2862,8 @@ function tcg_base_resetAllContainers() {
 	$(".tcg_base_card_wincount").text("");
 	$(".tcg_base_card_playcount").text("");
 	$(".tcg_base_card_brewingBonus").text(""); 
+	$(".tcg_base_tokenId_sacrifice").removeAttr("data-tokenid");
+	$(".tcg_base_tokenId_sacrifice").addClass("disabled");
 	$(".tcg_base_tokenId_mark").removeAttr("data-tokenid");
 	$(".tcg_base_tokenId_mark").removeAttr("data-slotid");
 	$(".tcg_base_tokenId_mark").addClass("disabled");
@@ -3284,6 +3296,9 @@ async function updateCardDetails(tokenId) {
     $(".tcg_base_card_playcount").text(playedCount);
 	$(".tcg_base_card_brewingBonus").text(cardsPointValue[0]);
     $(".tcg_base_card_stats").removeClass("hidden");
+	
+	// Sacrifice button 
+	$(".tcg_base_tokenId_sacrifice").attr("data-tokenid", tokenId);
     
     // Select button
     $(".tcg_base_tokenId_mark").attr("data-tokenid", tokenId);
@@ -3303,8 +3318,8 @@ async function updateCardDetails(tokenId) {
     
     // Check if the clicked item is deposited
     if (row.hasClass("tcg_base_count_depositcards")) {
-        // If it is deposited, disable the "mark" and "deposit" and "brew" buttons, enable "withdraw"
-        $(".tcg_base_tokenId_mark, .tcg_base_tokenId_deposit, .tcg_base_tokenId_brew").addClass("disabled");
+        // If it is deposited, disable the "mark" and "deposit" and "brew" and "sacrifice" buttons, enable "withdraw"
+        $(".tcg_base_tokenId_mark, .tcg_base_tokenId_deposit, .tcg_base_tokenId_brew, .tcg_base_tokenId_sacrifice").addClass("disabled");
 
         // Check if the card can be withdrawn
         /*if (await canCardBeWithdrawn(tokenId)) {
@@ -3314,8 +3329,8 @@ async function updateCardDetails(tokenId) {
         }*/
 		$(".tcg_base_tokenId_withdraw").toggleClass("disabled", !(await canCardBeWithdrawn(tokenId)));
     } else {
-        // If it's not deposited, ensure the "mark" and "deposit" and "brew" buttons are not disabled, disable "withdraw"
-        $(".tcg_base_tokenId_mark, .tcg_base_tokenId_deposit, .tcg_base_tokenId_brew").removeClass("disabled");
+        // If it's not deposited, ensure the "mark" and "deposit" and "brew" and "sacrifice" buttons are not disabled, disable "withdraw"
+        $(".tcg_base_tokenId_mark, .tcg_base_tokenId_deposit, .tcg_base_tokenId_brew, .tcg_base_tokenId_sacrifice").removeClass("disabled");
         $(".tcg_base_tokenId_withdraw").addClass("disabled");
     }
 }
