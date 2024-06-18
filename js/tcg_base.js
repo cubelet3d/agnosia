@@ -1892,9 +1892,27 @@ $(document).ready(function() {
 	$(document).on('mouseleave', '.conjure_button_claim_hover', function() {
 		$('.conjure_button_claim_hover').removeClass('conjure_button_claim_hover').addClass('conjure_button_claim_normal');
 	});	
+	
+	$(document).on('click', '.conjure_numbers_menu div', function() {
+		$('.conjure_numbers_menu div').removeClass('conjure_numbers_active');
+		$(this).addClass('conjure_numbers_active');
+		let level = $(this).data('lv');
+		let categorizedCards = categorizeCards();
+		let selectedCards = categorizedCards[level];
 
-
-
+		/* This displays all card images in each slot per level 
+		$('.conjure_cards_card').each(function(index) {
+			if (index < selectedCards.length) {
+				$(this).css({
+					'background-image': `url(${selectedCards[index]})`,
+					'background-repeat': 'no-repeat',
+					'background-size': 'cover'
+				});
+			}
+		});*/
+	});
+	
+	
 	
 	
 	
@@ -6942,3 +6960,23 @@ document.addEventListener("DOMContentLoaded", function() {
         stopTyping();
     });
 });
+
+// Helper function for Conjure to categorize cards templates by level. 
+function categorizeCards() {
+    const cards = {};
+    const totalCards = 110;
+    const cardsPerLevel = 11;
+
+    for (let i = 1; i <= totalCards; i++) {
+        const level = Math.ceil(i / cardsPerLevel);
+        const fileName = `${String(i).padStart(3, '0')}.gif`;
+        
+        if (!cards[level]) {
+            cards[level] = [];
+        }
+
+        cards[level].push(`https://team3d.io/games/tcg_base/cards/${fileName}`);
+    }
+
+    return cards;
+}
