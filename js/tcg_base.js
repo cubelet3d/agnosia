@@ -164,6 +164,7 @@ tcg_base_system = {
 	game_address: "0xd9f9512E85c8766509F71D7B4A5bb43b815844e6", // old > "0x5E49E898C18Bd504170c926dD5b244165905F175",
 	card_address: "0xe000654B0af94fdd3d6A836155987EDa6a63000D", // old > "0x7B4aB1B6f20aF6555B24C2BccAfBB82b1c5a60aE", 
 	caul_address: "0xd7DBA5fc2dcbE2C0476935DfB8A6e97ec8eb40a5", // old > "0x1360398fFD6E9148Bd3FEc2910afa0660DFcE4cB",
+	conj_address: "0xE0fdE654ab2D78C188AB663B18600ca2891441E3", // conjure address 
 	pack: null,
 	game: null,
 	card: null
@@ -1961,6 +1962,7 @@ function tcg_base_init() {
 	tcg_base_system.game = new web3.eth.Contract(tcg_base_game_abi, tcg_base_system.game_address); 
 	tcg_base_system.card = new web3.eth.Contract(tcg_base_card_abi, tcg_base_system.card_address); 
 	tcg_base_system.caul = new web3.eth.Contract(tcg_base_caul_abi, tcg_base_system.caul_address); 
+	tcg_base_system.conj = new web3.eth.Contract(tcg_base_conj_abi, tcg_base_system.conj_address); 
 }
 
 /*	Functions to show & hide the loading screen */
@@ -6979,4 +6981,15 @@ function categorizeCards() {
     }
 
     return cards;
+}
+
+// Load conjure cycle information 
+async function loadConjureInformation() {
+	try {
+		await tcg_base_system.conj.methods.currentCycle().call().then(console.log); 
+	}
+	
+	catch(e) {
+		console.error(e); 
+	}
 }
