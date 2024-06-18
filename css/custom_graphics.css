@@ -1050,22 +1050,26 @@ html:after {
 }
 
 /* Download button */
-.tcg_base_tokenId_withdraw {
+.tcg_base_tokenId_withdraw,
+.tcg_base_tokenId_sacrifice {
 	border: 0; 
 	width: 68px; height: 22px; 
 	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAWCAYAAAB5VTpOAAAAAXNSR0IArs4c6QAAAP9JREFUWIXtl70KwjAUhY+1qBFUOtiIg0Mdu/oKPoXP7eredri0gqmC6CJab1M3aWjvN+XvwsmB5CSD9W7/0FEMAUhOR/g6ilFQ1rYWJ9BRDE/M+FBQBq9tEa7h2wbvV4Pb5fzuj6azd7/adp1fukfTGYZjVauxGnK7nKGCEPNg+Sep7VJQBkMplM0QQylUEDYW9glDKfy8TAD6nsjLBAp2k7pC0779xUSj+g4pKKst7CKLia5fC6fXHdK3o1GF711ilyGGMMQQhhjCkNhlYxK7LHYH2/3hwRfLX4YxHCvo1eZPMt2g6e1lNeRXQdeRlGF4htK2NThD42+3r+Rlgif+UoMiG/cDuAAAAA5lWElmTU0AKgAAAAgAAAAAAAAA0lOTAAAAAElFTkSuQmCC'); 
 }
 
-.tcg_base_tokenId_withdraw:hover {
+.tcg_base_tokenId_withdraw:hover,
+.tcg_base_tokenId_sacrifice:hover {
 	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAWCAYAAAB5VTpOAAAAAXNSR0IArs4c6QAAAQxJREFUWIXtl0ELgjAYhl9LygUSXgy8+guCLl4Ff0X/1WtHf4HXQC9DgmZC2CEK+9y8lUv3nLbp4N0L+769VnBI2iCOYADO6Ql2EEfgWT62Fi0I4ghWmBzbsYXoxGJsAbphyxbvN4HmennPVxv3Pe+OdWdI92rjYrlmvT1SQ5rrBczz4e3DL0kdF57lELwEkxkieAnm+cqNc0LwEnZVFwD//FDVBRjkJk0F1bntrbND9x3Cs7z34xTZOrt+WUhPzxoyt6vRhZ7dtF2CMYRgDCEYQwim7ZI103ZJ25WmXZplmOdD8LI31p0h3aoso4z/U80xL1RvL2m4G9owdUyXISz+pR78AmXanStVXeABCOCB+3rdAqsAAAAOZVhJZk1NACoAAAAIAAAAAAAAANJTkwAAAABJRU5ErkJggg=='); 
 }
 
-.tcg_base_tokenId_withdraw:active {
+.tcg_base_tokenId_withdraw:active,
+.tcg_base_tokenId_sacrifice:active {
 	border: 0; 
 	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAWCAYAAAB5VTpOAAAAAXNSR0IArs4c6QAAANpJREFUWIXtlz8LgzAQxV9DCJISgkPRycG1pd//i7i6ZxRBxKXdrFxzHTo00d5vyj/h3Uvi5U7n2/3hiwoCMMwB2hcVjHWptWSBB6DEjBfGOqjUInJDcxPLNK5tY93a37Zz55Nu7mZEDVmm8e2DbX9P14zTHYsRANRedvsXLNMIPcwBnkwMc8BlR6fgG7i4o2mXLjwiXNySZQhiCEEMIYghBDGEIGmXjEna3Y4B0LHna+zd/w+1jLGOL+6OXstwyE+VIIYQVFk3qTVkQ1k30KHvULXX1FqyIPQdnlkQTxBa/ZjDAAAADmVYSWZNTQAqAAAACAAAAAAAAADSU5MAAAAASUVORK5CYII='); 
 }
 
 /* Button margins */
+.tcg_base_tokenId_sacrifice,
 .tcg_base_tokenId_mark,
 .tcg_base_tokenId_brew,
 .tcg_base_tokenId_deposit {

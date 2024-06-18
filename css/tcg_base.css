@@ -244,6 +244,7 @@
 #tcg_base .template-button, 
 .tcg_base_button_default,
 .tcg_base_starterpack_button,
+.tcg_base_tokenId_sacrifice,
 .tcg_base_ascend_button,
 .tcg_base_tokenId_mark,
 .tcg_base_tokenId_brew,
