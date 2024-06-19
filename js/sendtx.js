@@ -23,15 +23,15 @@ async function sendTransaction(txData, value, onTransactionHash, onReceipt) {
             gasPrice: web3.utils.toHex(gasPrice),
             gasLimit: web3.utils.toHex(gasLimit),
             value: value,
-			// Include nonce only if using private key
-			...(usePrivateKey && { nonce: web3.utils.toHex(currentNonce) }) // This is fetched in conn.js 
+            // Include nonce only if using private key
+            ...(usePrivateKey && { nonce: web3.utils.toHex(currentNonce) }) // This is fetched in conn.js 
         };
 
         if (usePrivateKey) {
             // If using private key, sign and send the transaction.
             const tx = { ...txOptions, to: txData._parent._address, data: txData.encodeABI() };
             const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
-            web3.eth.sendSignedTransaction(signedTx.rawTransaction)
+            await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
                 .on('transactionHash', hash => {
                     onTransactionHash(hash);
                     currentNonce++; // Increment nonce after transaction is sent
@@ -40,7 +40,7 @@ async function sendTransaction(txData, value, onTransactionHash, onReceipt) {
                 .on('error', console.error);
         } else {
             // Otherwise, send the transaction directly.
-            txData.send(txOptions)
+            await txData.send(txOptions)
                 .on('transactionHash', onTransactionHash)
                 .on('receipt', onReceipt)
                 .on('error', console.error);
@@ -52,13 +52,13 @@ async function sendTransaction(txData, value, onTransactionHash, onReceipt) {
 
 // Callback for transaction hash
 function onTransactionHash(hash) {
-	notify(`Sending <a href="${explorerUri}${hash}" target="_blank">transaction</a>. Please wait...`);
+    notify(`Sending <a href="${explorerUri}${hash}" target="_blank">transaction</a>. Please wait...`);
     console.log("Transaction Hash:", hash);
 }
 
 // Callback for transaction receipt
 function onReceipt(receipt) {
-	notify(`Success! Your <a href="${explorerUri}${receipt.transactionHash}" target="_blank">transaction</a> has been confirmed.`);
+    notify(`Success! Your <a href="${explorerUri}${receipt.transactionHash}" target="_blank">transaction</a> has been confirmed.`);
     console.log("Transaction Receipt:", receipt);
 }
 

@@ -118,6 +118,14 @@ const notificationsMap = {
 	transferFromDeck2: {
 		transactionHash: (hash) => `<div>Downloading multiple cards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
 		receipt: `<div class="text-align-center">Cards downloaded successfully!</div>` 
+	},
+    sacrificeCards: {
+        transactionHash: (hash) => `<div>Sacrificing cards</div><div class="margin-top-05rem">Waiting for <a href="${explorerUri}${hash}" target="_blank">transaction</a> to confirm...</div>`,
+        receipt: () => `<div style="text-align: center;">Cards sacrificed successfully.</div>`
+    },
+	approveConjure: {
+		transactionHash: (hash) => `<div class="flex-box flex-center">Approving Gateway...</div>`,
+		receipt: `<div class="flex-box flex-center">Gateway approved!</div>`
 	}	
 }
 
@@ -728,10 +736,27 @@ $(document).ready(function() {
 	});
 	
 	// Handles clicks on sacrifice button 
-	$(document).on('click', '.tcg_base_tokenId_sacrifice', function() {
+	$(document).on('click', '.tcg_base_tokenId_sacrifice', async function() {
 		let tokenId = $(this).attr('data-tokenid'); 
-		console.log(tokenId); 
-	}); 
+		let referral = localStorage.getItem('tcg_base_starterpack_referral') || '0x0000000000000000000000000000000000000000';
+		
+		try {
+			// Check if approved first
+			let allowed = await tcg_base_system.card.methods.isApprovedForAll(accounts[0], tcg_base_system.conj_address).call();
+			if (!allowed) {
+				const approvalTxData = tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.conj_address, true);
+				await sendTransaction(approvalTxData, '0', 
+					(hash) => notify(notificationsMap.approveConjure.transactionHash(hash)),
+					(receipt) => notify(notificationsMap.approveConjure.receipt)
+				);
+			}        
+			
+			await tcg_base_sacrifice([tokenId], referral);
+		} catch (e) {
+			console.error(e);
+		}
+	});
+
 	
 	
 	
@@ -7007,4 +7032,31 @@ async function loadConjureInformation() {
 	catch(e) {
 		console.error(e); 
 	}
+}
+
+// Sacrifice card(s) in the Gateway / Conjure 
+async function tcg_base_sacrifice(tokenIds, referral) {
+	console.log(tokenIds); 
+    try {
+        const sacrificeTxData = tcg_base_system.conj.methods.enhanceGateway(tokenIds, referral);
+
+        await sendTransaction(
+            sacrificeTxData, '0',
+            (hash) => {
+                $(".tcg_base_tokenId_sacrifice, .tcg_base_tokenId_mark, .tcg_base_tokenId_brew, .tcg_base_tokenId_deposit, .tcg_base_tokenId_withdraw").addClass("disabled");
+                notify(notificationsMap.sacrificeCards.transactionHash(hash));
+            },
+            async (receipt) => {
+                // If in Deck tab, reload it 
+                if ($('.tcg_base_menu_option_active').attr('data') === 'deck') {
+                    await tcg_base_open_tab("deck");
+                }
+                notify(notificationsMap.sacrificeCards.receipt);
+                // $(".tcg_base_tokenId_sacrifice, .tcg_base_tokenId_mark, .tcg_base_tokenId_brew, .tcg_base_tokenId_deposit, .tcg_base_tokenId_withdraw").removeClass("disabled");
+            }
+        );
+    } catch (e) {
+        console.error(e);
+        $(".tcg_base_tokenId_sacrifice, .tcg_base_tokenId_mark, .tcg_base_tokenId_brew, .tcg_base_tokenId_deposit, .tcg_base_tokenId_withdraw").removeClass("disabled");
+    }
 }
