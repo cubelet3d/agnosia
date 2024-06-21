@@ -7084,6 +7084,9 @@ function updateCardDisplay(level) {
             });
         }
     });
+	
+	// Update overall conjure progress by counting true values in the burned array 
+	$(".conjure_progress").text(tcg_base_conjure.burnedArray.reduce((count, value) => count + (value === true ? 1 : 0), 0)); 
 }
 
 // Load conjure cycle information 

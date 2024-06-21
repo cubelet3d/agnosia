@@ -1842,3 +1842,10 @@ html:after {
     border-bottom: 13px solid transparent;
     border-right: 23px solid #00ffd5; 
 }
+
+.conjure_progress_wrapper {
+	text-align: center; 
+	width: 100%;
+	position: absolute; 
+	top: 115px; 
+}
