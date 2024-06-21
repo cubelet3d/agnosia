@@ -7103,7 +7103,6 @@ async function loadConjureInformation() {
 
 // Sacrifice card(s) in the Gateway / Conjure 
 async function tcg_base_sacrifice(tokenIds, referral) {
-	console.log(tokenIds, referral); 
     try {
         const sacrificeTxData = tcg_base_system.conj.methods.enhanceGateway(tokenIds, referral);
 
