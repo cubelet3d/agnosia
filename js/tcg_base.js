@@ -2454,7 +2454,9 @@ async function tcg_base_openStarterPack() {
 }
 
 /*	This function fetches all player's cards both deposited and not deposited 
-	Returns tokenUris for all of these cards */
+	Returns tokenUris for all of these cards 
+	
+	APPARENTLY TOO SPAMMY FOR MAINNET 
 async function tcg_base_fetchUserCards(player) {
     try {
         let userCards = await tcg_base_system.card.methods.ownerTokenArray(player).call();
@@ -2467,6 +2469,30 @@ async function tcg_base_fetchUserCards(player) {
 
         // Mark deck cards as deposited
         let deckCardUris = await tcg_base_fetchTokenUris(deck);
+        deckCardUris.forEach(card => card.deposited = true);
+
+        // Combine all cards
+        let allCardUris = [...userCardUris, ...deckCardUris];
+        
+        return allCardUris;
+    }
+    catch(e) {
+        console.error(e);
+    }
+}*/
+
+async function tcg_base_fetchUserCards(player, batchSize = 10, delay = 1000, retries = 3) {
+    try {
+        let userCards = await tcg_base_system.card.methods.ownerTokenArray(player).call();
+        let deckInfo = await tcg_base_system.game.methods.deckInfo(accounts[0]).call();
+        let deck = deckInfo.deck;
+        
+        // Mark user cards as not deposited
+        let userCardUris = await tcg_base_fetchTokenUris(userCards, batchSize, delay, retries);
+        userCardUris.forEach(card => card.deposited = false);
+
+        // Mark deck cards as deposited
+        let deckCardUris = await tcg_base_fetchTokenUris(deck, batchSize, delay, retries);
         deckCardUris.forEach(card => card.deposited = true);
 
         // Combine all cards
@@ -2496,6 +2522,9 @@ async function tcg_base_fetchUserCards(player) {
 		console.error(e)
 	}
 }*/
+
+/*
+APPARENTLY THIS IS TOO SPAMMY FOR THEIR RPC 
 async function tcg_base_fetchTokenUris(tokenIds) {
     try {
         // Create an array of promises for each token URI fetch
@@ -2512,8 +2541,32 @@ async function tcg_base_fetchTokenUris(tokenIds) {
     } catch (e) {
         console.error(e);
     }
-}
+}*/
 
+async function tcg_base_fetchTokenUris(tokenIds, batchSize = 10, delay = 1000, retries = 3) {
+    async function fetchBatch(batch) {
+        const uriPromises = batch.map(tokenId => 
+            fetchWithRetries(() => 
+                tcg_base_system.card.methods.tokenURI(tokenId).call().then(uri => {
+                    let json = JSON.parse(atob(uri.slice(29)));
+                    json.tokenId = tokenId;
+                    return json;
+                }), retries, delay
+            )
+        );
+        return await Promise.all(uriPromises);
+    }
+
+    const results = [];
+    for (let i = 0; i < tokenIds.length; i += batchSize) {
+        const batch = tokenIds.slice(i, i + batchSize);
+        const batchResults = await fetchBatch(batch);
+        results.push(...batchResults);
+        await sleep(delay); // Adding delay between batches
+    }
+
+    return results;
+}
 
 /*	This function is responsible for loading card data into the tokenIds list (on the right side)
 	Triggered when player clicks on a card in Deck section */
@@ -7124,5 +7177,23 @@ async function tcg_base_sacrifice(tokenIds, referral) {
     } catch (e) {
         console.error(e);
         $(".tcg_base_tokenId_sacrifice, .tcg_base_tokenId_mark, .tcg_base_tokenId_brew, .tcg_base_tokenId_deposit, .tcg_base_tokenId_withdraw").removeClass("disabled");
+    }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetries(fn, retries = 3, delay = 1000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn();
+        } catch (error) {
+            if (i < retries - 1) {
+                await sleep(delay);
+            } else {
+                throw error;
+            }
+        }
     }
 }
