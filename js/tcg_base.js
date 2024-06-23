@@ -5654,6 +5654,9 @@ async function tcg_base_loadCauldron() {
 			totalBurned: data._totalBurned,
 			totalClaimed: data._totalClaimed
 		}));
+		
+		// last minute add
+		let uTotalBrewed = await tcg_base_system.caul.methods.totalCardsBurnedPerUser(accounts[0]).call(); 
 
 		let totalVidya = await VIDYA.methods.balanceOf(tcg_base_system.caul_address).call(); 
 		
@@ -5665,6 +5668,7 @@ async function tcg_base_loadCauldron() {
 		$('.tcg_base_cauldron_totalBurned').text(abbr(parseFloat(tcg_base_player.cauldronGlobal.totalBurned)), 1);
 		$('.tcg_base_cauldron_totalGlobalClaimed').text(abbr(parseFloat(web3.utils.fromWei(tcg_base_player.cauldronGlobal.totalClaimed))), 1); 		
 		$('.tcg_base_cauldron_totalVidyaBalance').text(abbr(parseFloat(web3.utils.fromWei(totalVidya))), 1); 
+		$('.tcg_base_cauldron_userBrewed').text(uTotalBrewed);
 		
 		// Bubbles 
 		tcg_base_audio['cauldron_slow'].play();
