@@ -290,13 +290,13 @@ async function setup() {
 		
         let chainID = await web3.eth.getChainId(); 
 		
-		if(chainID == 11155111) {
+		if(chainID == 42161) {
 			$('.network-message').text('');  
-			VidyaAddress = "0xf51986be66acec5bb671fec00503e877f66006b6"; 
-			inventoryContract = "0xb4aF2A2F18AC71879eE5391a33f71De5840BCA77"; 
+			VidyaAddress = "0x3d48ae69a2F35D02d6F0c5E84CFE66bE885f3963"; 
+			inventoryContract = "0x2Ce68A50a0e5738E675ed9a9899D86a01f2a9a0B"; 
 		} else {
-			$('.network-message').text('Connect wallet to Sepolia network!'); 
-			return; // Stops immediately if not Sepolia 
+			$('.network-message').text('Connect wallet to Arbitrum network!'); 
+			return; // Stops immediately if not Arbitrum 
 		}
 		
 		Inventory = new web3.eth.Contract(inventoryABI, inventoryContract); 

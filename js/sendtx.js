@@ -1,4 +1,4 @@
-const explorerUri = 'https://sepolia.etherscan.io/tx/';
+const explorerUri = 'https://arbiscan.io/tx/';
 
 /**
  * Sends a blockchain transaction using Web3.js.
