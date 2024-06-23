@@ -236,6 +236,7 @@ let tcg_base_games = {
 
 // Conjure 
 let tcg_base_conjure = {}
+	tcg_base_conjure.user = {}
 
 /*	Playlist functionality */
 let tcg_base_baseVolume = localStorage.getItem('tcg_base_volume') || 0.4;
@@ -1941,6 +1942,62 @@ $(document).ready(function() {
 		let level = $(this).data('lv');
 		updateCardDisplay(level);
 	});
+	
+	// Left menu hovers 
+    // Hover effect for referralCount
+    $("#referralCountHover").hover(
+        function() {
+            $(this).find("#referralCount").data('original-text', $(this).find("#referralCount").text());
+            $(this).find("#referralCount").text("Referrals");
+        }, 
+        function() {
+            $(this).find("#referralCount").text($(this).find("#referralCount").data('original-text'));
+        }
+    );
+
+    // Hover effect for ascensionCount
+    $("#ascensionCountHover").hover(
+        function() {
+            $(this).find("#ascensionCount").data('original-text', $(this).find("#ascensionCount").text());
+            $(this).find("#ascensionCount").text("Ascensions");
+        }, 
+        function() {
+            $(this).find("#ascensionCount").text($(this).find("#ascensionCount").data('original-text'));
+        }
+    );
+
+    // Hover effect for packsOpened
+    $("#packsOpenedHover").hover(
+        function() {
+            $(this).find("#packsOpened").data('original-text', $(this).find("#packsOpened").text());
+            $(this).find("#packsOpened").text("Packs minted");
+        }, 
+        function() {
+            $(this).find("#packsOpened").text($(this).find("#packsOpened").data('original-text'));
+        }
+    );
+	
+    // Hover effect for overallCardsBurned
+    $("#overallCardsBurnedHover").hover(
+        function() {
+            $(this).find("#overallCardsBurned").data('original-text', $(this).find("#overallCardsBurned").text());
+            $(this).find("#overallCardsBurned").text("Sacrificed");
+        }, 
+        function() {
+            $(this).find("#overallCardsBurned").text($(this).find("#overallCardsBurned").data('original-text'));
+        }
+    );	
+	
+    // Hover effect for overallCardsBrewed
+    $("#overallCardsBrewedHover").hover(
+        function() {
+            $(this).find("#overallCardsBrewed").data('original-text', $(this).find("#overallCardsBrewed").text());
+            $(this).find("#overallCardsBrewed").text("Brewed");
+        }, 
+        function() {
+            $(this).find("#overallCardsBrewed").text($(this).find("#overallCardsBrewed").data('original-text'));
+        }
+    );		
 	
 	
 	
@@ -7148,6 +7205,36 @@ async function loadConjureInformation() {
 		tcg_base_conjure.currentCycle = await tcg_base_system.conj.methods.currentCycle().call(); 
 		tcg_base_conjure.burnedArray = await tcg_base_system.conj.methods.cycleCardsBurned().call();
 		updateCardDisplay("1");
+		
+        // Fetching user data from the pack contract
+        const referralCount = tcg_base_system.pack.methods.referralCount(accounts[0]).call();
+        const ascensionCount = tcg_base_system.pack.methods.ascensionCount(accounts[0]).call();
+        const packsOpened = tcg_base_system.pack.methods.packsOpened(accounts[0]).call();
+		const totalBrewed = tcg_base_system.caul.methods.totalCardsBurnedPerUser(accounts[0]).call(); 
+        
+        // Fetching user data from the conj contract
+        const userData = tcg_base_system.conj.methods._userData(accounts[0]).call();
+
+        // Wait for all promises to resolve
+        const [refCount, ascCount, packsOpen, brewCount, user] = await Promise.all([referralCount, ascensionCount, packsOpened, totalBrewed, userData]);
+
+        // Assigning values to tcg_base_conjure.user
+        tcg_base_conjure.user = {
+            referralCount: refCount,
+            ascensionCount: ascCount,
+            packsOpened: packsOpen,
+			totalBrewed: brewCount,
+            overallCardsBurned: user.cardsBurned,
+            overallVidyaCollected: user.vidyaCollected,
+            overallReferredWeight: user.referredWeight
+        };
+		
+		// user UI related 
+		$("#referralCount").text(tcg_base_conjure.user.referralCount); 
+		$("#ascensionCount").text(tcg_base_conjure.user.ascensionCount);
+		$("#packsOpened").text(tcg_base_conjure.user.packsOpened); 
+		$("#overallCardsBurned").text(tcg_base_conjure.user.overallCardsBurned); 
+		$("#overallCardsBrewed").text(tcg_base_conjure.user.totalBrewed); 
 	}
 	catch(e) {
 		console.error(e); 
