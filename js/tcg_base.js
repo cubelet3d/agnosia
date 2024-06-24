@@ -2086,6 +2086,7 @@ function tcg_base_init() {
 	
 	// init alchemy 
 	tcg_base_system.cardAlchemy = new alchemy.eth.Contract(tcg_base_card_abi, tcg_base_system.card_address);
+	tcg_base_system.gameAlchemy = new alchemy.eth.Contract(tcg_base_game_abi, tcg_base_system.game_address); 
 }
 
 /*	Functions to show & hide the loading screen */
@@ -3560,14 +3561,14 @@ async function tcg_base_initPlaySection(forceEmptyGamesListContainer = false) {
 /*	This function fetches all games currently waiting for 2nd player */
 async function tcg_base_fetchGamesWaitingPlayer() {
 	try {
-		let newList = await tcg_base_system.game.methods.gamesNeedPlayer().call(); 
+		let newList = await tcg_base_system.gameAlchemy.methods.gamesNeedPlayer().call(); 
 		for (let gameId of newList) {
-			let gameDetails = await tcg_base_system.game.methods.getGameDetails(gameId).call();
+			let gameDetails = await tcg_base_system.gameAlchemy.methods.getGameDetails(gameId).call();
 			tcg_base_games.gameDetails[gameId] = gameDetails;
 			
 			// Also fetch the new custom timer 
 			if(!('forfeitTime' in gameDetails)) {
-				let forfeitTime = await tcg_base_system.game.methods.gameIndexToTimerRule(gameId).call();
+				let forfeitTime = await tcg_base_system.gameAlchemy.methods.gameIndexToTimerRule(gameId).call();
 				tcg_base_games.gameDetails[gameId]['forfeitTime'] = forfeitTime;
 			}
 		}
@@ -3582,7 +3583,7 @@ async function tcg_base_fetchGamesWaitingPlayer() {
 /*	This function returns all deposited cards for player */
 async function tcg_base_deckOfPlayer(player) {
 	try {
-		let { deck } = await tcg_base_system.game.methods.deckInfo(player).call(); 
+		let { deck } = await tcg_base_system.gameAlchemy.methods.deckInfo(player).call(); 
 		return deck; 
 	}
 	catch(e) {
