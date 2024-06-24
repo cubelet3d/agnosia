@@ -253,7 +253,7 @@ const VIDYA_ABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"
 
 let VIDYA, Inventory = null; 
 
-let web3, accounts, connected = false;
+let web3, alchemy, accounts, connected = false;
 
 window.addEventListener('load', async () => {
     if(window.ethereum) {
@@ -286,8 +286,11 @@ async function init() {
 async function setup() {
     try {
         web3 = new Web3(window.ethereum); 
-        accounts = await web3.eth.getAccounts(); 
 		
+		accounts = await web3.eth.getAccounts(); 
+		
+		alchemy = new Web3(new Web3.providers.HttpProvider('https://arb-mainnet.g.alchemy.com/v2/WaECH19QGPKr0R83WmeJyVc7UC8-cLzU'));
+
         let chainID = await web3.eth.getChainId(); 
 		
 		if(chainID == 42161) {

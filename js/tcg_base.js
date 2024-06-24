@@ -241,6 +241,7 @@ let tcg_base_games = {
 // Conjure 
 let tcg_base_conjure = {}
 	tcg_base_conjure.user = {}
+	tcg_base_conjure.global = {}
 
 /*	Playlist functionality */
 let tcg_base_baseVolume = localStorage.getItem('tcg_base_volume') || 0.4;
@@ -2082,6 +2083,9 @@ function tcg_base_init() {
 	tcg_base_system.card = new web3.eth.Contract(tcg_base_card_abi, tcg_base_system.card_address); 
 	tcg_base_system.caul = new web3.eth.Contract(tcg_base_caul_abi, tcg_base_system.caul_address); 
 	tcg_base_system.conj = new web3.eth.Contract(tcg_base_conj_abi, tcg_base_system.conj_address); 
+	
+	// init alchemy 
+	tcg_base_system.cardAlchemy = new alchemy.eth.Contract(tcg_base_card_abi, tcg_base_system.card_address);
 }
 
 /*	Functions to show & hide the loading screen */
@@ -2546,10 +2550,10 @@ async function tcg_base_openStarterPack() {
 /*	This function fetches all player's cards both deposited and not deposited 
 	Returns tokenUris for all of these cards 
 	
-	APPARENTLY TOO SPAMMY FOR MAINNET 
+	APPARENTLY TOO SPAMMY FOR MAINNET */
 async function tcg_base_fetchUserCards(player) {
     try {
-        let userCards = await tcg_base_system.card.methods.ownerTokenArray(player).call();
+        let userCards = await tcg_base_system.cardAlchemy.methods.ownerTokenArray(player).call();
         let deckInfo = await tcg_base_system.game.methods.deckInfo(accounts[0]).call();
         let deck = deckInfo.deck;
         
@@ -2569,9 +2573,9 @@ async function tcg_base_fetchUserCards(player) {
     catch(e) {
         console.error(e);
     }
-}*/
+}
 
-async function tcg_base_fetchUserCards(player, batchSize = 10, delay = 1000, retries = 3) {
+/*async function tcg_base_fetchUserCards(player, batchSize = 10, delay = 1000, retries = 3) {
     try {
         let userCards = await tcg_base_system.card.methods.ownerTokenArray(player).call();
         let deckInfo = await tcg_base_system.game.methods.deckInfo(accounts[0]).call();
@@ -2593,7 +2597,7 @@ async function tcg_base_fetchUserCards(player, batchSize = 10, delay = 1000, ret
     catch(e) {
         console.error(e);
     }
-}
+}*/
 
 // Returns tokenUris based on array of tokenIds 
 /*async function tcg_base_fetchTokenUris(tokenIds) {
@@ -2614,12 +2618,12 @@ async function tcg_base_fetchUserCards(player, batchSize = 10, delay = 1000, ret
 }*/
 
 /*
-APPARENTLY THIS IS TOO SPAMMY FOR THEIR RPC 
+APPARENTLY THIS IS TOO SPAMMY FOR THEIR RPC */
 async function tcg_base_fetchTokenUris(tokenIds) {
     try {
         // Create an array of promises for each token URI fetch
         const uriPromises = tokenIds.map(tokenId => 
-            tcg_base_system.card.methods.tokenURI(tokenId).call().then(uri => {
+            tcg_base_system.cardAlchemy.methods.tokenURI(tokenId).call().then(uri => {
                 let json = JSON.parse(atob(uri.slice(29)));
                 json.tokenId = tokenId;
                 return json;
@@ -2631,9 +2635,9 @@ async function tcg_base_fetchTokenUris(tokenIds) {
     } catch (e) {
         console.error(e);
     }
-}*/
+}
 
-async function tcg_base_fetchTokenUris(tokenIds, batchSize = 10, delay = 1000, retries = 3) {
+/*async function tcg_base_fetchTokenUris(tokenIds, batchSize = 10, delay = 1000, retries = 3) {
     async function fetchBatch(batch) {
         const uriPromises = batch.map(tokenId => 
             fetchWithRetries(() => 
@@ -2656,7 +2660,7 @@ async function tcg_base_fetchTokenUris(tokenIds, batchSize = 10, delay = 1000, r
     }
 
     return results;
-}
+}*/
 
 /*	This function is responsible for loading card data into the tokenIds list (on the right side)
 	Triggered when player clicks on a card in Deck section */
@@ -7244,44 +7248,61 @@ function updateCardDisplay(level) {
 
 // Load conjure cycle information 
 async function loadConjureInformation() {
-	try {
-		tcg_base_conjure.currentCycle = await tcg_base_system.conj.methods.currentCycle().call(); 
-		tcg_base_conjure.burnedArray = await tcg_base_system.conj.methods.cycleCardsBurned().call();
-		updateCardDisplay("1");
-		
+    try {
+        tcg_base_conjure.currentCycle = await tcg_base_system.conj.methods.currentCycle().call(); 
+        tcg_base_conjure.burnedArray = await tcg_base_system.conj.methods.cycleCardsBurned().call();
+        
         // Fetching user data from the pack contract
         const referralCount = tcg_base_system.pack.methods.referralCount(accounts[0]).call();
         const ascensionCount = tcg_base_system.pack.methods.ascensionCount(accounts[0]).call();
         const packsOpened = tcg_base_system.pack.methods.packsOpened(accounts[0]).call();
-		const totalBrewed = tcg_base_system.caul.methods.totalCardsBurnedPerUser(accounts[0]).call(); 
+        const totalBrewed = tcg_base_system.caul.methods.totalCardsBurnedPerUser(accounts[0]).call(); 
         
-        // Fetching user data from the conj contract
+        // Fetching user data & global data from the conj contract
         const userData = tcg_base_system.conj.methods._userData(accounts[0]).call();
+        const globalData = tcg_base_system.conj.methods._cycleData1(tcg_base_conjure.currentCycle).call(); 
 
         // Wait for all promises to resolve
-        const [refCount, ascCount, packsOpen, brewCount, user] = await Promise.all([referralCount, ascensionCount, packsOpened, totalBrewed, userData]);
+        const [refCount, ascCount, packsOpen, brewCount, user, global] = await Promise.all([referralCount, ascensionCount, packsOpened, totalBrewed, userData, globalData]);
 
         // Assigning values to tcg_base_conjure.user
         tcg_base_conjure.user = {
             referralCount: refCount,
             ascensionCount: ascCount,
             packsOpened: packsOpen,
-			totalBrewed: brewCount,
+            totalBrewed: brewCount,
             overallCardsBurned: user.cardsBurned,
             overallVidyaCollected: user.vidyaCollected,
             overallReferredWeight: user.referredWeight
         };
-		
-		// user UI related 
-		$("#referralCount").text(tcg_base_conjure.user.referralCount); 
-		$("#ascensionCount").text(tcg_base_conjure.user.ascensionCount);
-		$("#packsOpened").text(tcg_base_conjure.user.packsOpened); 
-		$("#overallCardsBurned").text(tcg_base_conjure.user.overallCardsBurned); 
-		$("#overallCardsBrewed").text(tcg_base_conjure.user.totalBrewed); 
-	}
-	catch(e) {
-		console.error(e); 
-	}
+
+        // Destructure properties from global data
+        const { weight, totalVidyaToClaim, totalBurned, templatesBurned, airdropWeight, airdropInactive, airdropGrowthEnd } = global;
+
+        // Assigning values to tcg_base_conjure.global
+        tcg_base_conjure.global = {
+            weight: weight,
+            totalVidyaToClaim: totalVidyaToClaim,
+            totalBurned: totalBurned,
+            templatesBurned: templatesBurned,
+            airdropWeight: airdropWeight,
+            airdropInactive: airdropInactive,
+            airdropGrowthEnd: airdropGrowthEnd
+        };
+        
+        // user UI related 
+        $("#referralCount").text(tcg_base_conjure.user.referralCount); 
+        $("#ascensionCount").text(tcg_base_conjure.user.ascensionCount);
+        $("#packsOpened").text(tcg_base_conjure.user.packsOpened); 
+        $("#overallCardsBurned").text(tcg_base_conjure.user.overallCardsBurned); 
+        $("#overallCardsBrewed").text(tcg_base_conjure.user.totalBrewed); 
+
+        // Update card display after data is loaded
+        updateCardDisplay("1");
+    }
+    catch(e) {
+        console.error(e); 
+    }
 }
 
 // Sacrifice card(s) in the Gateway / Conjure 

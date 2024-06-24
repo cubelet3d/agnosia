@@ -1791,10 +1791,15 @@ html:after {
 	height: 6px; 
 }
 
-.conjure_leaderboard_username {
+.conjure_leaderboard_username,
+.conjure_middle_left {
 	font-size: 90%; 
 	display: flex;
 	align-items: center; 
+}
+
+.conjure_middle_left {
+	padding-right: 4px; 
 }
 
 .conjure_left_table,
