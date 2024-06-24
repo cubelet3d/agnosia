@@ -2053,6 +2053,17 @@ $(document).ready(function() {
         function() {
             $(this).find(".conjure_icon_monstersacrifice2_value").text($(this).find(".conjure_icon_monstersacrifice2_value").data('original-text'));
         }
+    );	
+
+    // Hover effect for your vidya claimed 
+    $("#userOverallVidyaCollected").hover(
+        function() {
+            $(this).find(".conjure_icon_youclaim_value").data('original-text', $(this).find(".conjure_icon_youclaim_value").text());
+            $(this).find(".conjure_icon_youclaim_value").text("Your claims");
+        }, 
+        function() {
+            $(this).find(".conjure_icon_youclaim_value").text($(this).find(".conjure_icon_youclaim_value").data('original-text'));
+        }
     );		
 	
 	
@@ -7285,6 +7296,10 @@ async function loadConjureInformation() {
         const userData = tcg_base_system.conj.methods._userData(accounts[0]).call();
         const globalData = tcg_base_system.conj.methods._cycleData1(tcg_base_conjure.currentCycle).call(); 
 		const userCycleData = tcg_base_system.conj.methods._cycleToUserData(tcg_base_conjure.currentCycle, accounts[0]).call(); 
+		
+		// Get conjure balance 
+		const conjureBalance = await VIDYA.methods.balanceOf(tcg_base_system.conj_address).call();
+		const unclaimedVidya = await tcg_base_system.conj.methods.unclaimedTokens().call();  
 
         // Wait for all promises to resolve
         const [refCount, ascCount, packsOpen, brewCount, user, global, userCycle] = await Promise.all([referralCount, ascensionCount, packsOpened, totalBrewed, userData, globalData, userCycleData]);
@@ -7329,6 +7344,7 @@ async function loadConjureInformation() {
 		
 		$(".conjure_icon_monstersacrificeglobal_value").text(abbr(parseInt(tcg_base_conjure.global.weight)));
 		$(".conjure_icon_monstersacrifice2_value").text(abbr(parseInt(tcg_base_conjure.user.userCycleWeight)));
+		$(".conjure_icon_youclaim_value").text(abbr(parseInt(tcg_base_conjure.user.overallVidyaCollected)));
 
         // Update card display after data is loaded
         updateCardDisplay("1");
