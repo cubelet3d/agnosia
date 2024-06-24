@@ -2031,6 +2031,28 @@ $(document).ready(function() {
         function() {
             $(this).find("#overallCardsBrewed").text($(this).find("#overallCardsBrewed").data('original-text'));
         }
+    );	
+
+    // Hover effect for global weight 
+    $("#conjureGlobalWeight").hover(
+        function() {
+            $(this).find(".conjure_icon_monstersacrificeglobal_value").data('original-text', $(this).find(".conjure_icon_monstersacrificeglobal_value").text());
+            $(this).find(".conjure_icon_monstersacrificeglobal_value").text("Global weight");
+        }, 
+        function() {
+            $(this).find(".conjure_icon_monstersacrificeglobal_value").text($(this).find(".conjure_icon_monstersacrificeglobal_value").data('original-text'));
+        }
+    );	
+
+    // Hover effect for your weight 
+    $("#conjureYourWeight").hover(
+        function() {
+            $(this).find(".conjure_icon_monstersacrifice2_value").data('original-text', $(this).find(".conjure_icon_monstersacrifice2_value").text());
+            $(this).find(".conjure_icon_monstersacrifice2_value").text("Your weight");
+        }, 
+        function() {
+            $(this).find(".conjure_icon_monstersacrifice2_value").text($(this).find(".conjure_icon_monstersacrifice2_value").data('original-text'));
+        }
     );		
 	
 	
@@ -7262,9 +7284,10 @@ async function loadConjureInformation() {
         // Fetching user data & global data from the conj contract
         const userData = tcg_base_system.conj.methods._userData(accounts[0]).call();
         const globalData = tcg_base_system.conj.methods._cycleData1(tcg_base_conjure.currentCycle).call(); 
+		const userCycleData = tcg_base_system.conj.methods._cycleToUserData(tcg_base_conjure.currentCycle, accounts[0]).call(); 
 
         // Wait for all promises to resolve
-        const [refCount, ascCount, packsOpen, brewCount, user, global] = await Promise.all([referralCount, ascensionCount, packsOpened, totalBrewed, userData, globalData]);
+        const [refCount, ascCount, packsOpen, brewCount, user, global, userCycle] = await Promise.all([referralCount, ascensionCount, packsOpened, totalBrewed, userData, globalData, userCycleData]);
 
         // Assigning values to tcg_base_conjure.user
         tcg_base_conjure.user = {
@@ -7274,7 +7297,13 @@ async function loadConjureInformation() {
             totalBrewed: brewCount,
             overallCardsBurned: user.cardsBurned,
             overallVidyaCollected: user.vidyaCollected,
-            overallReferredWeight: user.referredWeight
+            overallReferredWeight: user.referredWeight,
+			userCycleAirdropWeight: userCycle.airdropWeight,
+			userCycleCardsBurned: userCycle.cardsBurned,
+			userCycleClaimedTokens: userCycle.claimedTokens,
+			userCycleOtherPoints: userCycle.otherPoints,
+			userCycleRefPoints: userCycle.refPoints,
+			userCycleWeight: userCycle.weight
         };
 
         // Destructure properties from global data
@@ -7297,6 +7326,9 @@ async function loadConjureInformation() {
         $("#packsOpened").text(tcg_base_conjure.user.packsOpened); 
         $("#overallCardsBurned").text(tcg_base_conjure.user.overallCardsBurned); 
         $("#overallCardsBrewed").text(tcg_base_conjure.user.totalBrewed); 
+		
+		$(".conjure_icon_monstersacrificeglobal_value").text(abbr(parseInt(tcg_base_conjure.global.weight)));
+		$(".conjure_icon_monstersacrifice2_value").text(abbr(parseInt(tcg_base_conjure.user.userCycleWeight)));
 
         // Update card display after data is loaded
         updateCardDisplay("1");
