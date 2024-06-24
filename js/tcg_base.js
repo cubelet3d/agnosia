@@ -2064,7 +2064,18 @@ $(document).ready(function() {
         function() {
             $(this).find(".conjure_icon_youclaim_value").text($(this).find(".conjure_icon_youclaim_value").data('original-text'));
         }
-    );		
+    );	
+
+    // Hover effect for conjure balance 
+    $("#conjureBalance").hover(
+        function() {
+            $(this).find(".conjure_icon_youclaimglobal_value").data('original-text', $(this).find(".conjure_icon_youclaimglobal_value").text());
+            $(this).find(".conjure_icon_youclaimglobal_value").text("VIDYA in pot");
+        }, 
+        function() {
+            $(this).find(".conjure_icon_youclaimglobal_value").text($(this).find(".conjure_icon_youclaimglobal_value").data('original-text'));
+        }
+    );	
 	
 	
 	
@@ -7298,8 +7309,7 @@ async function loadConjureInformation() {
 		const userCycleData = tcg_base_system.conj.methods._cycleToUserData(tcg_base_conjure.currentCycle, accounts[0]).call(); 
 		
 		// Get conjure balance 
-		const conjureBalance = await VIDYA.methods.balanceOf(tcg_base_system.conj_address).call();
-		const unclaimedVidya = await tcg_base_system.conj.methods.unclaimedTokens().call();  
+		const conjureBalance = await VIDYA.methods.balanceOf(tcg_base_system.conj_address).call(); 
 
         // Wait for all promises to resolve
         const [refCount, ascCount, packsOpen, brewCount, user, global, userCycle] = await Promise.all([referralCount, ascensionCount, packsOpened, totalBrewed, userData, globalData, userCycleData]);
@@ -7345,6 +7355,7 @@ async function loadConjureInformation() {
 		$(".conjure_icon_monstersacrificeglobal_value").text(abbr(parseInt(tcg_base_conjure.global.weight)));
 		$(".conjure_icon_monstersacrifice2_value").text(abbr(parseInt(tcg_base_conjure.user.userCycleWeight)));
 		$(".conjure_icon_youclaim_value").text(abbr(parseInt(tcg_base_conjure.user.overallVidyaCollected)));
+		$(".conjure_icon_youclaimglobal_value").text(abbr(Number(web3.utils.fromWei(conjureBalance)), 4));
 
         // Update card display after data is loaded
         updateCardDisplay("1");
