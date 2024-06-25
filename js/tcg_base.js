@@ -3678,18 +3678,18 @@ async function tcg_base_gamesLoop(forceEmptyGamesListContainer = false) {
 		/*	The new and hopefully better way to deliver Your Games (check line above for old) 
 			Something didn't quite work as the games never showed up after pageload.. maybe the below function reacted differently? idk 
 			edit: I forgot to fetch details per each gameId, duh. */
-		await tcg_base_system.game.methods.getActivePlayerGames(accounts[0]).call().then(async function(result) {
+		await tcg_base_system.gameAlchemy.methods.getActivePlayerGames(accounts[0]).call().then(async function(result) {
 			// Overwrite the global playerGames array with fresh ID's 
 			tcg_base_games.playerGames = result; 
 			
 			for (gameId of tcg_base_games.playerGames) {
 				// Fetch details for each gameId 
-				let details = await tcg_base_system.game.methods.getGameDetails(gameId).call();
+				let details = await tcg_base_system.gameAlchemy.methods.getGameDetails(gameId).call();
 				tcg_base_games.gameDetails[gameId] = details;	
 
 				// Also fetch the new custom timer 
 				if(!('forfeitTime' in details)) {
-					let forfeitTime = await tcg_base_system.game.methods.gameIndexToTimerRule(gameId).call();
+					let forfeitTime = await tcg_base_system.gameAlchemy.methods.gameIndexToTimerRule(gameId).call();
 					tcg_base_games.gameDetails[gameId]['forfeitTime'] = forfeitTime;
 				}				
 				
@@ -3699,7 +3699,7 @@ async function tcg_base_gamesLoop(forceEmptyGamesListContainer = false) {
 				}
 				
 				// Forfeit check (adds or removes .forfeit class for the game in the list)
-				await tcg_base_system.game.methods.forfeit(gameId).call().then(function(isForfeit) {
+				await tcg_base_system.gameAlchemy.methods.forfeit(gameId).call().then(function(isForfeit) {
 					let elem = $(`.tcg_base_play_games_list_item_container[data-gameid="${gameId}"]`).addClass('forfeit');
 					isForfeit ? elem.addClass('forfeit') : elem.removeClass('forfeit'); 
 				}); 
