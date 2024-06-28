@@ -6661,7 +6661,7 @@ async function tcg_base_lookForRefs() {
 	$(".tcg_base_nothingtoclaim_button").toggleClass("hidden", canClaim);
 
 	if(canClaim) {
-		let earnings = await tcg_base_system.pack.methods.referalToClaim(accounts[0]).call(); // blast pls.. it's referral not referal 
+		let earnings = await tcg_base_system.pack.methods.referralToClaim(accounts[0]).call();
 		earnings = Number(web3.utils.fromWei(earnings)).toFixed(2); 
 		$('#outstandingReferralRewards').html(`You have <span class="tcg_base_golden_text">${earnings}</span> available!`);
 	}	
