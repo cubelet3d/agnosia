@@ -1802,6 +1802,10 @@ html:after {
 	padding-right: 4px; 
 }
 
+.conjure_left_table {
+	text-shadow: 1px 1px black; 
+}
+
 .conjure_left_table,
 .conjure_middle_table_left,
 .conjure_middle_table_right,

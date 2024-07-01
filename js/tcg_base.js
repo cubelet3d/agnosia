@@ -1981,55 +1981,70 @@ $(document).ready(function() {
     // Hover effect for referralCount
     $("#referralCountHover").hover(
         function() {
+			$(this).find(".conjure_icon_handshake").data('original-bg', $(this).find(".conjure_icon_handshake").css('background'));
+			$(this).find(".conjure_icon_handshake").css('background', 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAATxJREFUSIm9lrFuwjAQhn+jDEXiARDKwpJuAbFFypAR0ZEta4YOfZO+QQfWvkElxgyRsiHUsUuXDjwAEgxIMF0w9sU2FHNSpDh2vu9yucgRANB7mR7hIbZfSyGeJmMvcIqOT/hDBIHrwmKYN+eL38/7CophjigOz2PkzhJriVQ4AERxePFEphBv83djF8nwn+8/bWwVjAazIwCkSYaqLpuJNMk0WFWX2nUu5EScuojgAFDVpVPmFK0CAsmZq3P/EhBIzvwWibVEKvRaCStIk6wBcdBrJJqAuiSKw7tI2O+AWoxuovfAtbI8xwqCwbMmeE0KTWSSAMBHvWAFnaDfhXpwi9vKRXCOE/S7aN1wDpud9UlkeFsYd7TDZgfgXDI1awBGuFWgiuSwgZt1ToscYVx43zIFAPj6s9iv1uIE7PGv9YZ3s/wAAAAOZVhJZk1NACoAAAAIAAAAAAAAANJTkwAAAABJRU5ErkJggg==)');
             $(this).find("#referralCount").data('original-text', $(this).find("#referralCount").text());
             $(this).find("#referralCount").text("Referrals");
         }, 
         function() {
             $(this).find("#referralCount").text($(this).find("#referralCount").data('original-text'));
+			$(this).find(".conjure_icon_handshake").css('background', $(this).find(".conjure_icon_handshake").data('original-bg'));
         }
     );
 
     // Hover effect for ascensionCount
     $("#ascensionCountHover").hover(
         function() {
+			$(this).find(".conjure_icon_monsterupgrade").data('original-bg', $(this).find(".conjure_icon_monsterupgrade").css('background'));
+			$(this).find(".conjure_icon_monsterupgrade").css('background', 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAa5JREFUSImtU7FOwlAUPSUdIHGwi9aExbh0cDASBj4AI3HqwuLWlcQvkEX+wISFoXHpwtLJaMInkAJjF8LSRGApgwkMJLp4m/de6+sreqbX13vPuffcdzUAOLq7/UIO9h9L7ls/M/NS8Pn6rmnl66tccsLbcxkA0HrYqaagVJRcPP+LABE22zGa7biQiHIHzXaM0dDAaGgkIipQmsF+ucVoaKQEdbOSK6DUAZGzFomCfxIgct2sQDcrhSySCgwaU46cwIpQzEECQeRh0JiiU++m/nXqXQwaUwSRJxWQDnm/3KJT76JWvf+1gP64Jx22tANKdHyLqzSIPDi+xcUcJAAgqb4/7iGIvKRq9p+0yLyAIPLg2iF35/4Q5/kPKHZAdji+xZ1PjYtiArInR8TiWYTIkepADCAbWJuebl4AAKt4Ls3NFKC3T+iPe3DtkPN7Fc/h2mEybCLPmknmkEURx7fg2mEyXPaOzckCt2i0WCzoKYq+E7lILC5eZgfrzQIAcHJ8jiDyUKvep54qS87Gi5DuwXqzSERkMTJI96B1+ShNVokp7SYzLZflQOwmM+0bPtPBC38dkNYAAAAOZVhJZk1NACoAAAAIAAAAAAAAANJTkwAAAABJRU5ErkJggg==)');
             $(this).find("#ascensionCount").data('original-text', $(this).find("#ascensionCount").text());
             $(this).find("#ascensionCount").text("Ascensions");
         }, 
         function() {
             $(this).find("#ascensionCount").text($(this).find("#ascensionCount").data('original-text'));
+			$(this).find(".conjure_icon_monsterupgrade").css('background', $(this).find(".conjure_icon_monsterupgrade").data('original-bg'));
         }
     );
 
     // Hover effect for packsOpened
     $("#packsOpenedHover").hover(
         function() {
+			$(this).find(".conjure_icon_monsterdiscovery").data('original-bg', $(this).find(".conjure_icon_monsterdiscovery").css('background'));
+			$(this).find(".conjure_icon_monsterdiscovery").css('background', 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAX1JREFUSIm1lrFKw0AYx/+RDhZ8AIcWJ+d6BlJ9AREcHA+apSBcpg5Ct2yBbG5OZspyvoHgGwQLNXbuVOzgAwh1KOhQLl6au8ul0P9yufuS/4/v+467OABwdHP9iz3o++XVcQ7Pz/ZiLtRSLY76g9L8ondlZeYnw8paJYNRf4DHt+di5CyFnwwxifNawHwxq0AO5AlnaWEqm6+mObyQ1AJOT3rgLNUDVJrEOdouscpApVqAgOwqKwAAY4lMMSuAFxIkl+o+mGKAZpvqFHTHFaOgOzZ+Yw2YLjncjo+k4ytjOln3wO34YBkpmU2XHCwjcBVQoUYlAoCnzwcE0nOdrACTOC+aKUoFAAH+M9Nt5UYZsGwDYdmm0fKzTtY9UBkKoEnWGchlkmUqTyOADNleM6nxLtIZeqE6k0Y90MkLifZILwFoRDHqD+Anw2KcL2a1AHGkc5aCRrQUq9xo668V7m/vSi/ZXpk0omgdt80AAdlF2+YA4ADAvv4sft4/nD8DtJyY2XhSLQAAAA5lWElmTU0AKgAAAAgAAAAAAAAA0lOTAAAAAElFTkSuQmCC)');	
             $(this).find("#packsOpened").data('original-text', $(this).find("#packsOpened").text());
             $(this).find("#packsOpened").text("Packs minted");
         }, 
         function() {
             $(this).find("#packsOpened").text($(this).find("#packsOpened").data('original-text'));
+			$(this).find(".conjure_icon_monsterdiscovery").css('background', $(this).find(".conjure_icon_monsterdiscovery").data('original-bg'));
         }
     );
 	
     // Hover effect for overallCardsBurned
     $("#overallCardsBurnedHover").hover(
         function() {
+			$(this).find(".conjure_icon_monstersacrifice").data('original-bg', $(this).find(".conjure_icon_monstersacrifice").css('background'));
+			$(this).find(".conjure_icon_monstersacrifice").css('background', 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAVVJREFUSImtla9Ow1AUh7+SijVBgGmWIHgFgqqYmVhaQrB7gmk8ohqP3hNgCaELomYkVQTRhyAzQ5AwQTIE3Obu9t7bU7Kf6Z97zvnO+d3bNAA4vMy2/Onh5oNFsSLNYq5uj5p3NunrZg7A52MRBIPzs62e9HQ3AGgSJNJjL643O2sHtoT5qCLNYuo8YlGsmiJ6QXWt84g0i5mPKivcCtClktVVv5dM6AToHXfJF+sEnLycAlDnkTNZranYXoCqLHeedY9Nv81YL2AyXTNbJs4El2bLhMl03Q3Yt0SAZDwWvesN8HkrjRFbpHcs7R4gFEf2LKzUOYHPAomFLUA4jHofVXVEw2H7oxTtga1TSfdigFlQWlwE0K2qynKnuMRGK8C2D757l/9OwD7lBKgpuuTrHqD1Tzb1/f7F8/3xv4qDwCLXJJLiAAFA1xTwO4kJ7tLm9S34Abovj51ZU335AAAADmVYSWZNTQAqAAAACAAAAAAAAADSU5MAAAAASUVORK5CYII=)');
             $(this).find("#overallCardsBurned").data('original-text', $(this).find("#overallCardsBurned").text());
             $(this).find("#overallCardsBurned").text("Sacrificed");
         }, 
         function() {
             $(this).find("#overallCardsBurned").text($(this).find("#overallCardsBurned").data('original-text'));
+			$(this).find(".conjure_icon_monstersacrifice").css('background', $(this).find(".conjure_icon_monstersacrifice").data('original-bg'));
         }
     );	
 	
     // Hover effect for overallCardsBrewed
     $("#overallCardsBrewedHover").hover(
         function() {
+			$(this).find(".conjure_icon_brews").data('original-bg', $(this).find(".conjure_icon_brews").css('background'));
+			$(this).find(".conjure_icon_brews").css('background', 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAUpJREFUSImtljFLw0AYhp9IBgNuLufSTIFCRWyg+QWFCHZwKJnsr0um4pBBwUJ/QQtRxILgpIv5AYIOBR3kQmLN5S7mncKX5H2+N+S7Owvg4PzsC4W2bzkAk/G0qF0vrwCwj0Tte+83t5a1758qzaWkeZrE+IMRvWG/gKi0p2Nelj8YkW3W2s9rA17vngDoDfvYwiFN4m4B5a5PDo+xhdMtAKopdKUNsIWzk6JTgJRpCiNAmxTGCcAshTHANEWrBKCfohXAJIXdBiAlUyibMTUtr6g6EG2ANF7NF5V6EIVKiBZgMp4WxsJzK/dW8wVBFPKwfGwHkOa/jaXq6lLKv6jJXEeNCf4yz59fiusgCv8HqDMWnlsMWZrEtfuD8hOlSbwzqcJzCaJQezVt3PS3+QcXlzNlE6rdzQLQgQDFaQJ+BizbrJXmn9m99Q3Lv3ML98gaoAAAAA5lWElmTU0AKgAAAAgAAAAAAAAA0lOTAAAAAElFTkSuQmCC)');
             $(this).find("#overallCardsBrewed").data('original-text', $(this).find("#overallCardsBrewed").text());
             $(this).find("#overallCardsBrewed").text("Brewed");
         }, 
         function() {
             $(this).find("#overallCardsBrewed").text($(this).find("#overallCardsBrewed").data('original-text'));
+			$(this).find(".conjure_icon_brews").css('background', $(this).find(".conjure_icon_brews").data('original-bg'));
         }
     );	
 
