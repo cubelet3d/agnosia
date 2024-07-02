@@ -2051,47 +2051,58 @@ $(document).ready(function() {
     // Hover effect for global weight 
     $("#conjureGlobalWeight").hover(
         function() {
+			$(this).find(".conjure_icon_monstersacrificeglobal").data('original-bg', $(this).find(".conjure_icon_monstersacrificeglobal").css('background'));
+			$(this).find(".conjure_icon_monstersacrificeglobal").css('background', 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAYBJREFUSIm1Vr1Kw1AYPZEgCbiUQig4OPQFxClDEQItCQqOnR2Ksy+QzSfoWPoE7pIEhywVMolDVwc3CUhBBB0EnU65uT9NG82B8OV+X3LOvee7+bEA4OA8+kEL+LhLLcs5OW6FnNjjSTJ1cH32jmTqQMzx2HTdJtjiIIw8ZGmJZOopF5IwS0uEkVqvXQEAzAcFwsjDMnaRpeWakHEZuwgjD/NB0UxABInE2ASKAGdsQl29VuDw4QgAsIzdSp5j1hsLFHleGct+y/WtBUbjFSYLf6ubJgsfo/FqN4G2oBWgDX4QVOKu9hgFRJC8KSrvou/XT9zfdtaNFck5e/pv91zI2L88VXK2khFQ5Dn8IKi1hsSdcqjUai3ahrxTDivkb89X9QLyltVtYZKLxCRnrAjYPVd5HuRz+q8j10FZAUV0MDUXALr9mTZv/KJxR+nIdbOngLiSbn9m3kXySkwzlz0nsbYHOhEeJsjWcMz4r+8iXR/sr8enP/9ZmBr8cnNh/QIGk6TwiCVCvQAAAA5lWElmTU0AKgAAAAgAAAAAAAAA0lOTAAAAAElFTkSuQmCC)');			
             $(this).find(".conjure_icon_monstersacrificeglobal_value").data('original-text', $(this).find(".conjure_icon_monstersacrificeglobal_value").text());
             $(this).find(".conjure_icon_monstersacrificeglobal_value").text("Global weight");
         }, 
         function() {
             $(this).find(".conjure_icon_monstersacrificeglobal_value").text($(this).find(".conjure_icon_monstersacrificeglobal_value").data('original-text'));
+			$(this).find(".conjure_icon_monstersacrificeglobal").css('background', $(this).find(".conjure_icon_monstersacrificeglobal").data('original-bg'));
         }
     );	
 
     // Hover effect for your weight 
     $("#conjureYourWeight").hover(
         function() {
+			$(this).find(".conjure_icon_monstersacrifice2").data('original-bg', $(this).find(".conjure_icon_monstersacrifice2").css('background'));
+			$(this).find(".conjure_icon_monstersacrifice2").css('background', 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAATdJREFUSIm1ljFqhEAUhj+DhUKaNLLHCKksttliUZJ+T7AHyAW8hPWeIH3QZYtttrAKKTxEsFkIgaQIJNULOrozT4k/yPDmjf/3fDMwegDXD+kPM+jjufS84O52FnPR1ZzmFwFFHvB4/06RB505eWzrTPmXEkkasS8bijwaLABgXzYkaT/v/AKA3bIiSSPqLGRfNn+GMtZZSJJG7JbVNEBbYtQetbICXNW58k5AvFoBUGdhZ15iyU8GVMdjJzYrNvNqwHpzZnuKnS8DbE8x6815HOA/5QRIG6TfMmraowK0pdlUFcBfhJ19MKuVWPrvL8KehxUwJDHVtmY0YIq5GmAeWe0RtgLMfTCNNf23AtqQIWnMAVRX5vfbJ4enm9HmaoBARFpzsNxovYUjTNvyAOb6s/h6efV+AZHZd4delgaXAAAADmVYSWZNTQAqAAAACAAAAAAAAADSU5MAAAAASUVORK5CYII=)');
             $(this).find(".conjure_icon_monstersacrifice2_value").data('original-text', $(this).find(".conjure_icon_monstersacrifice2_value").text());
             $(this).find(".conjure_icon_monstersacrifice2_value").text("Your weight");
         }, 
         function() {
             $(this).find(".conjure_icon_monstersacrifice2_value").text($(this).find(".conjure_icon_monstersacrifice2_value").data('original-text'));
+			$(this).find(".conjure_icon_monstersacrifice2").css('background', $(this).find(".conjure_icon_monstersacrifice2").data('original-bg'));
+        }
+    );	
+	
+    // Hover effect for conjure balance 
+    $("#conjureBalance").hover(
+        function() {
+			$(this).find(".conjure_icon_youclaimglobal").data('original-bg', $(this).find(".conjure_icon_youclaimglobal").css('background'));
+			$(this).find(".conjure_icon_youclaimglobal").css('background', 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAZBJREFUSImlVrFqwlAUPSkilXQpWdwUMjgFQh0qlDp1qBT6DS4xm7vgGPAbknxHoXspmEEQMnUI1K0U3BrqULBDePJe3n3mRc/m9d1z3jn3JsQAgKunxz0U+Hl5NQDg7h7Cmfc3GDq9xuWNqzzA0DfXCBYDoTafLbHK3apWXNQh33zmh3qwGKBvrs8X4NHpmoKIDrQE5rOlIFKuHUND55DnOxKh5zuIw7Sylxwyla3nO8JvRl41aElAtTGUYBym9QTKG8PyZiK8C10HyhmwjeFF+MxPmgHLXhUR5YAH5UYSoG6muq3O0y1FFIepcmNYPQ5TclaUA0ngmAPKRadrYjTdAQCa46H0PzkDHQdAEdFoujsQX38/VAvozoDF0RwPJeJtNoFlR+c5WOWuRL7NJkKfZUenzUCHnKHWFiVZr2hqy0SWHZEitRwU5C3y9pYdkSKCQJL1AIWDJOuh0W5JN2SEPDEvJL1N/75+cWt/CCRl8mP5s+0hHQBFBCxrvqaDMjmA4tND58uCB7X7FDbBs/EPAjD0Vnmuke4AAAAOZVhJZk1NACoAAAAIAAAAAAAAANJTkwAAAABJRU5ErkJggg==)');
+            $(this).find(".conjure_icon_youclaimglobal_value").data('original-text', $(this).find(".conjure_icon_youclaimglobal_value").text());
+            $(this).find(".conjure_icon_youclaimglobal_value").text("VIDYA in pot");
+        }, 
+        function() {
+            $(this).find(".conjure_icon_youclaimglobal_value").text($(this).find(".conjure_icon_youclaimglobal_value").data('original-text'));
+			$(this).find(".conjure_icon_youclaimglobal").css('background', $(this).find(".conjure_icon_youclaimglobal").data('original-bg'));
         }
     );	
 
     // Hover effect for your vidya claimed 
     $("#userOverallVidyaCollected").hover(
         function() {
+			$(this).find(".conjure_icon_youclaim").data('original-bg', $(this).find(".conjure_icon_youclaim").css('background'));
+			$(this).find(".conjure_icon_youclaim").css('background', 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAU1JREFUSIm1lrFKA0EQhv+VKwznA6RTSJHqIJgiAbEXfI7jniGQMpBnOO45AvYiJIVycFWKgHY+gEELQYswYXdv5m7OjdPd3u78880/C2sA4OL+7gdCfKweDADc3MLZ8/QIozlrzq9H4gaKcVxisZw6a/PZGs/7UdtRnHVJ/va6P64vllOM4zJcwI7Lq9gR0YRKYD5bOyL+WlNEmk1pltQSplmCIq9az7Imc71Ns8T5puRtRtcEpInhBIu86ibgTwz1m0RsCi2B6AFNjC1i9/xPHlDvpRZxBHZwNDUBrjKpWs3tZgmkiaH1Iq8avbJFah40EXAUnFcnIQBkr05CoL3dQQSa2x1EoJm2TgSb3RAAMBls/4cg6vfCCL7fPzEZbNnKNrvhUaCNVCSI+r1DG7wq7ORBBDaJL+z/15ACODw9NC8Lrggym8JP/vVSml8IhATZNBN46gAAAA5lWElmTU0AKgAAAAgAAAAAAAAA0lOTAAAAAElFTkSuQmCC)');
             $(this).find(".conjure_icon_youclaim_value").data('original-text', $(this).find(".conjure_icon_youclaim_value").text());
             $(this).find(".conjure_icon_youclaim_value").text("Your claims");
         }, 
         function() {
             $(this).find(".conjure_icon_youclaim_value").text($(this).find(".conjure_icon_youclaim_value").data('original-text'));
+			$(this).find(".conjure_icon_youclaim").css('background', $(this).find(".conjure_icon_youclaim").data('original-bg'));
         }
     );	
-
-    // Hover effect for conjure balance 
-    $("#conjureBalance").hover(
-        function() {
-            $(this).find(".conjure_icon_youclaimglobal_value").data('original-text', $(this).find(".conjure_icon_youclaimglobal_value").text());
-            $(this).find(".conjure_icon_youclaimglobal_value").text("VIDYA in pot");
-        }, 
-        function() {
-            $(this).find(".conjure_icon_youclaimglobal_value").text($(this).find(".conjure_icon_youclaimglobal_value").data('original-text'));
-        }
-    );	
-	
 	
 	
 	
