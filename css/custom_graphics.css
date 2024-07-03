@@ -1756,6 +1756,11 @@ html:after {
 	height: 89px;
 }
 
+.conjure_button_claim_label {
+	margin-bottom: 10px; 
+	text-shadow: 2px 2px black; 
+}
+
 .conjure_icon_avatar {
 	width: 16px; 
 	height: 16px; 
