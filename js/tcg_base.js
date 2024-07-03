@@ -178,7 +178,7 @@ tcg_base_system = {
 	game_address: "0xff6F9a516cC1C07b19d157eDeC7eA7A578074D1f", // old > "0x5E49E898C18Bd504170c926dD5b244165905F175",
 	card_address: "0x83D4137A37c1e4DB8eB804f3e29e724fB79B26a6", // old > "0x7B4aB1B6f20aF6555B24C2BccAfBB82b1c5a60aE", 
 	caul_address: "0x5D00524Ca34C9311DED75b89393ec9f64079965d", // old > "0x1360398fFD6E9148Bd3FEc2910afa0660DFcE4cB",
-	conj_address: "0x39A4e600C390dB9C0220d46772684b5706Fd122f", // conjure address 
+	conj_address: "0x946508f50263fD1330aE6D8701496b0d753e651C", // conjure address 
 	pack: null,
 	game: null,
 	card: null
