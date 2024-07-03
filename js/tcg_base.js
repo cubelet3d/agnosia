@@ -748,6 +748,9 @@ $(document).ready(function() {
 	
 	// Handles clicks on sacrifice button 
 	$(document).on('click', '.tcg_base_tokenId_sacrifice', async function() {
+		error("You are not worthy");
+		return; // temp. fix so ppl don't blackhole their cards 
+		
 		let tokenId = $(this).attr('data-tokenid'); 
 		let referral = localStorage.getItem('tcg_base_starterpack_referral') || '0x0000000000000000000000000000000000000000';
 		
@@ -1961,13 +1964,13 @@ $(document).ready(function() {
 	});	
 
 
-	
-	$(document).on('mouseenter', '.conjure_button_claim_normal', function() {
+	// CONJURE CLAIM BUTTON HOVER 
+	/*$(document).on('mouseenter', '.conjure_button_claim_normal', function() {
 		$('.conjure_button_claim_normal').removeClass('conjure_button_claim_normal').addClass('conjure_button_claim_hover');
 	});
 	$(document).on('mouseleave', '.conjure_button_claim_hover', function() {
 		$('.conjure_button_claim_hover').removeClass('conjure_button_claim_hover').addClass('conjure_button_claim_normal');
-	});	
+	});*/
 	
 	// Event handler for clicking on the menu
 	$(document).on('click', '.conjure_numbers_menu div', function() {
@@ -2103,6 +2106,11 @@ $(document).ready(function() {
 			$(this).find(".conjure_icon_youclaim").css('background', $(this).find(".conjure_icon_youclaim").data('original-bg'));
         }
     );	
+	
+	// Click handler for bowl button 
+	$(document).on("click", ".conjure_bowl_button", function() {
+		error("You are not worthy"); 
+	}); 
 	
 	
 	
@@ -3591,6 +3599,8 @@ async function updateCardDetails(tokenId) {
         // If it's not deposited, ensure the "mark" and "deposit" and "brew" and "sacrifice" buttons are not disabled, disable "withdraw"
         $(".tcg_base_tokenId_mark, .tcg_base_tokenId_deposit, .tcg_base_tokenId_brew, .tcg_base_tokenId_sacrifice").removeClass("disabled");
         $(".tcg_base_tokenId_withdraw").addClass("disabled");
+		
+		// $(".tcg_base_tokenId_sacrifice").addClass("disabled"); // always disable for the time being 
     }
 }
 

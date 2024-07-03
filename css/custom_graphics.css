@@ -1667,6 +1667,15 @@ html:after {
 	z-index: 4; 
 }
 
+.conjure_bowl_button {
+	width: 27px;
+    height: 27px;
+    position: absolute;
+    left: 50px;
+    top: 43px;
+    border-radius: 50%;
+}
+
 .conjure_numbers_menu {
 	position: absolute;
 	left: 183px; 
