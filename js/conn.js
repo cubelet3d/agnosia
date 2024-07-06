@@ -285,6 +285,8 @@ async function init() {
 
 async function setup() {
     try {
+		await connectToArbitrum(); 
+		
         web3 = new Web3(window.ethereum); 
 		
 		accounts = await web3.eth.getAccounts(); 
@@ -384,3 +386,27 @@ function handleOrientationChange() {
 
 window.addEventListener("resize", handleOrientationChange);
 document.addEventListener("DOMContentLoaded", handleOrientationChange);
+
+async function connectToArbitrum() {
+    const arbitrumNetwork = {
+        chainId: '0xA4B1', // Chain ID of Arbitrum Mainnet in hexadecimal
+        chainName: 'Arbitrum One',
+        nativeCurrency: {
+            name: 'ETH',
+            symbol: 'ETH',
+            decimals: 18
+        },
+        rpcUrls: ['https://arb1.arbitrum.io/rpc'], // RPC URL for Arbitrum Mainnet
+        blockExplorerUrls: ['https://arbiscan.io']
+    };
+
+    try {
+        // Request the user to switch to the Arbitrum network
+        await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [arbitrumNetwork]
+        });
+    } catch (error) {
+        console.error('Failed to switch or add network:', error);
+    }
+}

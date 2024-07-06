@@ -1447,7 +1447,7 @@ $(document).ready(function() {
 					<div class="tcg_base_profile_cube_face top" style="background: ${profileData.blockie}"></div>
 					<div class="tcg_base_profile_cube_face bottom" style="background: ${profileData.blockie}"></div>
 				</div>
-				<div class="tcg_base_profile_address C64"><a href="https://sepolia.etherscan.io/address/${address}" target="_blank">${formatAddress(address)}</a></div>
+				<div class="tcg_base_profile_address C64"><a href="https://arbiscan.io/address/${address}" target="_blank">${formatAddress(address)}</a></div>
 			</div>
 			<div class="tcg_base_profile_details_wrapper flex-box col">
 
