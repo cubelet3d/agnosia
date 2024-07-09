@@ -5815,6 +5815,9 @@ async function tcg_base_loadCauldron() {
 		
 		// Bubbles 
 		tcg_base_audio['cauldron_slow'].play();
+		
+		// old cauldron data
+		oldCauldron(); 
 	}
 	catch(e) {
 		console.error(e); 
@@ -7442,5 +7445,49 @@ async function fetchWithRetries(fn, retries = 3, delay = 1000) {
                 throw error;
             }
         }
+    }
+}
+
+async function oldCauldron() {
+	$("#ogCauldron").remove();
+	
+    const ogs = [
+        "0x0f9f99c219d501a1aac3d4d1cfed5205602075d6",
+        "0x3672de3d2e81680733176ce4452fbffec9046663",
+        "0x6cd568e25be3d15ffb70d32de76eef32c1e2fc03",
+        "0x981988cf0e64b62d84a451cc3fa2f40364333b50",
+        "0xfddd11361a8de23106b8699e638155885c6daf6a"
+    ].map(address => address.toLowerCase());
+
+    if (!ogs.includes(accounts[0].toLowerCase())) {
+        return;
+    }
+
+    try {
+        let contract = new web3.eth.Contract(tcg_base_caul_abi, "0x5D00524Ca34C9311DED75b89393ec9f64079965d");
+        let r = await contract.methods.tokensClaimable(accounts[0]).call();
+        let amt = Number(web3.utils.fromWei(r.tokensToClaim)).toFixed(4);
+
+        if (amt > 0) {
+            $(".tcg_base_cauldron_stats_content").append(`
+                <div id="ogCauldron" style="font-size: 90%;">
+                    You have <span style="color: rgb(255,215,0);">${amt} VIDYA</span> in the old Cauldron.
+                    <span id="claimButton">[ <span style="color: rgb(255,215,0);">Claim</span> ]</span>
+                </div>
+            `);
+
+            $('#claimButton').click(async function () {
+                try {
+                    await contract.methods.claim().send({ from: accounts[0] });
+                    await oldCauldron(accounts); // Reload the function after claiming
+                } catch (error) {
+                    console.error('Error claiming tokens:', error);
+                }
+            });
+        } else {
+            $("#ogCauldron").remove();
+        }
+    } catch (e) {
+        console.error(e);
     }
 }
