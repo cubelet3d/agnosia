@@ -258,7 +258,10 @@ let web3, alchemy, accounts, connected = false;
 window.addEventListener('load', async () => {
     if(window.ethereum) {
 		init(); 
-    }
+    } else {
+		$('.network-message').text('Please install MetaMask or other web3 wallet.');
+		return; 
+	}
 });
 
 async function init() {
