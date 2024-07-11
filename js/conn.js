@@ -288,7 +288,7 @@ async function init() {
 
 async function setup() {
     try {
-		await connectToArbitrum(); 
+		// await connectToArbitrum(); 
 		
         web3 = new Web3(window.ethereum); 
 		
@@ -392,11 +392,11 @@ document.addEventListener("DOMContentLoaded", handleOrientationChange);
 
 async function connectToArbitrum() {
     const arbitrumNetwork = {
-        chainId: '0xA4B1', // Chain ID of Arbitrum Mainnet in hexadecimal
+        chainId: '0xa4b1', // Chain ID of Arbitrum Mainnet in hexadecimal
         chainName: 'Arbitrum One',
         nativeCurrency: {
-            name: 'ETH',
-            symbol: 'ETH',
+            name: 'AETH',
+            symbol: 'AETH',
             decimals: 18
         },
         rpcUrls: ['https://arb1.arbitrum.io/rpc'], // RPC URL for Arbitrum Mainnet

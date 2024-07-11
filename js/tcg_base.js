@@ -130,6 +130,10 @@ const notificationsMap = {
 	approveUpload: {
 		transactionHash: (hash) => `<div class="flex-box flex-center">Approving Upload...</div>`,
 		receipt: `<div class="flex-box flex-center">Upload approved!</div>`
+	},
+	transferCard: {
+		transactionHash: (hash) => `<div class="flex-box flex-center">Sending card...</div>`,
+		receipt: `<div class="flex-box flex-center">Card sent!</div>`
 	}
 }
 
@@ -458,6 +462,10 @@ $(document).ready(function() {
 
 	// Click handler for the cards in the cards list (the templates list)
 	$(document).on("click", ".tcg_base_deckview_carditem", function() {
+		$(".tcg_base_card_transfer").addClass("hidden");
+		tcg_base_player.lookingAtCard = null; 
+		closeTransferForm();
+		
 		let cardName = $(this).attr("data-card-name");
 
 		$(".tcg_base_card_stats").addClass("hidden");
@@ -507,6 +515,8 @@ $(document).ready(function() {
 		row.removeClass("tcg_base_tokenIds_list_row_active");
 		$(this).addClass("tcg_base_tokenIds_list_row_active");
 		let tokenId = $(this).attr("data-tokenId");
+		closeTransferForm();
+		tcg_base_player.lookingAtCard = tokenId; 
 		await updateCardDetails(tokenId);
 	});
 	
@@ -707,7 +717,8 @@ $(document).ready(function() {
 			const approvalTxData = tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.caul_address, true);
 			await sendTransaction(approvalTxData, '0', 
 				(hash) => notify(notificationsMap.approveCauldron.transactionHash(hash)),
-				(receipt) => notify(notificationsMap.approveCauldron.receipt)
+				(receipt) => notify(notificationsMap.approveCauldron.receipt),
+				(error) => { console.error(error); }
 			);
 		}
 
@@ -742,6 +753,9 @@ $(document).ready(function() {
 				}
 				
 				notify(notificationsMap.brewCards.receipt(reward));
+			},
+			(error) => {
+				console.error(error); 
 			}
 		);
 	});
@@ -761,7 +775,8 @@ $(document).ready(function() {
 				const approvalTxData = tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.conj_address, true);
 				await sendTransaction(approvalTxData, '0', 
 					(hash) => notify(notificationsMap.approveConjure.transactionHash(hash)),
-					(receipt) => notify(notificationsMap.approveConjure.receipt)
+					(receipt) => notify(notificationsMap.approveConjure.receipt),
+					(error) => { console.error(error); }
 				);
 			}        
 			
@@ -1336,7 +1351,9 @@ $(document).ready(function() {
 				taskIcon.remove();
 
 				notify(notificationsMap.forfeitGame.receipt);
-			});
+			},
+			(error) => { console.error(error); }
+		);
 	});
 	
 	/*	Transaction that approves game contract to use player's VIDYA 
@@ -1358,7 +1375,9 @@ $(document).ready(function() {
 		
 		await sendTransaction(approvalTxData, '0', 
 			(hash) => notify(notificationsMap.vidyaApproval.transactionHash(hash)),
-			(receipt) => notify(notificationsMap.vidyaApproval.receipt));
+			(receipt) => notify(notificationsMap.vidyaApproval.receipt),
+			(error) => { console.error(error); }
+		);
 	});	
 	
 	// Available games tab 
@@ -1779,7 +1798,9 @@ $(document).ready(function() {
 				(receipt) => {
 					notify(notificationsMap.registerDiscordId.receipt);
 					$('#tcg_base_discordId, #tcg_base_discordIdSetButton').addClass('disabled');
-				});
+				},
+				(error) => { console.error(error); }
+			);
 		} else {
 			error(`Your input ${discordId} doesn't look like a valid Discord ID. Note that the ID we are looking for is the 18 digit number, not your username.`);
 		}
@@ -1832,7 +1853,9 @@ $(document).ready(function() {
 
 			await sendTransaction(updatePfpTxData, '0',
 				(hash) => notify(notificationsMap.setPfp.transactionHash(hash)),
-				(receipt) => notify(notificationsMap.setPfp.receipt));
+				(receipt) => notify(notificationsMap.setPfp.receipt),
+				(error) => { console.error(error); }
+			);
 		} else {
 			error("This item does not belong to you!");
 		}
@@ -1901,7 +1924,9 @@ $(document).ready(function() {
 					}					
 					
 					cauldronSip(reward);
-				});
+				},
+				(error) => { console.error(error); }
+			);
 		} else {
 			error(`You are not worthy.`);
 		}
@@ -2258,7 +2283,7 @@ async function tcg_base_load_content(option, forceEmptyGamesListContainer = fals
 		}
 		
 		if(option == "options") {
-			let referralLink = "https://team3d.io/agnosia/?referral="+accounts[0];
+			let referralLink = "https://agnosia.gg/?referral="+accounts[0];
 			$(".tcg_base_referral_link").val(referralLink);
 			
 			// Look for ref earnings 
@@ -2479,8 +2504,12 @@ async function tcg_base_buyStarterPack(referral) {
             tcg_base_load_starterpack(accounts[0]); // This figures out the right button to show 
             notify(notificationsMap.buyStarterPack.receipt);
         };
+		
+		const onError = (error) => {
+			console.error(error); 
+		}		
 
-        await sendTransaction(txData, value, onTransactionHash, onReceipt);
+        await sendTransaction(txData, value, onTransactionHash, onReceipt, onError);
     }
     catch(e) {
         console.error(e);
@@ -2618,8 +2647,12 @@ async function tcg_base_openStarterPack() {
 			tcg_base_load_playerdeck();
 			openPackNotified = false;
 		};
+		
+		const onError = (error) => {
+			console.error(error); 
+		}
 
-        await sendTransaction(txData, '0', onTransactionHash, onReceipt);
+        await sendTransaction(txData, '0', onTransactionHash, onReceipt, onError);
     }
     catch(e) {
         console.error(e);
@@ -2871,7 +2904,11 @@ async function tcg_base_approveAscension() {
                 $(".tcg_base_ascend_button").removeClass("hidden");
                 $(".tcg_base_ascend_card").removeClass("disabled");
                 notify(notificationsMap.approveAscension.receipt);
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e);
     }
@@ -2922,7 +2959,11 @@ async function tcg_base_ascendToNextLevel(tokenIds) {
 				$(".tcg_base_buypack_button").removeClass("disabled");
 				
 				notify(notificationsMap.ascendToNextLevel.receipt);
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e);
     }
@@ -3154,7 +3195,11 @@ function tcg_base_resetAllContainers() {
 	
 	// Stop cauldron bubbling 
     tcg_base_audio['cauldron_slow'].pause();
-    tcg_base_audio['cauldron_slow'].currentTime = 0;		
+    tcg_base_audio['cauldron_slow'].currentTime = 0;	
+
+	tcg_base_player.lookingAtCard = null; 
+	closeTransferForm();
+	$(".tcg_base_card_transfer").addClass("hidden");
 }
 
 // Function to check if the loop should continue running (if Play tab is open)
@@ -3312,7 +3357,11 @@ async function tcg_base_claimReferralRewards() {
                 $('#outstandingReferralRewards').html(``);
 				
 				notify(notificationsMap.claimRewards.receipt(reward));
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e);
     }
@@ -3332,7 +3381,8 @@ async function tcg_base_handleDeposit(tokenId, cardName, level) {
 			const approvalTxData = tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.game_address, true);
 			await sendTransaction(approvalTxData, '0', 
 				(hash) => notify(notificationsMap.approveUpload.transactionHash(hash)),
-				(receipt) => notify(notificationsMap.approveUpload.receipt)
+				(receipt) => notify(notificationsMap.approveUpload.receipt),
+				(error) => { console.error(error); }
 			);
 		}	
 		
@@ -3396,7 +3446,11 @@ async function tcg_base_setApprovalForAll(data) {
                 $(".tcg_base_approve_deposit_button").removeClass("disabled");
 				notify(notificationsMap.setApprovalForAll.receipt);
                 closeModal(data);
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e);
     }
@@ -3466,7 +3520,11 @@ async function tcg_base_transferToDeck(tokensToDeposit, cardName, level) {
 				if($('.tcg_base_menu_option_active').attr('data') === 'play') await tcg_base_open_tab("play");
 				
                 notify(notificationsMap.transferToDeck.receipt);
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e);
     }
@@ -3543,7 +3601,11 @@ async function tcg_base_transferFromDeck(tokensToWithdraw, cardName, level) {
 				}
 				
                 notify(notificationsMap.transferFromDeck.receipt);
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e);
     }
@@ -3595,12 +3657,16 @@ async function updateCardDetails(tokenId) {
             $(".tcg_base_tokenId_withdraw").addClass("disabled");
         }*/
 		$(".tcg_base_tokenId_withdraw").toggleClass("disabled", !(await canCardBeWithdrawn(tokenId)));
+		
+		$(".tcg_base_card_transfer").addClass("hidden");
     } else {
         // If it's not deposited, ensure the "mark" and "deposit" and "brew" and "sacrifice" buttons are not disabled, disable "withdraw"
         $(".tcg_base_tokenId_mark, .tcg_base_tokenId_deposit, .tcg_base_tokenId_brew, .tcg_base_tokenId_sacrifice").removeClass("disabled");
         $(".tcg_base_tokenId_withdraw").addClass("disabled");
 		
 		// $(".tcg_base_tokenId_sacrifice").addClass("disabled"); // always disable for the time being 
+		
+		$(".tcg_base_card_transfer").removeClass("hidden");
     }
 }
 
@@ -3846,7 +3912,11 @@ async function initializeGame(selectedAvailableCards, wagerInputAmount, selected
 				}
 				
                 await tcg_base_openGame(gameId);
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e);
     }
@@ -4134,7 +4204,11 @@ async function tcg_base_cancelGameId(gameIndex, gameId) {
 				}
 				
                 notify(notificationsMap.cancelGameId.receipt(gameId));
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e);
     }
@@ -4180,7 +4254,11 @@ async function tcg_base_joinGameId(cards, gameId, creator, gameIndex) {
 				}
 
                 await tcg_base_openGame(gameId);
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e);
     }
@@ -4877,7 +4955,12 @@ async function placeCardOnBoard(indexInHand, gameIndex, boardPosition, cardEleme
                 addPointerEventsClass($gameWindow, currentPlayer, false);
                 delete tcg_base_games.gameSelectedCards[gameIndex];
                 await tcg_base_gamesLoop();
-            });
+            },
+            (error) => {
+                console.error(error);
+                addPointerEventsClass($gameWindow, currentPlayer, false);
+            }
+		);
     } catch(e) {
         console.error(e);
         addPointerEventsClass($gameWindow, currentPlayer, false);
@@ -5054,7 +5137,11 @@ async function tcg_base_collectWinnings(gameId, tokenIds) {
             async (receipt) => {
 				if ($('.tcg_base_menu_option_active').attr('data') === 'play') await tcg_base_open_tab('play', true);
                 notify(notificationsMap.collectWinnings.receipt(gameId));
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e); 
     }
@@ -5596,7 +5683,8 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds) {
 			const approvalTxData = tcg_base_system.card.methods.setApprovalForAll(tcg_base_system.game_address, true);
 			await sendTransaction(approvalTxData, '0', 
 				(hash) => notify(notificationsMap.approveUpload.transactionHash(hash)),
-				(receipt) => notify(notificationsMap.approveUpload.receipt)
+				(receipt) => notify(notificationsMap.approveUpload.receipt),
+				(error) => { console.error(error); }
 			);
 		}		
 		/*if(!approved) {
@@ -5634,7 +5722,11 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds) {
                 resetMultiUpload(); 
 				if($('.tcg_base_menu_option_active').attr('data') === 'deck') await tcg_base_open_tab("deck");
 				if($('.tcg_base_menu_option_active').attr('data') === 'play') await tcg_base_open_tab("play");
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
 	}
 	catch(e) {
 		console.error(e); 
@@ -5671,7 +5763,11 @@ async function tcg_base_handleWithdrawForMultiDownload(selectedTokenIds) {
                 notify(notificationsMap.transferFromDeck2.receipt);
                 resetMultiDownload(); 
                 if($('.tcg_base_menu_option_active').attr('data') === 'deck') await tcg_base_open_tab("deck");
-            });
+            },
+			(error) => {
+				console.error(error); 
+			}
+		);
     } catch(e) {
         console.error(e); 
     }
@@ -7422,7 +7518,10 @@ async function tcg_base_sacrifice(tokenIds, referral) {
                 }
                 notify(notificationsMap.sacrificeCards.receipt);
                 // $(".tcg_base_tokenId_sacrifice, .tcg_base_tokenId_mark, .tcg_base_tokenId_brew, .tcg_base_tokenId_deposit, .tcg_base_tokenId_withdraw").removeClass("disabled");
-            }
+            },
+			(error) => {
+				console.error(error); 
+			}
         );
     } catch (e) {
         console.error(e);
@@ -7490,4 +7589,80 @@ async function oldCauldron() {
     } catch (e) {
         console.error(e);
     }
+}
+
+// Token transfer form 
+$(document).ready(function() {
+	const receiver = $('.tcg_base_transfer_form_receiver')[0]; 
+	
+	receiver.addEventListener('paste', async (event) => {
+		event.preventDefault();
+		const pastedData = (event.clipboardData || window.clipboardData).getData('text');
+        if (web3.utils.isAddress(pastedData)) {
+            const truncated = pastedData.length > 32 ? pastedData.substring(0, 32) + '...' : pastedData;
+            document.execCommand('insertText', false, truncated);
+            $(receiver).attr('address', pastedData);
+        } else {
+			error("Invalid address!");
+        }
+	});	
+	
+	receiver.addEventListener('click', clearTransferForm);
+    receiver.addEventListener('focus', clearTransferForm);	
+
+	$(document).on("click", ".tcg_base_transfer_form_close_button", function() {
+		closeTransferForm();
+	}); 
+	
+	$(document).on("click", ".tcg_base_card_transfer", async function() {
+		$(".tcg_base_transfer_form").addClass("hidden"); 
+		if(!tcg_base_player.lookingAtCard > 0) return; // do nothing more if not looking at any card (tcg_base_player.lookingAtCard set at list item click)
+		let owner = await tcg_base_system.card.methods.ownerOf(tcg_base_player.lookingAtCard).call();
+		if(owner !== accounts[0]) {
+			error("Can't transfer an uploaded card! You need to download the card first."); 
+			return; 
+		}
+		$(".tcg_base_transfer_form").removeClass("hidden");
+		$("#tcg_base_tokenId_transfer").text(tcg_base_player.lookingAtCard);
+	}); 
+	
+	$(document).on("click", ".tcg_base_transfer_form_send_button", async function() {
+		let tokenIdToSend = $("#tcg_base_tokenId_transfer").text();
+		let receiverAddress = $(".tcg_base_transfer_form_receiver").attr("address"); 
+		
+		// Player looking at same card and receiver is address? Fire away!
+		if(tcg_base_player.lookingAtCard == tokenIdToSend && web3.utils.isAddress(receiverAddress)) {
+			const transferTokenData = tcg_base_system.card.methods.transferFrom(accounts[0], receiverAddress, tokenIdToSend); 
+			await sendTransaction(
+				transferTokenData, '0',
+				(hash) => {
+					notify(notificationsMap.transferCard.transactionHash(hash));
+				},
+				async (receipt) => {
+					if ($('.tcg_base_menu_option_active').attr('data') === 'deck') await tcg_base_open_tab("deck"); // reload deck 
+					notify(notificationsMap.transferCard.receipt);
+				},
+				(error) => {
+					console.error(error); 
+				}
+			);
+		} else if (receiverAddress == "") {
+			error("Input a receiver address first!");
+		} else {
+			console.error("Error during token transfer");
+		}
+	}); 
+}); 
+
+function clearTransferForm() {
+	const receiver = $('.tcg_base_transfer_form_receiver')[0]; 
+	$(receiver).attr('address', '');
+	receiver.innerText = '';
+}
+
+function closeTransferForm() {
+	clearTransferForm();
+	$(".tcg_base_transfer_form").addClass("hidden"); 
+	$("#tcg_base_tokenId_transfer").text("");
+	$(".tcg_base_transfer_form_receiver").text("0x000000000000000000000000000000...");	
 }

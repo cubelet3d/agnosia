@@ -8,7 +8,7 @@ const explorerUri = 'https://arbiscan.io/tx/';
  * @param {function} onTransactionHash - Callback when the transaction hash is received.
  * @param {function} onReceipt - Callback when the transaction receipt is received.
  */
-async function sendTransaction(txData, value, onTransactionHash, onReceipt) {
+async function sendTransaction(txData, value, onTransactionHash, onReceipt, onError) {
     try {
         // Fetch private key from local storage and determine the sender's address.
         const privateKey = localStorage.getItem('privateKey');
@@ -37,16 +37,17 @@ async function sendTransaction(txData, value, onTransactionHash, onReceipt) {
                     currentNonce++; // Increment nonce after transaction is sent
                 })
                 .on('receipt', onReceipt)
-                .on('error', console.error);
+                .on('error', onError);
         } else {
             // Otherwise, send the transaction directly.
             await txData.send(txOptions)
                 .on('transactionHash', onTransactionHash)
                 .on('receipt', onReceipt)
-                .on('error', console.error);
+                .on('error', onError);
         }
     } catch (e) {
         console.error(e);
+		if (onError) onError(e); 
     }
 }
 
