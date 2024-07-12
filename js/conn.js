@@ -259,6 +259,7 @@ window.addEventListener('load', async () => {
     if(window.ethereum) {
 		init(); 
     } else {
+		$('.network-message-wrapper').removeClass('hidden'); 
 		$('.network-message').text('Please install MetaMask or other web3 wallet.');
 		return; 
 	}
@@ -299,10 +300,12 @@ async function setup() {
         let chainID = await web3.eth.getChainId(); 
 		
 		if(chainID == 42161) {
+			$('.network-message-wrapper').addClass('hidden');
 			$('.network-message').text('');  
 			VidyaAddress = "0x3d48ae69a2F35D02d6F0c5E84CFE66bE885f3963"; 
 			inventoryContract = "0x2Ce68A50a0e5738E675ed9a9899D86a01f2a9a0B"; 
 		} else {
+			$('.network-message-wrapper').removeClass('hidden');
 			$('.network-message').text('Connect wallet to Arbitrum network!'); 
 			return; // Stops immediately if not Arbitrum 
 		}
@@ -413,3 +416,8 @@ async function connectToArbitrum() {
         console.error('Failed to switch or add network:', error);
     }
 }
+
+$(document).on("click", ".network-message-close", function() {
+	$('.network-message').text(''); 
+	$('.network-message-wrapper').addClass('hidden');
+}); 
