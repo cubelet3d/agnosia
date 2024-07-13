@@ -7666,3 +7666,74 @@ function closeTransferForm() {
 	$("#tcg_base_tokenId_transfer").text("");
 	$(".tcg_base_transfer_form_receiver").text("0x000000000000000000000000000000...");	
 }
+
+/*	Experimental feature to auto-fill ascend form 
+	Note: you shouldn't have any deposited cards since it doesn't check against it yet and just chooses the last tokenId. */
+$(document).on('click', '.tcg_base_ascension_header', function() {
+	autoFillAscendForm(tcg_base_player.currentPage); 
+});
+
+async function autoFillAscendForm(level) {
+    try {
+        let tokenIds = Object.values(getLastTokenIds(level));
+        let tokenCount = tokenIds.length;
+
+        if (tokenCount < 11) {
+            error("Not enough cards to ascend!");
+            return;
+        }
+
+        let templatesToSlots = {};
+        let filledSlots = [];
+
+        // Create an array of promises for fetching card data
+        let cardDataPromises = tokenIds.map(tokenId => 
+            tcg_base_system.card.methods.cardData(tokenId).call()
+        );
+
+        // Fetch all card data in parallel
+        let cardDataArray = await Promise.all(cardDataPromises);
+
+        // Organize the card data by templateId
+        for (let i = 0; i < cardDataArray.length; i++) {
+            let templateId = cardDataArray[i].templateId;
+
+            if (!templatesToSlots[templateId]) {
+                templatesToSlots[templateId] = [];
+            }
+            templatesToSlots[templateId].push(tokenIds[i]);
+        }
+
+        // Fill the slots automatically
+        const targets = $(".tcg_base_ascend_card");
+        for (let target of targets) {
+            let slotId = target.getAttribute('data-slotid');
+            if (slotId > 0) {
+                // Find a card with the matching templateId
+                for (let templateId in templatesToSlots) {
+                    if (templatesToSlots[templateId].length > 0) {
+                        let tokenId = templatesToSlots[templateId].shift();
+                        target.setAttribute('data-tokenid', tokenId);
+                        target.style.backgroundImage = 'url('+getCardDetailsByTokenId(tokenId, tcg_base_player.cards).image+')';
+                        target.classList.add('glowAscendCard');
+                        setTimeout(() => {
+                            target.classList.remove('glowAscendCard');
+                        }, 1000);
+                        filledSlots.push(slotId);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // If all targets are set, remove "disabled" class from .tcg_base_ascend_button
+        let allTargetsSet = filledSlots.length === 11;
+        if (allTargetsSet) {
+            $('.tcg_base_ascend_button').removeClass('disabled');
+        } else {
+            $('.tcg_base_ascend_button').addClass('disabled');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}

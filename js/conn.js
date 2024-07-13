@@ -1,6 +1,7 @@
 let mobileUI = false; 
 let currentNonce; // user's transaction nonce 
 let usePrivateKey = false;
+let alreadyLoaded = false; 
 
 // Stuff to preload 
 const assets = {
@@ -240,7 +241,9 @@ Object.defineProperty(window, 'connected', {
         connected = value;
         // Show play button if all assets are loaded and wallet is connected
         if (connected && assetsLoaded === assetsToLoad) {
-            document.getElementById("playButton").style.display = "flex";
+			if(!alreadyLoaded) {
+				document.getElementById("playButton").style.display = "flex";
+			}
         }
     },
     get() {
@@ -302,11 +305,14 @@ async function setup() {
 		if(chainID == 42161) {
 			$('.network-message-wrapper').addClass('hidden');
 			$('.network-message').text('');  
+			enableUI(); 
 			VidyaAddress = "0x3d48ae69a2F35D02d6F0c5E84CFE66bE885f3963"; 
 			inventoryContract = "0x2Ce68A50a0e5738E675ed9a9899D86a01f2a9a0B"; 
 		} else {
+			connected = false; 
 			$('.network-message-wrapper').removeClass('hidden');
 			$('.network-message').text('Connect wallet to Arbitrum network!'); 
+			disableUI(); 
 			return; // Stops immediately if not Arbitrum 
 		}
 		
@@ -336,6 +342,7 @@ async function setup() {
 		}
 
 		window.connected = true; 
+		alreadyLoaded = true; 
     }
     
     catch(e) {
@@ -421,3 +428,10 @@ $(document).on("click", ".network-message-close", function() {
 	$('.network-message').text(''); 
 	$('.network-message-wrapper').addClass('hidden');
 }); 
+
+function disableUI() {
+	$('.agnosia-header-menu, .tcg_base_content_inner, .tcg_base_modal, .tcg_base_gameplay_wrapper').css('filter', 'grayscale(1)').addClass('no-pointer-events');
+}
+function enableUI() {
+	$('.agnosia-header-menu, .tcg_base_content_inner, .tcg_base_modal, .tcg_base_gameplay_wrapper').css('filter', 'unset').removeClass('no-pointer-events');
+}
