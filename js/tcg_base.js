@@ -4865,7 +4865,7 @@ async function tcg_base_finishGame(gameId) {
         console.error(e);
     }
 }*/
-/*async function tcg_base_finishGame(gameId) {
+async function tcg_base_finishGame(gameId) {
     try {
         let $gameWindow = $(`#tcg_base_game_window_${gameId}`);
 
@@ -5024,8 +5024,8 @@ async function tcg_base_finishGame(gameId) {
     } catch (e) {
         console.error(e);
     }
-}*/
-async function tcg_base_finishGame(gameId) { // AI attempted to fix last card to draw bug 
+}
+/*async function tcg_base_finishGame(gameId) { // AI attempted to fix last card to draw bug (it didn't help)
     const fetchGameDetails = async () => {
         let gameDetails = await tcg_base_system.game.methods.getGameDetails(gameId).call();
         let player1Points = gameDetails[5];
@@ -5127,9 +5127,6 @@ async function tcg_base_finishGame(gameId) { // AI attempted to fix last card to
         let isDraw = result === "It's a draw!";
         let isWinner = result === "You win!";
 
-        /* Show the finalize button when:
-           The game didn't end in a draw and the current user is the winner.
-           The game ended in a draw and the current user is the original game creator. */
         let showButton = (!isDraw && isWinner) || (isDraw && accounts[0].toLowerCase() === gameDetails[1].toLowerCase());
 
         let { playerPfp, opponentPfp } = await getPfpsForPlayers(gameId, gameDetails[1], gameDetails[2]);
@@ -5195,7 +5192,7 @@ async function tcg_base_finishGame(gameId) { // AI attempted to fix last card to
     } catch (e) {
         console.error(e);
     }
-}
+}*/
 
 /*	Creates the HTML code for starting hands for the finalize screen */
 function createHandHTML(tokenUris, defaultColor, tradeRule, boardData, loserTokenIds, player1Points, player2Points, result, player1Address, player2Address, brewPointsMap) {
