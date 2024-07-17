@@ -198,6 +198,8 @@
 .tcg_base_game_modal_card_stats {
 	margin: 10px; 
 	pointer-events: none; 
+	font-size: 14px; 
+	text-shadow: 1px 1px black; 
 }
 .tcg_base_game_modal_result {
 	font-size: 200%; 
@@ -613,6 +615,13 @@
 	top: 20px; 
 }
 
+.tcg_base_games_list_item_detail_card_slot .card-level {
+	font-size: 10px; 
+	position: absolute; 
+	bottom: 3px; 
+	right: 3px; 
+}
+
 .tcg_base_games_list_item_reveal_hand_button_wrapper {
     position: absolute;
     top: 50%;
@@ -936,6 +945,9 @@
     background: rgba(255, 255, 255, 0.05);
     pointer-events: none; /* This will disable all pointer events */
     transition: background 0.3s ease;
+}
+.tcg_base_card_on_board_inner:not(.open_slot) {
+	pointer-events: auto; 
 }
 .tcg_base_card_on_board_inner.open_slot {
 	/* cursor: pointer; */ 
@@ -1321,6 +1333,23 @@
     transform: rotateY(180deg);
 }
 
+.tcg_base_card_on_board_inner .card-back-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+    font-size: 14px;
+	padding: 15px; 
+	text-shadow: 1px 1px black; 
+}
+
+.tcg_base_card_on_board_inner.flip .card-back-content {
+    transform: rotateY(0);
+}
+
 .tcg_base_player_card_values {
     backface-visibility: hidden;
     position: relative;
@@ -1387,4 +1416,19 @@
   to {
     bottom: 100%; /* Scrolls past the top edge */
   }
+}
+
+.final_screen_card.tooltip::after {
+    content: attr(name);
+    position: absolute;
+    top: 100%; /* Position below the card */
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 3px;
+    white-space: nowrap;
+    z-index: 1000;
+	font-size: 12px; 
+	text-align: center; 
+    /*color: rgb(166, 255, 152);*/
+    text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.5), 1px -1px 0 rgba(0, 0, 0, 0.5), -1px 1px 0 rgba(0, 0, 0, 0.5), 1px 1px 0 rgba(0, 0, 0, 0.5);	
 }

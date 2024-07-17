@@ -1704,6 +1704,40 @@ $(document).ready(function() {
 		}
 	});
 	
+	// Flip occupied cards over & view their infos 
+	$(document).on('click', '.tcg_base_card_on_board_inner:not(.open_slot)', function() {
+		cardFlipSound();
+		
+		const $this = $(this);
+		const $parent = $this.parent();
+		
+		// Toggle the flip class
+		$parent.toggleClass('flip');
+
+		// If the card is flipped, no further action needed
+		if ($parent.hasClass('flip')) {
+			return;
+		}
+		
+		// If the card is not flipped, update the data attributes (just to be sure)
+		const tokenId = $this.attr('data-tokenid');
+		const cardName = $this.attr('data-name');
+		const level = $this.attr('data-level');
+		const brewPoints = $this.attr('data-brewpoints');
+		const wins = $this.attr('data-wins');
+		const plays = $this.attr('data-plays'); 
+	});
+	
+	// Hover effect for finalize screen card selections (shows card's name under it)
+	$(document).on('mouseenter', '.final_screen_card', function(e) {
+		let name = $(this).attr('name');
+		$(this).attr('name', name).addClass('tooltip');
+	})
+	.on('mouseleave', '.final_screen_card', function() {
+		$(this).removeClass('tooltip');
+	});
+	
+	
 	
 	
 	/* SETTINGS TAB */
@@ -4129,7 +4163,7 @@ function removeGameFromUI(gameId) {
 
 /*	Function to reveal player hand in the available games list 
 	tokenIds the tokenIds to reveal 
-	gameId the gameId these tokenIds belong to */
+	gameId the gameId these tokenIds belong to 
 async function tcg_base_revealPlayer1Hand(tokenIds, gameId) {
     try {
         let tokenUris = await tcg_base_fetchTokenUris(tokenIds);
@@ -4163,6 +4197,38 @@ async function tcg_base_revealPlayer1Hand(tokenIds, gameId) {
             slotItem.append(leftElement);
             slotItem.append(rightElement);
             slotItem.append(bottomElement);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}*/
+async function tcg_base_revealPlayer1Hand(tokenIds, gameId) {
+    try {
+        let tokenUris = await tcg_base_fetchTokenUris(tokenIds);
+        // Store revealed images and data
+        tcg_base_games.revealedHands[gameId] = tokenUris.map(uri => uri.image);
+        tcg_base_games.revealedHandsData[gameId] = tokenUris;
+
+        let gameItem = $(`.tcg_base_play_games_list_item_container[data-gameId="${gameId}"]`);
+        tokenUris.forEach((tokenUri, i) => {
+            let slotItem = gameItem.find(`.tcg_base_games_list_item_detail_card_slot[data-slotId="${i}"]`);
+            let bgImage = tokenUri.image;
+            let cardData = tokenUri.attributes.reduce((acc, attr) => {
+                acc[attr.trait_type.toLowerCase()] = attr.value;
+                return acc;
+            }, {});
+
+            // Create card values elements
+            let cardValuesHtml = `
+                <div class="card-value top">${cardData.top}</div>
+                <div class="card-value left">${cardData.left}</div>
+                <div class="card-value right">${cardData.right}</div>
+                <div class="card-value bottom">${cardData.bottom}</div>
+                <div class="card-level">lv. ${cardData.level}</div>
+            `;
+
+            // Append card values to the slot item
+            slotItem.css({"background": `url(${bgImage}) center center/cover`}).html(cardValuesHtml);
         });
     } catch (e) {
         console.error(e);
@@ -4443,10 +4509,22 @@ async function tcg_base_openGameUpdateUI(gameId, calledFromMainLoop = false) {
     }
 }
 
+// Helper function for the update board function 
+const brewPointsCache = {};
+async function getBrewPoints(tokenId) {
+    if (brewPointsCache[tokenId]) {
+        return brewPointsCache[tokenId];
+    }
+
+    const { cardsPointValue } = await tcg_base_system.caul.methods.getBatchBrewValueMulti([tokenId]).call();
+    brewPointsCache[tokenId] = cardsPointValue[0];
+    return cardsPointValue[0];
+}
+
 /*	This function regularly updates the board data for gameWindow 
 	gameWindow the game window element 
 	boardData the new board information 
-	Note: called from tcg_base_openGameUpdateUI(); which is called from tcg_base_gamesLoop(); every 5s */
+	Note: called from tcg_base_openGameUpdateUI(); which is called from tcg_base_gamesLoop(); every 5s 
 async function tcg_base_openGameUpdateBoard(gameWindow, boardData) {
 	try {
 		// Get all the card slots in the game window
@@ -4505,7 +4583,6 @@ async function tcg_base_openGameUpdateBoard(gameWindow, boardData) {
 					let cardValueLeft = $('<div>').addClass('tcg_base_player_card_value_left').text(cardData[1][1]);
 					cardValuesDiv.append(cardValueLeft);
 
-					/*bottom and right values are swapped in the game contract vs the erc721 side, don't ask why..*/
 					let cardValueRight = $('<div>').addClass('tcg_base_player_card_value_right').text(cardData[1][3]);
 					cardValuesDiv.append(cardValueRight);
 					
@@ -4527,11 +4604,97 @@ async function tcg_base_openGameUpdateBoard(gameWindow, boardData) {
 	catch(e) {
 		console.error(e); 
 	}
+}*/
+async function tcg_base_openGameUpdateBoard(gameWindow, boardData) {
+    try {
+        // Get all the card slots in the game window
+        let cardSlots = gameWindow.find('.tcg_base_card_on_board');
+
+        // Get the current gameId from the game window's data attribute
+        let gameId = gameWindow.attr('data').split('_')[4];
+
+        // Get the player addresses for the game
+        let player1 = tcg_base_games.gameDetails[gameId][1];
+        let player2 = tcg_base_games.gameDetails[gameId][2];
+
+        // Get the cards on the board
+        let occupiedSlots = boardData.filter(cardData => cardData[2] !== '0x0000000000000000000000000000000000000000');
+        let occupiedCardIds = occupiedSlots.map(cardData => cardData[0]);
+        let occupiedCardURIs = await tcg_base_fetchTokenUris(occupiedCardIds);
+		
+        // Get brew points for all occupied card IDs in one go
+        let brewPointsMap = {};
+        await Promise.all(occupiedCardIds.map(async tokenId => {
+            brewPointsMap[tokenId] = await getBrewPoints(tokenId);
+        }));		
+
+        // Loop through each card slot
+        cardSlots.each(async (i, slot) => {
+            // Get the current slot and its inner div
+            let $slot = $(slot);
+            let inner = $slot.find('.tcg_base_card_on_board_inner');
+            let cardData = boardData[i];
+            let tokenId = cardData[0];
+            let card = occupiedCardURIs.find(card => card.tokenId === tokenId);
+
+            if (cardData[2] !== '0x0000000000000000000000000000000000000000' && card) {
+                const bgColor = cardData[2] === player1 ? player1Color : player2Color;
+                let cardName = card.name;
+                let level = card.attributes.find(attr => attr.trait_type === "Level")?.value || 'N/A';
+                let brewPoints = brewPointsMap[tokenId] || '0';
+                let wins = card.attributes.find(attr => attr.trait_type === "Win Count")?.value || '0';
+                let plays = card.attributes.find(attr => attr.trait_type === "Played Count")?.value || '0';
+
+                inner.css('background', `${bgColor}, url(${card.image}) center center/cover`)
+                     .html(`
+                        <div class="tcg_base_player_card_values">
+                            <div class="tcg_base_player_card_value_top">${cardData[1][0]}</div>
+                            <div class="tcg_base_player_card_value_left">${cardData[1][1]}</div>
+                            <div class="tcg_base_player_card_value_right">${cardData[1][3]}</div>
+                            <div class="tcg_base_player_card_value_bottom">${cardData[1][2]}</div>
+                        </div>
+                        <div class="card-back-content flex-box col space-between">
+							<div class="flex-box col">
+								<div>Lv. ${level}</div>
+								<div>${cardName}</div>
+							</div>
+							<div>
+								<div class="flex-box space-between">
+									<div>Win count:</div><div>${wins}</div>
+								</div>
+								<div class="flex-box space-between">
+									<div>Played count:</div><div>${plays}</div>
+								</div>
+								<div class="flex-box space-between">
+									<div>Brew pts:</div><div>${brewPoints}</div>
+								</div>
+							</div>
+                        </div>
+                    `)
+                    .removeClass('open_slot')
+                    .attr({
+                        'data-tokenid': tokenId,
+                        'data-name': cardName,
+                        'data-level': level,
+                        'data-brewpoints': brewPoints,
+                        'data-wins': wins,
+                        'data-plays': plays
+                    });
+            } else {
+                inner.css('background-image', '')
+                     .addClass('open_slot')
+                     .removeAttr('data-tokenid data-name data-level data-brewpoints data-wins data-plays');
+            }
+        });
+    }
+    catch(e) {
+        console.error(e); 
+    }
 }
 
 /*	Finishes a gameId 
 	This function is responsible for drawing the finalize screen inside a gameWindow 
-	These games don't have any moves left on board, but the winner hasn't claimed their prize yet */
+	These games don't have any moves left on board, but the winner hasn't claimed their prize yet 
 async function tcg_base_finishGame(gameId) {
     try {
 		let $gameWindow = $(`#tcg_base_game_window_${gameId}`);
@@ -4622,9 +4785,9 @@ async function tcg_base_finishGame(gameId) {
             let isDraw = result === "It's a draw!";
             let isWinner = result === "You win!";
 			 
-			/*	Show the finalize button when: 
-				The game didn't end in a draw and the current user is the winner.
-				The game ended in a draw and the current user is the original game creator. */
+			// Show the finalize button when: 
+			// The game didn't end in a draw and the current user is the winner.
+			// The game ended in a draw and the current user is the original game creator.
 			let showButton = (!isDraw && isWinner) || (isDraw && accounts[0].toLowerCase() === gameDetails[1].toLowerCase());
 			
 			let { playerPfp, opponentPfp } = await getPfpsForPlayers(gameId, gameDetails[1], gameDetails[2]);
@@ -4701,21 +4864,353 @@ async function tcg_base_finishGame(gameId) {
     } catch (e) {
         console.error(e);
     }
+}*/
+/*async function tcg_base_finishGame(gameId) {
+    try {
+        let $gameWindow = $(`#tcg_base_game_window_${gameId}`);
+
+        $gameWindow.find('.current_turn').removeClass('current_turn'); // It's no one's turn now
+        $gameWindow.find('.samePlusNotif').remove(); // Just in case any remain
+
+        unsubscribeFromCardPlacedOnBoard(gameId); // Stop listening for these events
+
+        let isFinalized = await tcg_base_system.game.methods.finalized(gameId).call();
+
+        if (isFinalized) {
+            console.log(`GameId: ${gameId} is already finalized!`);
+            return;
+        }
+
+        let gameDetails = await tcg_base_system.game.methods.getGameDetails(gameId).call();
+        let gameWrapper = $gameWindow.find('.tcg_base_game_wrapper');
+
+        if (tcg_base_games.contentAppended[gameId]) {
+            console.log("Game results window already appended, skipping...");
+            return;
+        }
+
+        let player1Points = gameDetails[5];
+        let player2Points = gameDetails[6];
+        let result, player1Label, player2Label;
+
+        if (player1Points > player2Points) {
+            if (accounts[0].toLowerCase() === gameDetails[1].toLowerCase()) {
+                result = "You win!";
+                tcg_base_audio['you_win'].play();
+            } else if (accounts[0].toLowerCase() === gameDetails[2].toLowerCase()) {
+                result = "You lose...";
+                tcg_base_audio['you_lose'].play();
+            } else {
+                result = "Player 1 wins!";
+            }
+        } else if (player2Points > player1Points) {
+            if (accounts[0].toLowerCase() === gameDetails[2].toLowerCase()) {
+                result = "You win!";
+                tcg_base_audio['you_win'].play();
+            } else if (accounts[0].toLowerCase() === gameDetails[1].toLowerCase()) {
+                result = "You lose...";
+                tcg_base_audio['you_lose'].play();
+            } else {
+                result = "Player 2 wins!";
+            }
+        } else {
+            if ([gameDetails[1], gameDetails[2]].map(acc => acc.toLowerCase()).includes(accounts[0].toLowerCase())) {
+                result = "It's a draw!";
+                tcg_base_audio['draw'].play();
+            } else {
+                result = "Player 1 and Player 2 drew!";
+            }
+        }
+
+        player1Label = accounts[0].toLowerCase() === gameDetails[1].toLowerCase() ? "You" : "Opponent";
+        player2Label = accounts[0].toLowerCase() === gameDetails[2].toLowerCase() ? "You" : "Opponent";
+
+        let wager = gameDetails[9] > 0 ? `<span class="tcg_base_golden_text">${Number(web3.utils.fromWei(gameDetails[9])).toFixed(2)} VIDYA</span>` : 'N/A';
+        let tradeRuleMap = ['One', 'Diff', 'Direct', 'All'];
+        let tradeRule = tradeRuleMap[gameDetails[10]];
+
+        // Fetch player hands and token URIs in parallel
+        const [player1StartingHand, player2StartingHand, player1StartingHandUris, player2StartingHandUris] = await Promise.all([
+            tcg_base_system.game.methods.getStartingHand(gameDetails[1], gameId).call(),
+            tcg_base_system.game.methods.getStartingHand(gameDetails[2], gameId).call(),
+            tcg_base_fetchTokenUris(await tcg_base_system.game.methods.getStartingHand(gameDetails[1], gameId).call()),
+            tcg_base_fetchTokenUris(await tcg_base_system.game.methods.getStartingHand(gameDetails[2], gameId).call())
+        ]);
+		
+        // Fetch brew points for all token IDs in parallel
+        const brewPointsMap = {};
+        await Promise.all([...player1StartingHand, ...player2StartingHand].map(async tokenId => {
+            brewPointsMap[tokenId] = await getBrewPoints(tokenId);
+        }));		
+
+        let loserTokenIds = [];
+        if (result.includes("You win")) {
+            loserTokenIds = player1Label === "Opponent" ? player1StartingHand : player2StartingHand;
+        } else if (result.includes("You lose")) {
+            loserTokenIds = player1Label === "You" ? player1StartingHand : player2StartingHand;
+        }
+
+        let boardData = gameDetails[0];
+        let player1StartingHandHTML = createHandHTML(player1StartingHandUris, player1Color, tradeRule, boardData, loserTokenIds, player1Points, player2Points, result, gameDetails[1].toLowerCase(), gameDetails[2].toLowerCase(), brewPointsMap);
+        let player2StartingHandHTML = createHandHTML(player2StartingHandUris, player2Color, tradeRule, boardData, loserTokenIds, player1Points, player2Points, result, gameDetails[1].toLowerCase(), gameDetails[2].toLowerCase(), brewPointsMap);
+
+        let information = generateInformationString(gameDetails, result, accounts);
+
+        let isDraw = result === "It's a draw!";
+        let isWinner = result === "You win!";
+
+        let showButton = (!isDraw && isWinner) || (isDraw && accounts[0].toLowerCase() === gameDetails[1].toLowerCase());
+
+        let { playerPfp, opponentPfp } = await getPfpsForPlayers(gameId, gameDetails[1], gameDetails[2]);
+
+        let content = `
+        <div class="tcg_base_game_modal flex-box col">
+            <div class="tcg_base_game_modal_title">Game #${gameId} has ended.</div>
+            <div class="tcg_base_game_modal_result">${result}</div>
+            <div class="flex-box col tcg_base_modal_content_inner">
+
+                <div class="tcg_base_game_modal_player1_wrapper flex-box">
+                    <div class="player1_label tcg_base_green_text_black_outline">${player1Label}</div>
+                    <div class="tcg_base_game_modal_player_wrapper flex-box space-between align-center">
+                        <div class="tcg_base_player_profile tcg_base_monitor_left flex-box col flex-center" data-address="${gameDetails[1]}">
+                            <div class="tcg_base_player_pfp" style="background: ${playerPfp}"></div>
+                            <div class="tcg_base_player_points"><span class="tcg_base_player1_points">${player1Points}</span></div>
+                        </div>
+                        <div class="flex-box final_screen_cards">${player1StartingHandHTML}</div>
+                    </div>
+                </div>
+
+                <div class="tcg_base_game_modal_player2_wrapper flex-box">
+                    <div class="player2_label tcg_base_green_text_black_outline">${player2Label}</div>
+                    <div class="tcg_base_game_modal_opponent_wrapper flex-box space-between align-center">
+                        <div class="tcg_base_opponent_profile tcg_base_monitor_left flex-box col flex-center" data-address="${gameDetails[2]}">
+                            <div class="tcg_base_opponent_pfp" style="background: ${opponentPfp}"></div>
+                            <div class="tcg_base_opponent_points" style="left: 5px;"><span class="tcg_base_player2_points">${player2Points}</span></div>
+                        </div>
+                        <div class="flex-box final_screen_cards">${player2StartingHandHTML}</div>
+                    </div>
+                </div>
+
+                <div class="flex-box col tcg_base_game_modal_finalize_wrapper flex-box col">
+                    <div class="tcg_base_game_modal_label">Finalize game</div>
+
+                    <div class="flex-box col tcg_base_blue_text">
+                        <div class="tcg_base_game_modal_row flex-box">
+                            <div>Trade rule:</div>
+                            <div>${tradeRule}</div>
+                        </div>
+                        <div class="tcg_base_game_modal_row flex-box">
+                            <div>Amount wagered:</div>
+                            <div>${wager}</div>
+                        </div>
+                        <div class="tcg_base_game_modal_row flex-box">
+                            <div>Information:</div>
+                            <div>${information}</div>
+                        </div>
+                    </div>
+
+                    <div class="flex-box full-width flex-end ${showButton ? '' : 'disabled'}">
+                        <div class="tcg_base_game_modal_finalizeButton tcg_base_green_text_black_outline agnosia_button_stone_hover agnosia_button_stone_click" data-traderule="${tradeRule}" data-gameid="${gameId}" data-isdraw="${isDraw}" data-loserTokenIds="${loserTokenIds.join(',')}" data-iswinner="${isWinner}">Finalize</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>`;
+
+        gameWrapper.append(content);
+        tcg_base_games.contentAppended[gameId] = true;
+		
+        listenForCollectWinnings(gameId);
+    } catch (e) {
+        console.error(e);
+    }
+}*/
+async function tcg_base_finishGame(gameId) { // AI attempted to fix last card to draw bug 
+    const fetchGameDetails = async () => {
+        let gameDetails = await tcg_base_system.game.methods.getGameDetails(gameId).call();
+        let player1Points = gameDetails[5];
+        let player2Points = gameDetails[6];
+        return { gameDetails, player1Points, player2Points };
+    };
+
+    try {
+        let $gameWindow = $(`#tcg_base_game_window_${gameId}`);
+        $gameWindow.find('.current_turn').removeClass('current_turn'); // It's no one's turn now
+        $gameWindow.find('.samePlusNotif').remove(); // Just in case any remain
+
+        unsubscribeFromCardPlacedOnBoard(gameId); // Stop listening for these events
+
+        let isFinalized = await tcg_base_system.game.methods.finalized(gameId).call();
+        if (isFinalized) {
+            console.log(`GameId: ${gameId} is already finalized!`);
+            return;
+        }
+
+        let { gameDetails, player1Points, player2Points } = await fetchGameDetails();
+
+        // Optional delay to ensure latest state propagation
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 1 seconds delay
+
+        // Fetch again to ensure the latest state
+        ({ gameDetails, player1Points, player2Points } = await fetchGameDetails());
+
+        let gameWrapper = $gameWindow.find('.tcg_base_game_wrapper');
+        if (tcg_base_games.contentAppended[gameId]) {
+            console.log("Game results window already appended, skipping...");
+            return;
+        }
+
+        let result, player1Label, player2Label;
+        if (player1Points > player2Points) {
+            if (accounts[0].toLowerCase() === gameDetails[1].toLowerCase()) {
+                result = "You win!";
+                tcg_base_audio['you_win'].play();
+            } else if (accounts[0].toLowerCase() === gameDetails[2].toLowerCase()) {
+                result = "You lose...";
+                tcg_base_audio['you_lose'].play();
+            } else {
+                result = "Player 1 wins!";
+            }
+        } else if (player2Points > player1Points) {
+            if (accounts[0].toLowerCase() === gameDetails[2].toLowerCase()) {
+                result = "You win!";
+                tcg_base_audio['you_win'].play();
+            } else if (accounts[0].toLowerCase() === gameDetails[1].toLowerCase()) {
+                result = "You lose...";
+                tcg_base_audio['you_lose'].play();
+            } else {
+                result = "Player 2 wins!";
+            }
+        } else {
+            if ([gameDetails[1], gameDetails[2]].map(acc => acc.toLowerCase()).includes(accounts[0].toLowerCase())) {
+                result = "It's a draw!";
+                tcg_base_audio['draw'].play();
+            } else {
+                result = "Player 1 and Player 2 drew!";
+            }
+        }
+
+        player1Label = accounts[0].toLowerCase() === gameDetails[1].toLowerCase() ? "You" : "Opponent";
+        player2Label = accounts[0].toLowerCase() === gameDetails[2].toLowerCase() ? "You" : "Opponent";
+
+        let wager = gameDetails[9] > 0 ? `<span class="tcg_base_golden_text">${Number(web3.utils.fromWei(gameDetails[9])).toFixed(2)} VIDYA</span>` : 'N/A';
+        let tradeRuleMap = ['One', 'Diff', 'Direct', 'All'];
+        let tradeRule = tradeRuleMap[gameDetails[10]];
+
+        // Fetch player hands and token URIs in parallel
+        const [player1StartingHand, player2StartingHand, player1StartingHandUris, player2StartingHandUris] = await Promise.all([
+            tcg_base_system.game.methods.getStartingHand(gameDetails[1], gameId).call(),
+            tcg_base_system.game.methods.getStartingHand(gameDetails[2], gameId).call(),
+            tcg_base_fetchTokenUris(await tcg_base_system.game.methods.getStartingHand(gameDetails[1], gameId).call()),
+            tcg_base_fetchTokenUris(await tcg_base_system.game.methods.getStartingHand(gameDetails[2], gameId).call())
+        ]);
+
+        // Fetch brew points for all token IDs in parallel
+        const brewPointsMap = {};
+        await Promise.all([...player1StartingHand, ...player2StartingHand].map(async tokenId => {
+            brewPointsMap[tokenId] = await getBrewPoints(tokenId);
+        }));
+
+        let loserTokenIds = [];
+        if (result.includes("You win")) {
+            loserTokenIds = player1Label === "Opponent" ? player1StartingHand : player2StartingHand;
+        } else if (result.includes("You lose")) {
+            loserTokenIds = player1Label === "You" ? player1StartingHand : player2StartingHand;
+        }
+
+        let boardData = gameDetails[0];
+        let player1StartingHandHTML = createHandHTML(player1StartingHandUris, player1Color, tradeRule, boardData, loserTokenIds, player1Points, player2Points, result, gameDetails[1].toLowerCase(), gameDetails[2].toLowerCase(), brewPointsMap);
+        let player2StartingHandHTML = createHandHTML(player2StartingHandUris, player2Color, tradeRule, boardData, loserTokenIds, player1Points, player2Points, result, gameDetails[1].toLowerCase(), gameDetails[2].toLowerCase(), brewPointsMap);
+
+        let information = generateInformationString(gameDetails, result, accounts);
+
+        let isDraw = result === "It's a draw!";
+        let isWinner = result === "You win!";
+
+        /* Show the finalize button when:
+           The game didn't end in a draw and the current user is the winner.
+           The game ended in a draw and the current user is the original game creator. */
+        let showButton = (!isDraw && isWinner) || (isDraw && accounts[0].toLowerCase() === gameDetails[1].toLowerCase());
+
+        let { playerPfp, opponentPfp } = await getPfpsForPlayers(gameId, gameDetails[1], gameDetails[2]);
+
+        let content = `
+        <div class="tcg_base_game_modal flex-box col">
+            <div class="tcg_base_game_modal_title">Game #${gameId} has ended.</div>
+            <div class="tcg_base_game_modal_result">${result}</div>
+            <div class="flex-box col tcg_base_modal_content_inner">
+
+                <div class="tcg_base_game_modal_player1_wrapper flex-box">
+                    <div class="player1_label tcg_base_green_text_black_outline">${player1Label}</div>
+                    <div class="tcg_base_game_modal_player_wrapper flex-box space-between align-center">
+                        <div class="tcg_base_player_profile tcg_base_monitor_left flex-box col flex-center" data-address="${gameDetails[1]}">
+                            <div class="tcg_base_player_pfp" style="background: ${playerPfp}"></div>
+                            <div class="tcg_base_player_points"><span class="tcg_base_player1_points">${player1Points}</span></div>
+                        </div>
+                        <div class="flex-box final_screen_cards">${player1StartingHandHTML}</div>
+                    </div>
+                </div>
+
+                <div class="tcg_base_game_modal_player2_wrapper flex-box">
+                    <div class="player2_label tcg_base_green_text_black_outline">${player2Label}</div>
+                    <div class="tcg_base_game_modal_opponent_wrapper flex-box space-between align-center">
+                        <div class="tcg_base_opponent_profile tcg_base_monitor_left flex-box col flex-center" data-address="${gameDetails[2]}">
+                            <div class="tcg_base_opponent_pfp" style="background: ${opponentPfp}"></div>
+                            <div class="tcg_base_opponent_points" style="left: 5px;"><span class="tcg_base_player2_points">${player2Points}</span></div>
+                        </div>
+                        <div class="flex-box final_screen_cards">${player2StartingHandHTML}</div>
+                    </div>
+                </div>
+
+                <div class="flex-box col tcg_base_game_modal_finalize_wrapper flex-box col">
+                    <div class="tcg_base_game_modal_label">Finalize game</div>
+
+                    <div class="flex-box col tcg_base_blue_text">
+                        <div class="tcg_base_game_modal_row flex-box">
+                            <div>Trade rule:</div>
+                            <div>${tradeRule}</div>
+                        </div>
+                        <div class="tcg_base_game_modal_row flex-box">
+                            <div>Amount wagered:</div>
+                            <div>${wager}</div>
+                        </div>
+                        <div class="tcg_base_game_modal_row flex-box">
+                            <div>Information:</div>
+                            <div>${information}</div>
+                        </div>
+                    </div>
+
+                    <div class="flex-box full-width flex-end ${showButton ? '' : 'disabled'}">
+                        <div class="tcg_base_game_modal_finalizeButton tcg_base_green_text_black_outline agnosia_button_stone_hover agnosia_button_stone_click" data-traderule="${tradeRule}" data-gameid="${gameId}" data-isdraw="${isDraw}" data-loserTokenIds="${loserTokenIds.join(',')}" data-iswinner="${isWinner}">Finalize</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>`;
+
+        gameWrapper.append(content);
+        tcg_base_games.contentAppended[gameId] = true;
+
+        listenForCollectWinnings(gameId);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 /*	Creates the HTML code for starting hands for the finalize screen */
-function createHandHTML(tokenUris, defaultColor, tradeRule, boardData, loserTokenIds, player1Points, player2Points, result, player1Address, player2Address) {
+function createHandHTML(tokenUris, defaultColor, tradeRule, boardData, loserTokenIds, player1Points, player2Points, result, player1Address, player2Address, brewPointsMap) {
     let handHTML = '';
 
     for (const tokenUri of tokenUris) {
-        const { image, attributes } = tokenUri;
+        const { image, attributes, name, tokenId } = tokenUri;
         const topValue = attributes.find(attr => attr.trait_type === "Top").value;
         const leftValue = attributes.find(attr => attr.trait_type === "Left").value;
         const rightValue = attributes.find(attr => attr.trait_type === "Right").value;
         const bottomValue = attributes.find(attr => attr.trait_type === "Bottom").value;
-        const tokenId = tokenUri.tokenId;
 		const winCount = attributes.find(attr => attr.trait_type === "Win Count").value;
 		const playedCount = attributes.find(attr => attr.trait_type === "Played Count").value;
+		const brewPoints = brewPointsMap[tokenId] || '0';
+		const level = attributes.find(attr => attr.trait_type === "Level").value;
 		
 		// DIRECT RULE TEST 
 		// Haven't tested if this below works but is meant for "direct" tradeRule to show the color of the card who owns it on the board 
@@ -4743,7 +5238,7 @@ function createHandHTML(tokenUris, defaultColor, tradeRule, boardData, loserToke
 		let canClick = loserTokenIds.includes(tokenId) && (tradeRule === "One" || tradeRule === "Diff") && isWinner;
 
         handHTML += `
-        <div class="tcg_base_game_modal_card relative ${canClick ? 'tcg_base_game_modal_card_loser' : ''}" tokenId="${tokenId}" ${canClick ? 'onclick="tcg_base_loserCardClickHandler(this)"' : ''} style="background: ${cardColor}, url(${image}) center center/cover;" data-traderule="${tradeRule}" data-player1points="${player1Points}" data-player2points="${player2Points}">
+        <div class="tcg_base_game_modal_card final_screen_card relative ${canClick ? 'tcg_base_game_modal_card_loser' : ''}" name="${name}" tokenId="${tokenId}" ${canClick ? 'onclick="tcg_base_loserCardClickHandler(this)"' : ''} style="background: ${cardColor}, url(${image}) center center/cover;" data-traderule="${tradeRule}" data-player1points="${player1Points}" data-player2points="${player2Points}">
 			<div class="tcg_base_game_modal_card_values">
 				<div class="tcg_base_game_modal_card_value_top">${topValue}</div>
 				<div class="tcg_base_game_modal_card_value_left">${leftValue}</div>
@@ -4759,7 +5254,11 @@ function createHandHTML(tokenUris, defaultColor, tradeRule, boardData, loserToke
 					<div>Plays</div>
 					<div class="tcg_base_card_playcount">${playedCount}</div>
 				</div>
+				<div class="flex-box space-between">
+					<div>Brew</div><div>${brewPoints}</div>
+                </div>
 			</div>
+			<div style="position: absolute; top: 10px; right: 10px; font-size: 12px;">Lv. ${level}</div>
         </div>
         `;
     }
