@@ -4412,7 +4412,7 @@ function tcg_base_closeGame(gameId) {
 }
 
 /*	This function updates the UI for a specific game 
-	gameId the game we are targeting. It's called in main loop and some events like placing a card. */
+	gameId the game we are targeting. It's called in main loop and some events like placing a card. 
 let finalizeNotified = new Set();
 async function tcg_base_openGameUpdateUI(gameId, calledFromMainLoop = false) {
     try {
@@ -4504,6 +4504,105 @@ async function tcg_base_openGameUpdateUI(gameId, calledFromMainLoop = false) {
 		} else {
 		  gameWindow.find('.tcg_base_lastMoveTime').html('');
 		}
+    } catch (e) {
+        console.error(e);
+    }
+}*/
+let finalizeNotified = new Set();
+
+async function tcg_base_openGameUpdateUI(gameId, calledFromMainLoop = false) {
+    try {
+        // Check if the game is in the endedGames set
+        if (tcg_base_games.endedGames.has(gameId)) {
+            if (!finalizeNotified.has(gameId)) {
+                notify(`<div style="text-align:center;">Game #${gameId} has now ended.. loading finalize screen in 5 seconds.</div>`);
+                finalizeNotified.add(gameId);
+
+                // load the end game screen after 5 seconds (we are doing this so players have time to see the final board one last time)
+                setTimeout(async () => {
+                    console.log(`Finalizing game ${gameId} after delay`);
+                    await tcg_base_finishGame(gameId);
+                }, 5000);
+            }
+            return;
+        }
+
+        // Update gameId UI if it's still going 
+        let gameWindow = $(`#tcg_base_game_window_${gameId}`);
+
+        // If it doesn't exist do nothing 
+        if (!gameWindow.length) {
+            return;
+        }
+
+        // If called from gamesLoop use that, otherwise fetch fresh data
+        let gameDetails = calledFromMainLoop ? tcg_base_games.gameDetails[gameId] : await tcg_base_system.game.methods.getGameDetails(gameId).call();
+        console.log(`Updating UI for game ${gameId}, calledFromMainLoop: ${calledFromMainLoop}`);
+
+        // Update the profiles
+        let { playerPfp, opponentPfp } = await getPfpsForPlayers(gameId, gameDetails[1], gameDetails[2]);
+        gameWindow.find('.tcg_base_player_pfp').css('background', playerPfp);
+        gameWindow.find('.tcg_base_opponent_pfp').css('background', opponentPfp);
+
+        // Fix opponent data-address not changing after they join your game while you have a game window open 
+        let $opp = gameWindow.find('.tcg_base_opponent_profile');
+        if ($opp.attr('data-address') !== gameDetails[2]) {
+            $opp.attr('data-address', gameDetails[2]);
+        }
+
+        // Update hands 
+        await tcg_base_openGameUpdateHands(gameId, gameWindow, gameDetails);
+
+        // Update board state 
+        await tcg_base_openGameUpdateBoard(gameWindow, gameDetails[0]);
+
+        // Update player1 and player2 points  
+        gameWindow.find('.tcg_base_player1_points').text(gameDetails[5]);
+        gameWindow.find('.tcg_base_player2_points').text(gameDetails[6]);
+
+        // Update turn 
+        tcg_base_openGameUpdateTurn(gameWindow, gameDetails);
+
+        // Check for game end status 
+        if (gameDetails[8]) {
+            // Add the gameId to the endedGames set
+            tcg_base_games.endedGames.add(gameId);
+
+            // Notify the user 
+            if (!finalizeNotified.has(gameId)) {
+                notify(`<div style="text-align:center;">Game #${gameId} has now ended.. loading finalize screen in 5 seconds.</div>`);
+                finalizeNotified.add(gameId);
+                setTimeout(async () => {
+                    console.log(`Finalizing game ${gameId} after delay`);
+                    await tcg_base_finishGame(gameId);
+                }, 5000);
+            }
+        }
+
+        // Check forfeit 
+        let forfeit = await tcg_base_system.game.methods.forfeit(gameId).call();
+        if (forfeit) {
+            $('.tcg_base_forfeit_button').attr('data-gameid', gameId); // add game Id to button 
+            // Show forfeit button to the player whose turn is not it 
+            let isPlayersTurn = $('.current_turn.tcg_base_player_pfp').length > 0;
+            let isOpponentsTurn = $('.current_turn.tcg_base_opponent_pfp').length > 0;
+            let isPlayersTurnAndIsTheOpponent = isPlayersTurn && accounts[0].toLowerCase() === tcg_base_games.gameDetails[gameId][2].toLowerCase();
+            let isOpponentsTurnAndIsThePlayer = isOpponentsTurn && accounts[0].toLowerCase() === tcg_base_games.gameDetails[gameId][1].toLowerCase();
+            isPlayersTurnAndIsTheOpponent || isOpponentsTurnAndIsThePlayer ? gameWindow.find('.tcg_base_game_forfeit_info').removeClass('hidden') : gameWindow.find('.tcg_base_game_forfeit_info').addClass('hidden');
+        } else {
+            gameWindow.find('.tcg_base_game_forfeit_info').addClass('hidden'); // Not forfeit, hide it in case it was visible
+        }
+
+        // Check if the forfeit info is hidden
+        let forfeitInfoIsHidden = gameWindow.find('.tcg_base_game_forfeit_info').hasClass('hidden');
+
+        // Show last move if timestamp is not zero and either player has a hand shorter than length 5 (made a move) && the forfeit button is hidden 
+        if (gameDetails[11] !== '0' && (gameDetails[3].length < 5 || gameDetails[4].length < 5) && forfeitInfoIsHidden) {
+            // gameWindow.find('.tcg_base_lastMoveTime').html(`<span>Last move </span><span>${timeAgo(gameDetails[11])}</span>`);
+            gameWindow.find('.tcg_base_lastMoveTime').html(`<span>${forfeitTimeLeft(parseInt(gameDetails[11], 10), parseInt(gameDetails['forfeitTime'], 10))}</span>`);
+        } else {
+            gameWindow.find('.tcg_base_lastMoveTime').html('');
+        }
     } catch (e) {
         console.error(e);
     }
