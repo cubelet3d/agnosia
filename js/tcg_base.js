@@ -8221,6 +8221,15 @@ $(document).ready(function() {
 		$("#tcg_base_tokenId_transfer").text(tcg_base_player.lookingAtCard);
 	}); 
 	
+    $('.tcg_base_card_transfer').hover(
+        function() {
+            $(this).addClass('tcg_base_card_transfer_hover');
+        }, 
+        function() {
+            $(this).removeClass('tcg_base_card_transfer_hover');
+        }
+    );	
+	
 	$(document).on("click", ".tcg_base_transfer_form_send_button", async function() {
 		let tokenIdToSend = $("#tcg_base_tokenId_transfer").text();
 		let receiverAddress = $(".tcg_base_transfer_form_receiver").attr("address"); 
