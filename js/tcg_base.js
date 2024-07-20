@@ -2240,6 +2240,9 @@ function tcg_base_init() {
 	// init alchemy 
 	tcg_base_system.cardAlchemy = new alchemy.eth.Contract(tcg_base_card_abi, tcg_base_system.card_address);
 	tcg_base_system.gameAlchemy = new alchemy.eth.Contract(tcg_base_game_abi, tcg_base_system.game_address); 
+	
+	// init infura 
+	tcg_base_system.gameInfura = new infura.eth.Contract(tcg_base_game_abi, tcg_base_system.game_address);
 }
 
 /*	Functions to show & hide the loading screen */
@@ -5790,7 +5793,7 @@ let endGameListeners = new Map();
 let cardCapturedListeners = new Map(); 
 
 function subscribeToGameInitialized() {
-    let subscription = tcg_base_system.game.events.GameInitialized({
+    let subscription = tcg_base_system.gameInfura.events.GameInitialized({
             fromBlock: 'latest'
         })
         .on('data', async function(event) {
@@ -5837,7 +5840,7 @@ function unsubscribeFromGameInitialized() {
 }
 
 function subscribeToJoinedGame() {
-    let subscription = tcg_base_system.game.events.JoinedGame({
+    let subscription = tcg_base_system.gameInfura.events.JoinedGame({
             fromBlock: 'latest'
         })
         .on('data', async function(event) {
@@ -5881,7 +5884,7 @@ function unsubscribeFromJoinedGame() {
 }
 
 function subscribeToGameCanceled() {
-    let subscription = tcg_base_system.game.events.GameCanceled({
+    let subscription = tcg_base_system.gameInfura.events.GameCanceled({
             fromBlock: 'latest'
         })
         .on('data', async function(event) {
@@ -5917,7 +5920,7 @@ function listenForCardPlacedOnBoard(gameId) {
 		console.log(`%c Started listening for gameId ${gameId} for cardPlacedOnBoard`, 'color: green; background: black');
     if (cardPlacedListeners.has(gameId)) return;
 
-    let subscription = tcg_base_system.game.events.CardPlacedOnBoard({
+    let subscription = tcg_base_system.gameInfura.events.CardPlacedOnBoard({
             filter: {
                 gameIndex: gameId
             },
@@ -6010,7 +6013,7 @@ function unsubscribeFromAllCardPlacedOnBoard() {
 function listenForCollectWinnings(gameId) {
     if (endGameListeners.has(gameId)) return;
 
-    let subscription = tcg_base_system.game.events.CollectWinnings({
+    let subscription = tcg_base_system.gameInfura.events.CollectWinnings({
             filter: {
                 gameIndex: gameId
             },
@@ -6161,7 +6164,7 @@ function unsubscribeFromAllCollectWinnings() {
 
 /* Need to actually use this somewhere + create unsub functions for it too */
 function listenForCardCaptured(gameId) {
-    let subscription = tcg_base_system.game.events.CardCaptured({
+    let subscription = tcg_base_system.gameInfura.events.CardCaptured({
             fromBlock: 'latest'
         })
         .on('data', async function(event) {
