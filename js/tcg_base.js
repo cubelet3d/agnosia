@@ -1839,7 +1839,7 @@ $(document).ready(function() {
 	$(document).on('click', '#tcg_base_discordIdSetButton', async function() {
 		let discordId = $('#tcg_base_discordId').text();
 
-		if (/^\d{18}$/.test(discordId)) {
+		if (/^\d{17,19}$/.test(discordId)) {
 			const registerTxData = tcg_base_system.game.methods.registerId(discordId);
 
 			await sendTransaction(registerTxData, '0',
@@ -1851,7 +1851,7 @@ $(document).ready(function() {
 				(error) => { console.error(error); }
 			);
 		} else {
-			error(`Your input ${discordId} doesn't look like a valid Discord ID. Note that the ID we are looking for is the 18 digit number, not your username.`);
+			error(`Your input ${discordId} doesn't look like a valid Discord ID. Note that the ID we are looking for is the 17-19 digit number, not your username.`);
 		}
 	});
 	
