@@ -459,6 +459,7 @@
     padding: 5px;
     overflow: hidden;
     outline: none;
+	cursor: copy; 
 }
 .tcg_base_referral_link:active,
 .tcg_base_referral_link:focus {
