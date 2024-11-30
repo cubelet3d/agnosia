@@ -2271,9 +2271,10 @@ function tcg_base_launch_modal(title, content) {
     let modalId = `modal-${id}`; // Create a unique ID for the modal
 
     // Clone the predefined modal and assign the unique ID
-    let clonedModal = $(".tcg_base_modal.hidden").first().clone().attr("id", modalId).removeClass("hidden");
+    let clonedModal = $(".tcg_base_modal.hidden").first().clone().attr("id", modalId).removeClass("hidden").addClass("draggable window");
 
     // Update the modal's content
+	clonedModal.find(".tcg_base_modal_header").addClass("handle");
     clonedModal.find(".tcg_base_modal_header_title").text(title);
     clonedModal.find(".tcg_base_modal_body").html(content);
 
@@ -4379,6 +4380,8 @@ async function tcg_base_openGame(gameId, isPlayback = false) {
 		cloned.find('.tcg_base_gameIndex').text(gameId);
 		cloned.find('.tcg_base_wagerAmount').text(wager);
 		cloned.find('.tcg_base_tradeRule').text(tradeRule); 
+		cloned.find('.tcg_base_gameplay_wrapper').addClass("draggable window");
+		cloned.find('.consoleHeader').addClass("handle");
 		
 		// Update the profiles 
 		cloned.find('.tcg_base_player_pfp').css('background', playerPfp); 
@@ -7936,6 +7939,8 @@ document.addEventListener('DOMContentLoaded', function() {
   introText.addEventListener('mouseleave', function() {
     introText.style.animationPlayState = 'running';
   });
+  
+  initializeDraggable(); // call this here too because why not 
 });
 
 
@@ -8380,4 +8385,53 @@ async function autoFillAscendForm(level) {
     } catch (e) {
         console.error(e);
     }
+}
+
+function initializeDraggable() {
+    let isDragging = false;
+    let currentElement = null;
+    let shiftX, shiftY;
+	const desktop = document.getElementById("tcg_base");
+
+    document.addEventListener('mousedown', (event) => {
+        const target = event.target.closest('.draggable');
+        if (!target) return;
+		
+        const isWindow = target.classList.contains('window');
+        const handle = event.target.closest('.handle');
+        if (isWindow && !handle) return;		
+
+        isDragging = true;
+        currentElement = target;
+
+        currentElement.style.zIndex = parseInt(new Date().getTime() / 1000);
+
+        shiftX = event.clientX - currentElement.getBoundingClientRect().left;
+        shiftY = event.clientY - currentElement.getBoundingClientRect().top;
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+
+    function onMouseMove(event) {
+        if (!isDragging || !currentElement) return;
+
+        const desktopRect = desktop.getBoundingClientRect();
+        const newX = Math.max(desktopRect.left, Math.min(event.pageX - shiftX, desktopRect.right - currentElement.offsetWidth));
+        const newY = Math.max(desktopRect.top, Math.min(event.pageY - shiftY, desktopRect.bottom - currentElement.offsetHeight));
+
+        currentElement.style.left = `${newX}px`;
+        currentElement.style.top = `${newY}px`;
+    }
+
+    function onMouseUp() {
+        if (isDragging && currentElement) {
+            isDragging = false;
+            currentElement = null;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+    }
+
+    desktop.addEventListener('dragstart', (e) => e.preventDefault());
 }
