@@ -4383,8 +4383,7 @@ async function tcg_base_openGame(gameId, isPlayback = false) {
 		cloned.find('.tcg_base_gameIndex').text(gameId);
 		cloned.find('.tcg_base_wagerAmount').text(wager);
 		cloned.find('.tcg_base_tradeRule').text(tradeRule); 
-		cloned.find('.tcg_base_gameplay_wrapper').addClass("draggable");
-		cloned.find('.tcg_base_gameplay_wrapper').addClass("window");
+		cloned.addClass("window");
 		cloned.find('.consoleHeader').addClass("handle");
 		
 		// Update the profiles 
