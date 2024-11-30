@@ -7065,6 +7065,9 @@ async function practice() {
 			
 			cloned.appendTo('#desk'); 
 			
+			cloned.addClass("window");
+			cloned.find(".consoleHeader").addClass("handle"); 
+			
 			showContent(newId); // Opens the executable window 
 
 			let gameWindow = $(`#tcg_base_game_window_${gameId}`);
