@@ -2283,6 +2283,9 @@ function tcg_base_launch_modal(title, content) {
 
     // Append the cloned modal to the body or a specific container
     $('body').append(clonedModal);
+    clonedModal.css({
+        "z-index": Math.floor(new Date().getTime() / 1000)
+    });
 
     // Return the modal ID for further reference
     return modalId;
@@ -4380,7 +4383,8 @@ async function tcg_base_openGame(gameId, isPlayback = false) {
 		cloned.find('.tcg_base_gameIndex').text(gameId);
 		cloned.find('.tcg_base_wagerAmount').text(wager);
 		cloned.find('.tcg_base_tradeRule').text(tradeRule); 
-		cloned.find('.tcg_base_gameplay_wrapper').addClass("draggable window");
+		cloned.find('.tcg_base_gameplay_wrapper').addClass("draggable");
+		cloned.find('.tcg_base_gameplay_wrapper').addClass("window");
 		cloned.find('.consoleHeader').addClass("handle");
 		
 		// Update the profiles 
@@ -8405,7 +8409,7 @@ function initializeDraggable() {
 		
         const isWindow = target.classList.contains('window');
         const handle = event.target.closest('.handle');
-        if (isWindow && !handle) return;		
+        if (isWindow && !handle) return; 
 
         isDragging = true;
         currentElement = target;
