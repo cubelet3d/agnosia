@@ -7532,7 +7532,10 @@ function notify(msg, action, muted = false) {
     $(a).animate({
         "opacity":"1",
         "top":"10px"
-    }); 
+    });
+	a.css({
+			"z-index": Math.floor(new Date().getTime() / 1000)
+		});	
 
 	setTimeout(function() {
 		var notification = $('.notify[data='+thisNotificationId+']');
@@ -7560,6 +7563,9 @@ function error(msg, warn) {
 		$(c).append('Error:<br>'+msg); 
 	}
     $("body").append(a);
+	a.css({
+        "z-index": Math.floor(new Date().getTime() / 1000)
+    });
 	tcg_base_audio.error.play(); 
 }
 
