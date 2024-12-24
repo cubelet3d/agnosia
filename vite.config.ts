@@ -54,7 +54,7 @@ export default defineConfig({
     ViteImageOptimizer(),
   ],
   build: {
-    minify: false,
+    minify: true,
     rollupOptions: {
       input: {
         main: isRunningOnBun ? Bun.fileURLToPath(new URL('./index.html', import.meta.url)) : path.resolve(__dirname, 'index.html'),
