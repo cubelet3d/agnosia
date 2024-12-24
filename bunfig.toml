@@ -1,0 +1,4 @@
+[install]
+registry = "https://registry.npmjs.org"
+
+"@vidyagames" = { token = "$NODE_AUTH_TOKEN", url = "https://registry.npmjs.org/" }

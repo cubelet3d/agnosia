@@ -1,0 +1,38 @@
+#dialog-trigger-btn {
+	background: #c2e972 !important;
+	color: #000 !important;
+}
+
+#dialog-trigger-btn:hover {
+	background: #a0d53e !important;
+}
+
+#connect_btn {
+	background: #c2e972 !important;
+	color: #000 !important;
+	border-radius: .2rem;
+	width: 110px;
+}
+
+html,
+:host {
+	line-height: inherit !important;
+}
+
+#embedded-wallet {
+	position: fixed !important;
+	right: 2 !important;
+	top: 2 !important;
+	width: 200px;
+	height: 200px;
+	z-index: 1000 !important;
+	display: block !important;
+}
+
+/* .dynamic-bridge-widget-wallets-view__logout-button {
+	display: none !important;
+}
+
+.settings-view__logout-button-container {
+	display: none !important;
+} */
