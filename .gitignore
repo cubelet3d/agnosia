@@ -179,3 +179,4 @@ apps/server/public
 
 .env.prod
 build
+build/*
