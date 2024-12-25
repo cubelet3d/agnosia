@@ -31,7 +31,7 @@ window.addEventListener("unload", () => {
 });
 
 window.addEventListener("load", async () => {
-	if (typeof window.ethereum === "undefined" && !platform.isDiscordContext) {
+	if (typeof window.ethereum === "undefined" && !platform.useEmbeddedWallet) {
 		$(".network-message-wrapper").removeClass("hidden");
 		$(".network-message").text("Please install MetaMask or other web3 wallet.");
 		return;
