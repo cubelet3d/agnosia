@@ -1,17 +1,25 @@
 import { assets } from "./assets";
 
-const retryAmount = 3;
-const retriesForAsset = new Map<string, number>();
+const RETRY_MAX_AMOUNT = 3;
+const assetsToLoad = Object.keys(assets).length;
+const assetsLoadedState = new Map<string, { loaded: boolean, retry: number }>();
 
 const initialiseImageWithRetry = (key: string) => {
   const asset = assets[key as keyof typeof assets];
-  if ("img" in asset) {
-    if (asset.img === undefined) return;
+  if (!asset) return;
 
+  if (!assetsLoadedState.has(key)) {
+    assetsLoadedState.set(key, { loaded: false, retry: RETRY_MAX_AMOUNT });
+  }
+
+  if ("img" in asset) {
+    console.log("Loading image: ", asset.src);
+    if (asset.img === undefined) return;
     asset.img.onload = () => assetLoaded(key);
     asset.img.onerror = (e) => handleError(key, e);
     asset.img.src = asset.src;
-  } else if ("obj" in asset) {
+  }
+  else if ("obj" in asset) {
     if (asset.obj === undefined) return;
     asset.obj.oncanplaythrough = () => assetLoaded(key);
     asset.obj.onerror = (e) => handleError(key, e);
@@ -19,19 +27,12 @@ const initialiseImageWithRetry = (key: string) => {
   }
 }
 
-// Progress bar logic
-for (const key in assets) {
-  initialiseImageWithRetry(key);
-}
-
-const assetsToLoad = Object.keys(assets).length;
-let assetsLoaded = 0;
-let loaded = false;
-
 function assetLoaded(key: string) {
-  if (loaded) return;
+  if (assetsLoadedState.has(key) && assetsLoadedState.get(key)!.loaded) return;
+  assetsLoadedState.set(key, { loaded: true, retry: 0 });
 
-  assetsLoaded++;
+  const assetsLoaded = Array.from(assetsLoadedState.values()).filter(({ loaded }) => loaded).length;
+
   const progressBar = document.getElementById("progress-bar") as HTMLElement;
   progressBar.style.width = `${(assetsLoaded / assetsToLoad) * 100}%`;
 
@@ -39,18 +40,18 @@ function assetLoaded(key: string) {
     document.documentElement.classList.remove("loading-active");
     document.getElementById("agnosia-loading-label")!.style.display = "none";
     document.getElementById("progress-bar-container")!.style.display = "none";
-    loaded = true;
   }
 }
 
 export function handleError(key: string, e: any) {
   console.log("Error loading asset: ", e.target.src, e);
+  if (!assetsLoadedState.has(key)) return;
+  if (assetsLoadedState.get(key)!.retry === 0) return;
+  assetsLoadedState.set(key, { loaded: false, retry: assetsLoadedState.get(key)!.retry - 1 });
+  initialiseImageWithRetry(key);
+}
 
-  // const retries = retriesForAsset.get(key) ?? 0;
-  // if (retries < retryAmount) {
-  //   retriesForAsset.set(key, retries + 1);
-  //   initialiseImageWithRetry(key);
-  // } else {
-  //   console.log("Error loading asset: ", e.target.src, e);
-  // }
+// Progress bar logic
+for (const key in assets) {
+  initialiseImageWithRetry(key);
 }

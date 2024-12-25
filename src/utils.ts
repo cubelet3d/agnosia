@@ -1,4 +1,6 @@
 export const explorerUri = "https://arbiscan.io/tx/";
+const SUBSTITUTION_REGEX = /\{([a-z]+)\}/g;
+export const PROXY_PREFIX = '/.proxy';
 
 export function formatAddress(address?: string | null) {
 	if (!address) return null;
@@ -55,11 +57,10 @@ export const isRunningWithinDiscordContext = () => {
 
 export function getPlatform() {
 	const isDiscordContext = isRunningWithinDiscordContext();
-	const usingEmbeddedWallet = import.meta.env.VITE_USE_EMBED_WALLET === "true";
-
+	const useEmbeddedWallet = import.meta.env.VITE_USE_EMBED_WALLET === 'true';
 	return {
 		isDiscordContext,
-		usingEmbeddedWallet,
+		useEmbeddedWallet,
 	}
 }
 
@@ -106,7 +107,6 @@ export function isMobile() {
 	return isMobile;
 }
 
-const SUBSTITUTION_REGEX = /\{([a-z]+)\}/g;
 function regexFromTarget(target: string): RegExp {
 	const regexString = target.replace(SUBSTITUTION_REGEX, (match, name) => `(?<${name}>[\\w-]+)`);
 	return new RegExp(`${regexString}(/|$)`);
@@ -118,8 +118,6 @@ export interface MatchAndRewriteURLInputs {
 	prefix: string;
 	target: string;
 }
-
-export const PROXY_PREFIX = '/.proxy';
 
 export function matchAndRewriteURL({ originalURL, prefix, prefixHost, target }: MatchAndRewriteURLInputs): URL | null {
 	// coerce url with filler https protocol so we can retrieve host and pathname from target

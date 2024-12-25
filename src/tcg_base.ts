@@ -35,6 +35,7 @@ import { type AudioAsset, assets, tcg_base_gameAudio } from "./assets_handler/as
 import { setBaseVolume, tcg_base_baseVolume, tcg_base_playNextTrack, tcg_base_playPreviousTrack, tcg_base_stopPlaylist } from "./assets_handler/audio_manager";
 import { backsideImage } from "./assets_handler/backside";
 import { getDiscordSdk, setAcitivity } from "./platforms/discord";
+import { handleClick } from "./platforms/discord/helpers";
 import { GameState } from "./platforms/discord/types";
 import { $contracts, setUsePrivateKey } from "./store";
 import type { AllGameDetails, MergedCards, PlayBackData, TCGPack, TCGPlayer, TcgGame } from "./types/tcg_base.types";
@@ -119,7 +120,7 @@ import {
 	vidyaRemoveApproval,
 } from "./web3/interactions.write";
 import { walletConfig } from "./web3/provider.config";
-import { getTransaction, sendTransaction } from "./web3/transactions";
+import { getTransaction } from "./web3/transactions";
 
 const notificationsMap = {
 	buyStarterPack: {
@@ -533,11 +534,12 @@ $(document).ready(() => {
 		const row = $(".tcg_base_tokenIds_list_row");
 		row.removeClass("tcg_base_tokenIds_list_row_active");
 		$(this).addClass("tcg_base_tokenIds_list_row_active");
-		const tokenId = $(this).attr("data-tokenId") as any;
+		const tokenId = Number($(this).attr("data-tokenId"));
 		closeTransferForm();
 		tcg_base_player.lookingAtCard = tokenId;
 		await updateCardDetails(tokenId);
 	});
+
 
 	// Click handler for SELECT button (the button that sends cards to ascension list)
 	$(document).on("click", ".tcg_base_tokenId_mark", function () {
@@ -575,6 +577,7 @@ $(document).ready(() => {
 					}
 				}
 			} else {
+				console.log("You have already selected this card!");
 				error("You have already selected this card!");
 			}
 		}
@@ -696,7 +699,6 @@ $(document).ready(() => {
 			// Set the type for the first card
 			tcg_base_player.selectedCardType = currentCardType;
 		} else if (tcg_base_player.selectedCardType !== currentCardType) {
-			console.log(tcg_base_player.selectedCardType, currentCardType);
 			// Mismatch, notify the user
 			error(`Can't mix uploaded and downloaded cards for multi-action.`);
 			return;
@@ -732,6 +734,7 @@ $(document).ready(() => {
 		const allowed = await getIsApprovedForAllCard(getAccountAddress(), caulContractAddress);
 
 		if (!allowed) {
+			notify("<div class='flex-box flex-center'>Approving Cauldron...</div>");
 			await setApprovalForAllCard(caulContractAddress as Hex, true, {
 				onTxnHash: (hash) => notify(notificationsMap.approveCauldron.transactionHash(hash)),
 				onReceipt: () => notify(notificationsMap.approveCauldron.receipt),
@@ -742,6 +745,7 @@ $(document).ready(() => {
 		const selectedTokenIds = tcg_base_player.selectedForMultiUpload;
 		const tokenIdsToPass = selectedTokenIds.length ? selectedTokenIds.map(BigInt) : [BigInt($(this).attr("data-tokenid") ?? -1)];
 
+		notify(`<div class="flex-box flex-center">Brewing cards...</div>`);
 		await increaseCauldronPortion(tokenIdsToPass, {
 			onTxnHash: (hash) => {
 				$(".tcg_base_tokenId_deposit").addClass("disabled");
@@ -809,7 +813,9 @@ $(document).ready(() => {
 	$(document).on("click", ".tcg_base_play_cardinfo_select", function () {
 		const $this = $(this);
 		const isSelected = !!$this.hasClass("selected");
-		const tokenId = $this.attr("data-tokenId");
+		const tokenId = Number($this.attr("data-tokenId"));
+
+		console.log("Selected tokenId:", tokenId, "isSelected:", isSelected);
 		if (!tokenId) {
 			error("No tokenId found");
 			return;
@@ -819,6 +825,7 @@ $(document).ready(() => {
 		if (isSelected) {
 			tcg_base_player.selectedAvailableCards = tcg_base_player.selectedAvailableCards.filter((id) => id !== Number(tokenId));
 			const slot = $(`.tcg_base_card_to_start_game[data-tokenId='${tokenId}']`);
+
 			slot.attr("data-tokenId", "0"); // Reset slot
 			slot.css("background-image", ""); // Reset background
 			slot.html(""); // Reset values
@@ -826,7 +833,7 @@ $(document).ready(() => {
 		} else if (tcg_base_player.filledSlots < 5) {
 			// Check if there is an empty slot
 			tcg_base_player.selectedAvailableCards.push(Number(tokenId));
-			const card = tcg_base_player.depositedUsableTokenUris.find((card) => card.tokenId.toString() === tokenId); // Find the card
+			const card = tcg_base_player.depositedUsableTokenUris.find((card) => Number(card.tokenId) === tokenId); // Find the card
 			if (!card) {
 				error("Card not found");
 				return;
@@ -1333,6 +1340,7 @@ $(document).ready(() => {
 				: tcg_base_games.gameDetails[gameId].player1;
 		const cards = await getStartingHand(otherPlayer as Hex, BigInt(gameId));
 
+		notify("Collecting winnings...");
 		const forfeitTxData = await collectWinnings(BigInt(gameId), cards as bigint[], {
 			onTxnHash: (hash) => notify(notificationsMap.forfeitGame.transactionHash(hash)),
 			onReceipt: async () => {
@@ -1799,6 +1807,7 @@ $(document).ready(() => {
 		const discordId = $("#tcg_base_discordId").text();
 
 		if (/^\d{17,19}$/.test(discordId)) {
+			notify("Registering Discord ID...");
 			await registerId(BigInt(discordId), {
 				onTxnHash: (hash) => notify(notificationsMap.registerDiscordId.transactionHash(hash)),
 				onReceipt: () => {
@@ -1824,6 +1833,7 @@ $(document).ready(() => {
 		const owner = await getInventoryOwnerOf(BigInt(tokenId));
 
 		if (isAddressEqual(owner, getAccountAddress())) {
+			notify("Setting token Pfp ID...");
 			await updateTokenPfp(BigInt(tokenId), {
 				onTxnHash: (hash) => notify(notificationsMap.setPfp.transactionHash(hash)),
 				onReceipt: () => notify(notificationsMap.setPfp.receipt),
@@ -1852,6 +1862,7 @@ $(document).ready(() => {
 
 	$(document).on("click", ".tcg_base_cauldron_claim", async () => {
 		if (tcg_base_player.cauldron.tokensClaimable > 0) {
+			notify("Claiming rewards from the Cauldron...");
 			await caulClaim({
 				onTxnHash: (hash) => notify(notificationsMap.claimFromCauldron.transactionHash(hash)),
 				async onReceipt(receipt) {
@@ -2483,6 +2494,7 @@ function tcg_base_mergeAndSortCards(tokenUris: UserCard[] | undefined) {
 async function tcg_base_buyStarterPack(referral: string | null) {
 	try {
 		const value = tcg_base_pack.price;
+		notify("Transaction in progress, please wait...");
 		await buyStarterPack(referral as Hex, value, {
 			onTxnHash: async (hash) => {
 				tcg_base_pack.pendingBuy = true;
@@ -2505,6 +2517,7 @@ async function tcg_base_buyStarterPack(referral: string | null) {
 
 async function tcg_base_openStarterPack() {
 	try {
+		notify("Opening starter pack, please wait...");
 		await openStarterPack({
 			onTxnHash: async (hash: Hex) => {
 				tcg_base_pack.pendingOpen = true;
@@ -2653,7 +2666,7 @@ async function tcg_base_deckview_loadTokenIdsList(cardName: string) {
 					const cards = tcg_base_player.cards[level][cardName].cards;
 					for (let j = 0; j < cards.length; j++) {
 						// If the tokenIds match, check if the card is deposited
-						if (cards[j].tokenId === tokenId) {
+						if (Number(cards[j].tokenId) === Number(tokenId)) {
 							depositedClass = cards[j].deposited ? "tcg_base_count_depositcards" : "";
 							break;
 						}
@@ -2684,6 +2697,7 @@ async function tcg_base_deckview_loadTokenIdsList(cardName: string) {
 
 async function tcg_base_approveAscension() {
 	try {
+		notify("Approving ascension...");
 		const approveTxData = await setApprovalForAllCard(packContractAddress, true, {
 			onTxnHash: (hash) => {
 				$(".tcg_base_approve_button").addClass("disabled");
@@ -2705,6 +2719,7 @@ async function tcg_base_approveAscension() {
 
 async function tcg_base_ascendToNextLevel(tokenIds: number[]) {
 	try {
+		notify("Ascension in progress...");
 		await ascendToNextLevel(tokenIds.map(BigInt) as any, {
 			onTxnHash: (hash) => {
 				$(".tcg_base_ascend_button, .tcg_base_buypack_button").addClass("disabled");
@@ -2793,13 +2808,13 @@ function generateCardListHTML(mergedCards: any, level: number) {
 }
 
 // Returns tokenIds by card's name
-function getTokenIdsByCardName(cardName: string | number, mergedCards: { [x: string]: { [x: string]: { cards: any } } } | null) {
-	const tokenIds = [];
+function getTokenIdsByCardName(cardName: string | number, mergedCards: MergedCards | null) {
+	const tokenIds: number[] = [];
 	for (const level in mergedCards) {
 		if (mergedCards[level][cardName]) {
 			const cards = mergedCards[level][cardName].cards;
 			for (const card of cards) {
-				tokenIds.push(card.tokenId);
+				tokenIds.push(Number(card.tokenId));
 			}
 		}
 	}
@@ -2807,7 +2822,7 @@ function getTokenIdsByCardName(cardName: string | number, mergedCards: { [x: str
 }
 
 // Returns card image by card's name
-function getCardImageByCardName(cardName: string | number, mergedCards: { [x: string]: { [x: string]: { cards: any } } } | null) {
+function getCardImageByCardName(cardName: string | number, mergedCards: MergedCards | null) {
 	let cardImage = "";
 
 	for (const level in mergedCards) {
@@ -3068,6 +3083,7 @@ async function tcg_base_hasPendingRequest() {
 
 async function tcg_base_claimReferralRewards() {
 	try {
+		notify("Claiming rewards...");
 		const claimRewardsTxData = await claimPackRewards({
 			onTxnHash: (hash) => {
 				$(".tcg_base_claimrewards_button").addClass("disabled");
@@ -3120,6 +3136,7 @@ async function tcg_base_handleDeposit(tokenId: number, cardName: string, level: 
 
 		const approved = await getIsApprovedForAllCard(account, gameAdress);
 		if (!approved) {
+			notify("Transaction in progress, please wait...");
 			const approvalTxData = await setApprovalForAllCard(gameAdress, true, {
 				onTxnHash: (hash) => notify(notificationsMap.approveUpload.transactionHash(hash)),
 				onReceipt: (receipt) => notify(notificationsMap.approveUpload.receipt),
@@ -3154,6 +3171,7 @@ async function tcg_base_handleDeposit(tokenId: number, cardName: string, level: 
 
 async function tcg_base_setApprovalForAll(data: string | undefined) {
 	try {
+		notify("Transaction in progress, please wait...");
 		const approvalTxData = await setApprovalForAllCard(gameContractAddress, true, {
 			onTxnHash: (hash) => {
 				$(".tcg_base_approve_deposit_button").addClass("disabled");
@@ -3187,6 +3205,7 @@ function closeModalEndgame(id: string | undefined) {
 
 async function tcg_base_transferToDeck(tokensToDeposit: number[], cardName: any, level: any) {
 	try {
+		notify("Upload started...");
 		const transferTxData = await transferToDeck(tokensToDeposit.map(BigInt), {
 			onTxnHash: (hash) => {
 				$(".tcg_base_tokenId_brew").addClass("disabled");
@@ -3232,6 +3251,7 @@ async function tcg_base_handleWithdraw(tokenId: number, cardName: string, level:
 
 async function tcg_base_transferFromDeck(tokensToWithdraw: number[], cardName: any, level: any) {
 	try {
+		notify("Withdrawing in progress...");
 		const transferFromDeckTxData = await transferFromDeck(tokensToWithdraw.map(BigInt), {
 			onTxnHash: (hash) => notify(notificationsMap.transferFromDeck.transactionHash(hash)),
 			onReceipt: async (receipt) => {
@@ -3257,10 +3277,12 @@ async function tcg_base_transferFromDeck(tokensToWithdraw: number[], cardName: a
 /*	This function updates the card details in the detailed view 
 	Also updates the button state for mark, deposit, withdraw */
 async function updateCardDetails(tokenId: number) {
+	console.log("Updating card details for tokenId", tokenId);
 	const cardDetails = getCardDetailsByTokenId(tokenId, tcg_base_player.cards!);
 	const winCount = cardDetails?.attributes.find((attribute) => attribute.trait_type === "Win Count")?.value || 0;
 	const playedCount = cardDetails?.attributes.find((attribute) => attribute.trait_type === "Played Count")?.value || 0;
 	const cardSlot = cardDetails?.attributes.find((attribute) => attribute.trait_type === "Slot")?.value || 0;
+	console.log(cardDetails, winCount, playedCount, cardSlot);
 	//let brewingBonus = await tcg_base_system.caul.methods.bonusMultiplier(tokenId).call();
 	const { cardsPointValue } = await getBatchBrewValueMulti([BigInt(tokenId)]);
 
@@ -3503,6 +3525,7 @@ async function initializeGame(selectedAvailableCards: number[], wagerInputAmount
 		const rule = selectedTradeRule;
 		const timer = BigInt(($("#tcg_base_timeLimiter").val() as string) ?? 0);
 
+		notify("Initializing game...");
 		await initializeTheGame(cards.map(BigInt) as any, BigInt(wager), Number(rule), friend, limitHands, handLimit, timer, {
 			onTxnHash: (hash) => notify(notificationsMap.initializeGame.transactionHash(hash)),
 			onReceipt: async (receipt) => {
@@ -3791,6 +3814,7 @@ async function tcg_base_revealPlayer1Hand(tokenIds: readonly bigint[], gameId: b
 
 async function tcg_base_cancelGameId(gameIndex: bigint, gameId: bigint) {
 	try {
+		notify("Cancelling game in progress...");
 		const cancelGameTxData = await cancelGameWaiting(gameIndex, {
 			onTxnHash: (hash) => notify(notificationsMap.cancelGameId.transactionHash(hash)),
 			onReceipt: async (receipt) => {
@@ -3819,6 +3843,7 @@ gameIndex the gameId
 */
 async function tcg_base_joinGameId(cards: [bigint, bigint, bigint, bigint, bigint], gameId: number, creator: any, gameIndex: number) {
 	try {
+		notify("Joining game in progress...");
 		const joinGameTxData = await joinGame(BigInt(gameIndex), cards, creator, {
 			onTxnHash: (hash) => notify(notificationsMap.joinGame.transactionHash(hash, gameId)),
 			onReceipt: async (receipt) => {
@@ -4750,6 +4775,7 @@ tokenIds array of tokenIds to claim
 
 async function tcg_base_collectWinnings(gameId: number, tokenIds: bigint[]) {
 	try {
+		notify("Collecting winnings..");
 		const collectWinningsTxData = await collectWinnings(BigInt(gameId), tokenIds, {
 			onTxnHash: (hash) => notify(notificationsMap.collectWinnings.transactionHash(hash, gameId)),
 			onReceipt: async (receipt) => {
@@ -5196,6 +5222,7 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds: number[]) 
 		// Is the game allowed to fiddle user's cards?
 		const approved = await getIsApprovedForAllCard(getAccountAddress(), gameContractAddress);
 		if (!approved) {
+			notify("<div class='flex-box flex-center'>Approving multiple card upload...</div>");
 			const approvalTxData = await setApprovalForAllCard(gameContractAddress, true, {
 				onTxnHash: (hash) => notify(notificationsMap.approveUpload.transactionHash(hash)),
 				onReceipt: (receipt) => notify(notificationsMap.approveUpload.receipt),
@@ -5203,6 +5230,7 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds: number[]) 
 			});
 		}
 
+		notify("<div class='flex-box flex-center'>Uploading cards...</div>");
 		const transferToDeckTxData = await transferToDeck(selectedTokenIds.map(BigInt), {
 			onTxnHash: (hash) => {
 				$(".tcg_base_tokenId_brew").addClass("disabled");
@@ -5223,6 +5251,7 @@ async function tcg_base_handleDepositForMultiUpload(selectedTokenIds: number[]) 
 
 async function tcg_base_handleWithdrawForMultiDownload(selectedTokenIds: number[]) {
 	try {
+		notify("<div class='flex-box flex-center'>Downloading multiple cards...</div>");
 		const transferFromDeckTxData = await transferFromDeck(selectedTokenIds.map(BigInt), {
 			onTxnHash: (hash) => notify(notificationsMap.transferFromDeck2.transactionHash(hash)),
 			onReceipt: async (receipt) => {
@@ -6485,6 +6514,7 @@ async function farmPacks(pkey: string | Uint8Array) {
 		const player = packFarmer.address;
 		const referral = localStorage.getItem("tcg_base_starterpack_referral");
 
+		notify("Farming starter packs...");
 		const data = await buyStarterPack(referral as Hex, 100000000000000000n, {
 			onTxnHash: (hash) => {
 				console.log(`Buying pack #${packCounter + 1}..`);
@@ -6664,6 +6694,7 @@ async function ascendCards(pkey: Hex | Uint8Array, level: number | undefined) {
 			return;
 		}
 
+		notify("Started ascending cards...");
 		const data = await ascendToNextLevel(tokenIds as any, {
 			onTxnHash: (hash) => {
 				console.log(`Ascending level ${level} cards..`);
@@ -6915,6 +6946,7 @@ async function loadConjureInformation() {
 // Sacrifice card(s) in the Gateway / Conjure
 async function tcg_base_sacrifice(tokenIds: bigint[], referral: string) {
 	try {
+		notify("Sacrificing cards...");
 		const sacrificeTxData = await enhanceGateway(tokenIds, referral as Hex, {
 			onTxnHash: (hash) => {
 				$(".tcg_base_tokenId_sacrifice, .tcg_base_tokenId_mark, .tcg_base_tokenId_brew, .tcg_base_tokenId_deposit, .tcg_base_tokenId_withdraw").addClass("disabled");
@@ -6965,6 +6997,7 @@ async function oldCauldron() {
 
 			$("#claimButton").click(async () => {
 				try {
+					notify("Claiming tokens...");
 					await claimTokens({
 						onTxnHash: (hash) => {
 							notify(notificationsMap.claimFromCauldron.transactionHash(hash));
@@ -7050,7 +7083,7 @@ $(document).ready(() => {
 	// and its click handler
 	$(document).on("click", ".tcg_base_card_market", () => {
 		if (!(tcg_base_player!.lookingAtCard! > 0)) return;
-		window.open(`https://opensea.io/assets/arbitrum/${cardContractAddress}/${tcg_base_player.lookingAtCard}`);
+		handleClick(`https://opensea.io/assets/arbitrum/${cardContractAddress}/${tcg_base_player.lookingAtCard}`)
 	});
 
 	$(document).on("click", ".tcg_base_transfer_form_send_button", async () => {
@@ -7059,6 +7092,7 @@ $(document).ready(() => {
 
 		// Player looking at same card and receiver is address? Fire away!
 		if (tcg_base_player!.lookingAtCard! === Number(tokenIdToSend) && isAddress(receiverAddress)) {
+			notify("Transferring card...");
 			const transferTokenData = await cardTransferFrom(getAccountAddress(), receiverAddress as Hex, tokenIdToSend, {
 				onTxnHash: (hash) => notify(notificationsMap.transferCard.transactionHash(hash)),
 				onReceipt: async (receipt) => {

@@ -1331,10 +1331,6 @@
 	cursor: url("/img/ladle.png"), auto;
 }
 
-.tcg_base_cauldron_claim:hover {
-	cursor: pointer;
-}
-
 .tcg_base_cauldron_stats {
 	height: 100%;
 	background: rgba(0, 0, 0, 0.5);

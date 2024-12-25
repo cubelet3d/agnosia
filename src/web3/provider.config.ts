@@ -18,7 +18,7 @@ const transports = {
 
 export let walletConfig: Config<typeof chains, typeof transports, any>;
 
-if (getPlatform().usingEmbeddedWallet) {
+if (!getPlatform().useEmbeddedWallet) {
   walletConfig = createConfig({
     multiInjectedProviderDiscovery,
     chains,

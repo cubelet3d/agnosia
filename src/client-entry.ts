@@ -31,7 +31,7 @@ window.addEventListener("unload", () => {
 });
 
 window.addEventListener("load", async () => {
-	if (typeof window.ethereum === "undefined" && !platform.usingEmbeddedWallet) {
+	if (typeof window.ethereum === "undefined" && !platform.isDiscordContext) {
 		$(".network-message-wrapper").removeClass("hidden");
 		$(".network-message").text("Please install MetaMask or other web3 wallet.");
 		return;
@@ -1012,7 +1012,7 @@ $("#help_link").on("click", () => handleClick("https://docs.agnosia.gg/"));
 $("#discord_link").on("click", () => handleClick("https://discord.gg/team3d"));
 $("#wiki_link").on("click", () => handleClick("https://agnosia.fandom.com/wiki/Agnosia_Wiki"));
 
-if (platform.usingEmbeddedWallet) {
+if (platform.useEmbeddedWallet) {
 	createWallet(walletConfig, {
 		environmentId: import.meta.env.VITE_ENV_ID,
 		events: {

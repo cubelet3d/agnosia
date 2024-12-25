@@ -48,7 +48,7 @@ export async function start() {
 		}
 	});
 
-	if (!platform.usingEmbeddedWallet) {
+	if (!platform.useEmbeddedWallet) {
 		const result = await reconnect(walletConfig, { connectors: walletConfig.connectors });
 		if (result.length === 0) {
 			await connect(walletConfig, { connector: walletConfig.connectors[0] });
