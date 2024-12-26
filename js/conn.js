@@ -298,10 +298,9 @@ async function setup() {
 		
 		accounts = await web3.eth.getAccounts(); 
 		
-		// alchemy = new Web3(new Web3.providers.HttpProvider('https://arb-mainnet.g.alchemy.com/v2/WaECH19QGPKr0R83WmeJyVc7UC8-cLzU'));
-		// infura = new Web3(new Web3.providers.WebsocketProvider('wss://arbitrum-mainnet.infura.io/ws/v3/05e9a62a1e294897a90e2bf90df2cf96'));
-		alchemy = new Web3('https://arbitrum-mainnet.infura.io/ws/v3/05e9a62a1e294897a90e2bf90df2cf96');
-		infura  = new Web3('https://arbitrum-mainnet.infura.io/ws/v3/05e9a62a1e294897a90e2bf90df2cf96');
+		alchemy = new Web3(new Web3.providers.HttpProvider('https://arb-mainnet.g.alchemy.com/v2/WaECH19QGPKr0R83WmeJyVc7UC8-cLzU'));
+		
+		infura = new Web3(new Web3.providers.WebsocketProvider('wss://arbitrum-mainnet.infura.io/ws/v3/05e9a62a1e294897a90e2bf90df2cf96'));
 
         let chainID = await web3.eth.getChainId(); 
 		
