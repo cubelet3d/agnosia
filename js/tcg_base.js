@@ -4117,9 +4117,12 @@ async function tcg_base_loadGamesList(emptyContainer = false) {
 
         }
 		
-		// No games notif 
-		if ($(".tcg_base_play_games_list_inner").children().length === 0) {
+		// No games notification
+		if ($(".tcg_base_play_games_list_inner").children().length === 0 && !tcg_base_games.noGameNotif) {
 			notify(`<div>No games? Challenge someone from our <a href="https://discord.gg/team3d" target="_blank">Discord</a>!</div>`);
+			tcg_base_games.noGameNotif = true; // Prevent repeat notifications
+		} else if ($(".tcg_base_play_games_list_inner").children().length > 0) {
+			tcg_base_games.noGameNotif = false; // Reset flag when games exist
 		}
 
     } catch (e) {
