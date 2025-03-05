@@ -2340,7 +2340,7 @@ async function tcg_base_load_content(option, forceEmptyGamesListContainer = fals
 		}
 		
 		if(option == "options") {
-			let referralLink = "https://agnosia.gg/?referral="+accounts[0];
+			let referralLink = "https://agnosia.app/?referral="+accounts[0];
 			$(".tcg_base_referral_link").val(referralLink);
 			
 			// Look for ref earnings 
