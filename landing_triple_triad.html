@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agnosia - The On-Chain Triple Triad</title>
+    <style>
+        /* Global Styles */
+        @font-face {
+            font-family: 'C64';
+            src: url('fonts/C64.eot');
+            src: url('fonts/C64.eot?#iefix') format('embedded-opentype'),
+                 url('fonts/C64.woff2') format('woff2'),
+                 url('fonts/C64.woff') format('woff'),
+                 url('fonts/C64.ttf') format('truetype'),
+                 url('fonts/C64.svg#C64') format('svg');
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: C64, monospace;
+        }
+
+        /* Background */
+        body {
+            background: radial-gradient(circle at center, transparent, black 80%) no-repeat,
+                        url(img/agnosia.gif) no-repeat center center/cover;
+            color: rgb(166, 255, 152);
+            text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.5), 1px -1px 0 rgba(0, 0, 0, 0.5),
+                         -1px 1px 0 rgba(0, 0, 0, 0.5), 1px 1px 0 rgba(0, 0, 0, 0.5);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Logo */
+        .logo {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+
+        /* Headline Styles */
+        .headline {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* "Turn Your Cards Into Crypto" CTA */
+        .headline.cta-link {
+            color: rgb(255, 215, 0);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+        }
+
+        .headline.cta-link:hover {
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        /* Video Container */
+        .video-container {
+            width: 90%;
+            max-width: 600px;
+            border: 3px solid rgb(42, 37, 97);
+            box-shadow: 5px 5px black;
+            margin: 1rem 0;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        /* CTA Button */
+        .cta-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 2rem;
+            background: rgba(35, 70, 90);
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+            max-width: 300px;
+            width: 100%;
+            margin-top: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(35, 70, 90, 0.8);
+        }
+
+        .cta-btn:hover {
+            background: #ff7700;
+            box-shadow: 0 0 15px rgba(255, 119, 0, 1);
+        }
+
+        /* Paragraphs */
+        .paragraph {
+            font-size: 1.24rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Links */
+        a {
+            color: rgb(255, 215, 0);
+            text-decoration: none;
+            transition: 0.2s ease-in-out;
+        }
+
+        a:hover {
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+		
+		@media (max-width: 768px) {
+			.headline {
+				font-size: 2rem; /* Reduce size slightly for small screens */
+			}
+
+			.headline.cta-link {
+				font-size: 1.8rem;
+			}
+
+			.paragraph {
+				font-size: 1.1rem; /* Slightly smaller text for better readability */
+				padding: 0 10px;
+			}
+
+			.video-container {
+				width: 100%;
+				max-width: 90%;
+			}
+
+			.cta-btn {
+				font-size: 1.6rem; /* Scale button text down slightly */
+				padding: 10px 20px;
+				max-width: 250px;
+			}
+
+			body {
+				padding: 10px; /* Reduce padding so things fit better */
+			}
+		}		
+    </style>
+</head>
+<body>
+
+    <!-- Logo -->
+    <img src="img/logo.png" alt="Agnosia Logo" class="logo">
+
+    <!-- Headline / Subtext -->
+    <div class="headline">Wager crypto, outsmart your opponent</div>
+    <div class="headline">Win Cards & Build Your Deck!</div>
+
+    <!-- "Turn Your Cards Into Crypto" Link -->
+    <div class="headline cta-link">
+        > <a href="https://agnosia.app/?referral=0x7d09C8E4434Fa11B8263E7996C2eB81086d0bDCd" target="_blank">
+            Classic Triple Triad Mechanics On Blockchain!
+        </a> <
+    </div>
+
+    <div class="paragraph">100% on-chain trading cards game with a De-Fi twist.</div>
+    <div class="paragraph">See the game in action – quick breakdown below!</div>
+
+    <!-- Video -->
+    <div class="video-container">
+        <video id="gameVideo" controls poster="video-thumbnail.jpg">
+            <source src="final.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Wallet & Arbitrum Links -->
+    <div class="paragraph">
+        Works with any <a href="https://metamask.io" target="_blank">Web3 wallet</a> – 
+        Connect & Play instantly on <a href="https://bridge.arbitrum.io/" target="_blank">Arbitrum</a>!
+    </div>
+
+    <script>
+        const video = document.getElementById("gameVideo");
+        video.addEventListener("loadedmetadata", () => {
+            video.currentTime = 0.01; // Skips first frame
+        });
+    </script>
+
+    <!-- Call-To-Action -->
+    <a href="https://agnosia.app/?referral=0x7d09C8E4434Fa11B8263E7996C2eB81086d0bDCd" class="cta-btn">Play Now</a>
+
+</body>
+</html>
