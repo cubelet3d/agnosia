@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agnosia - Android APK</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { font-family: 'Segoe UI', sans-serif; color: #f0f0f0; background: linear-gradient(to bottom, #121212, #1f1f1f); overflow-x: hidden; }
+    header, section, footer { padding: 2rem; }
+    header { text-align: center; background: #000; position: sticky; top: 0; z-index: 10; }
+    h1 { font-size: 2.5rem; color: #ff0; margin-bottom: 0.5rem; }
+    .btn { background: #ff0; color: #000; padding: 0.75rem 1.5rem; border: none; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-block; margin-top: 1rem; }
+    .parallax {
+      background: url('https://agnosia.app/img/agnosia.gif') center/cover no-repeat;
+      height: 40vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .parallax h2 { background: rgba(0,0,0,0.5); padding: 1rem 2rem; border-radius: 10px; font-size: 2rem; }
+    section h2 { color: #f9f9f9; font-size: 1.75rem; margin-bottom: 1rem; }
+    section p, li { font-size: 1rem; line-height: 1.6; margin-bottom: 1rem; }
+    ul { padding-left: 1.5rem; }
+    .rarity-table {
+      width: 100%; max-width: 500px; margin: 1rem auto; border-collapse: collapse; }
+    .rarity-table th, .rarity-table td {
+      border: 1px solid #666; padding: 0.5rem; text-align: left;
+    }
+    .rarity-table th { background-color: #222; }
+    footer { text-align: center; font-size: 0.9rem; color: #999; padding-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Agnosia</h1>
+    <p>Triple Triad-style Android card game</p>
+    <a id="downloadBtn" class="btn">Download APK</a>
+  </header>
+
+  <div class="parallax">
+    <h2>Can you outplay the bot?</h2>
+  </div>
+
+  <section>
+    <h2>Features</h2>
+    <ul>
+      <li>⚔️ Advanced bot that simulates and picks the best possible move to beat you.</li>
+      <li>🃏 Build your hand from packs — 6 guaranteed Level 1 cards + 1 bonus card with rare drop chances.</li>
+      <li>🤝 Bot tries to match your hand power for fair games.</li>
+      <li>🧠 Same and Plus rules included. Capture with style.</li>
+      <li>💸 Sell cards to the game. But each sale reduces the card’s price by half forever.</li>
+      <li>🃏 Each starter pack bought increases the next price by 1%.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Pack Drop Chances (7th Card)</h2>
+    <table class="rarity-table">
+      <thead>
+        <tr><th>Card Level</th><th>Chance</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Level 2</td><td>10%</td></tr>
+        <tr><td>Level 3</td><td>3%</td></tr>
+        <tr><td>Level 4</td><td>1%</td></tr>
+        <tr><td>Level 5</td><td>0.5%</td></tr>
+        <tr><td>Level 6</td><td>0.2%</td></tr>
+        <tr><td>Level 7</td><td>0.1%</td></tr>
+        <tr><td>Level 8</td><td>0.05%</td></tr>
+        <tr><td>Level 9</td><td>0.02%</td></tr>
+        <tr><td>Level 10</td><td>0.01%</td></tr>
+      </tbody>
+    </table>
+    <p>Yes, you can pull a Level 10 right from your first pack... but don’t count on it 😉</p>
+  </section>
+  
+    <section>
+      <h2>Ascension Reward Chances</h2>
+      <table class="rarity-table">
+        <thead>
+          <tr><th>Levels Gained</th><th>Chance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>+1 Level</td><td>50%</td></tr>
+          <tr><td>+2 Levels</td><td>30%</td></tr>
+          <tr><td>+3 Levels</td><td>15%</td></tr>
+          <tr><td>+4 Levels</td><td>5%</td></tr>
+          <tr><td>+5 Levels</td><td>1%</td></tr>
+        </tbody>
+      </table>
+      <p>Ascending always gives a card from a higher level. Feeling lucky? 🔥</p>
+    </section>
+	
+<section>
+  <h2>Bot Difficulty Tiers</h2>
+  <table class="rarity-table">
+    <thead>
+      <tr><th>Collected Cards</th><th>Bot Behavior</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0 – 27</td>
+        <td><strong>Reckless</strong> – Plays aggressively without thinking. Easy to exploit.</td>
+      </tr>
+      <tr>
+        <td>28 – 54</td>
+        <td><strong>Cautious</strong> – Tries to avoid obvious mistakes. Learns to defend.</td>
+      </tr>
+      <tr>
+        <td>55 – 82</td>
+        <td><strong>Calculating</strong> – Predicts your next moves and plays smarter overall.</td>
+      </tr>
+      <tr>
+        <td>83 – 110</td>
+        <td><strong>Devious</strong> – Sets traps, baits SAME/PLUS combos, and adapts dynamically.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    The more cards you collect, the smarter your opponents become. You won't just be facing stronger decks — you'll be outwitted. <br>
+    Think you're ready for Tier 4? 😈
+  </p>
+</section>	
+      
+  <section>
+    <h2>Known bugs</h2>
+    <ul>
+      <li>🐛 Coins balance overflow / underflow</li>
+    </ul>
+  </section>    
+  
+  <section>
+    <h2>Fixed bugs</h2>
+    <ul>
+      <li>🐛 Sell prices are now be persistent across sessions</li>
+      <li>🐛 If you sell a card while it's still in your hand you can still play with it</li>
+      <li>🐛 If you close the app mid-game and reopen, it's like it never happened (trick to not lose cards)</li>
+    </ul>
+  </section>  
+
+  <section>
+    <h2>Coming Soon</h2>
+    <ul>
+      <li>📱 Google Play release</li>
+      <li>🌐 Online PvP battles</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Agnosia Project. Built with love and pain.</p>
+  </footer>
+  
+<script>
+  const downloadBtn = document.getElementById('downloadBtn');
+  const apkPath = "AgnosiaInstaller.apk";
+  downloadBtn.href = `${apkPath}?t=${Date.now()}`;
+
+</script>
+  
+</body>
+</html>
