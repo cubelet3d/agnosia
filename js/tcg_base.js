@@ -2807,39 +2807,45 @@ APPARENTLY THIS IS TOO SPAMMY FOR THEIR RPC */
 }*/
 async function tcg_base_fetchTokenUris(tokenIds) {
     const uriPromises = tokenIds.map(async (tokenId) => {
-        try {
-            const uri = await tcg_base_system.cardAlchemy.methods.tokenURI(tokenId).call();
-
-            if (typeof uri !== "string" || !uri.startsWith("data:application/json;base64,")) {
-                throw new Error(`Unexpected format for tokenId ${tokenId}: ${uri}`);
-            }
-
-            const base64 = uri.slice(29);
-            const decoded = atob(base64);
-
-            // ⛔ Catch bad JSON before it crashes everything
-            let json;
+        for (let attempt = 0; attempt < 3; attempt++) {
             try {
-                json = JSON.parse(decoded);
+                const uri = await tcg_base_system.cardAlchemy.methods.tokenURI(tokenId).call();
+
+                if (!uri || typeof uri !== "string" || !uri.startsWith("data:application/json;base64,")) {
+                    throw new Error(`Bad URI format`);
+                }
+
+                const base64 = uri.slice(29);
+                const decoded = atob(base64);
+
+                const json = JSON.parse(decoded);
+                json.tokenId = tokenId;
+
+                // ✅ Check for signs of corruption
+                if (
+                    !json.name || 
+                    json.name.trim() === "" ||
+                    !json.image ||
+                    json.attributes?.[0]?.value === ""
+                ) {
+                    throw new Error(`Corrupted JSON structure`);
+                }
+
+                return json;
+
             } catch (err) {
-                console.error(`Corrupted tokenURI JSON for tokenId ${tokenId}:\n`, decoded);
-                throw err;
+                console.warn(`Retry ${attempt + 1}/3 failed for tokenId ${tokenId}:`, err.message);
+                await new Promise(r => setTimeout(r, 300 * (attempt + 1))); // backoff
             }
-
-            json.tokenId = tokenId;
-            return json;
-
-        } catch (err) {
-            console.warn(`Failed to parse tokenId ${tokenId}:`, err.message);
-            return null;
         }
+
+        console.error(`Completely failed to fetch tokenId ${tokenId}`);
+        return null;
     });
 
     const results = await Promise.all(uriPromises);
     return results.filter(Boolean);
 }
-
-
 
 /*async function tcg_base_fetchTokenUris(tokenIds, batchSize = 10, delay = 1000, retries = 3) {
     async function fetchBatch(batch) {
