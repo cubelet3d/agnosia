@@ -2810,25 +2810,35 @@ async function tcg_base_fetchTokenUris(tokenIds) {
         try {
             const uri = await tcg_base_system.cardAlchemy.methods.tokenURI(tokenId).call();
 
-            // Must be a valid base64 JSON with correct prefix
-            if (!uri.startsWith("data:application/json;base64,")) {
-                throw new Error(`Unexpected URI format for tokenId ${tokenId}: ${uri}`);
+            if (typeof uri !== "string" || !uri.startsWith("data:application/json;base64,")) {
+                throw new Error(`Unexpected format for tokenId ${tokenId}: ${uri}`);
             }
 
             const base64 = uri.slice(29);
-            const json = JSON.parse(atob(base64));
+            const decoded = atob(base64);
+
+            // ⛔ Catch bad JSON before it crashes everything
+            let json;
+            try {
+                json = JSON.parse(decoded);
+            } catch (err) {
+                console.error(`Corrupted tokenURI JSON for tokenId ${tokenId}:\n`, decoded);
+                throw err;
+            }
+
             json.tokenId = tokenId;
             return json;
 
         } catch (err) {
-            console.warn(`Failed to parse tokenId ${tokenId}:`, err);
-            return null; // or skip, or attach fallback data
+            console.warn(`Failed to parse tokenId ${tokenId}:`, err.message);
+            return null;
         }
     });
 
     const results = await Promise.all(uriPromises);
-    return results.filter(r => r !== null);
+    return results.filter(Boolean);
 }
+
 
 
 /*async function tcg_base_fetchTokenUris(tokenIds, batchSize = 10, delay = 1000, retries = 3) {
