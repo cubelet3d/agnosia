@@ -2788,7 +2788,7 @@ async function tcg_base_fetchUserCards(player) {
 
 /*
 APPARENTLY THIS IS TOO SPAMMY FOR THEIR RPC */
-async function tcg_base_fetchTokenUris(tokenIds) {
+/*async function tcg_base_fetchTokenUris(tokenIds) {
     try {
         // Create an array of promises for each token URI fetch
         const uriPromises = tokenIds.map(tokenId => 
@@ -2804,7 +2804,32 @@ async function tcg_base_fetchTokenUris(tokenIds) {
     } catch (e) {
         console.error(e);
     }
+}*/
+async function tcg_base_fetchTokenUris(tokenIds) {
+    const uriPromises = tokenIds.map(async (tokenId) => {
+        try {
+            const uri = await tcg_base_system.cardAlchemy.methods.tokenURI(tokenId).call();
+
+            // Must be a valid base64 JSON with correct prefix
+            if (!uri.startsWith("data:application/json;base64,")) {
+                throw new Error(`Unexpected URI format for tokenId ${tokenId}: ${uri}`);
+            }
+
+            const base64 = uri.slice(29);
+            const json = JSON.parse(atob(base64));
+            json.tokenId = tokenId;
+            return json;
+
+        } catch (err) {
+            console.warn(`Failed to parse tokenId ${tokenId}:`, err);
+            return null; // or skip, or attach fallback data
+        }
+    });
+
+    const results = await Promise.all(uriPromises);
+    return results.filter(r => r !== null);
 }
+
 
 /*async function tcg_base_fetchTokenUris(tokenIds, batchSize = 10, delay = 1000, retries = 3) {
     async function fetchBatch(batch) {
